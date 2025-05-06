@@ -1,7 +1,7 @@
 import Link from 'next/link'
-import { unstable_ViewTransition as ViewTransition } from 'react'
 
 import { CATEGORIES } from '@/lib/categories'
+import { SlideTransition } from '@/modules/shared/components/slide-transition'
 
 export default function GridCategories() {
   return (
@@ -14,15 +14,15 @@ export default function GridCategories() {
             key={index}
             className="bg-neutral-50 flex-center flex-col gap-5 h-32 hover:bg-secondary hover:text-primary duration-200"
           >
-            <ViewTransition name={`category-icon-${category.slug}`}>
+            <SlideTransition name={`category-icon-${category.slug}`}>
               <Icon size={40} />
-            </ViewTransition>
-            <ViewTransition
+            </SlideTransition>
+            <SlideTransition
               key={category.id}
               name={`category-${category.slug}`}
             >
               <h2>{category.name}</h2>
-            </ViewTransition>
+            </SlideTransition>
           </Link>
         )
       })}

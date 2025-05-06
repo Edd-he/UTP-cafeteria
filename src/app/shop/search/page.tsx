@@ -1,5 +1,6 @@
 import { RxCaretLeft } from 'react-icons/rx'
 import Link from 'next/link'
+import { Suspense } from 'react'
 
 import { Button } from '@/modules/shared/components/ui/button'
 import ProductsGrid from '@/modules/shop/components/products-grid'
@@ -17,7 +18,6 @@ type Props = {
   searchParams: Promise<SearchParams>
 }
 
-export const dynamic = 'force-dynamic'
 export default async function Page({ searchParams }: Props) {
   const { query, page, max, order } = await searchParams
   const queryValue = query || ''
@@ -34,7 +34,7 @@ export default async function Page({ searchParams }: Props) {
           size={'icon'}
           className="rounded-full h-10 w-10"
         >
-          <Link href={'/shop'}>
+          <Link href={'/shop'} scroll={false}>
             <RxCaretLeft size={40} />
           </Link>
         </Button>
@@ -48,7 +48,9 @@ export default async function Page({ searchParams }: Props) {
         )}
       </section>
       <section className="container relative ">
-        <SearchProducts />
+        <Suspense>
+          <SearchProducts />
+        </Suspense>
       </section>
       <section className="relative sm:container">
         <ProductsGrid

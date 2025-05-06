@@ -1,12 +1,12 @@
 import { RxCaretLeft } from 'react-icons/rx'
 import Link from 'next/link'
-import { unstable_ViewTransition as ViewTransition } from 'react'
 
 import { Button } from '@shared/components/ui/button'
 import ProductsGrid from '@shop/components/products-grid'
 import { SearchByName } from '@shared/filters'
 import FiltersContainer from '@shop/components/filters-container'
 import { CATEGORIES } from '@/lib/categories'
+import { SlideTransition } from '@/modules/shared/components/slide-transition'
 
 type SearchParams = {
   query?: string
@@ -53,13 +53,13 @@ export default async function Page({ params, searchParams }: Props) {
         {category ? (
           <div className="flex items-center gap-3 py-2">
             {Icon && (
-              <ViewTransition name={`category-icon-${slug}`}>
+              <SlideTransition name={`category-icon-${slug}`}>
                 <Icon size={60} className=" text-primary" />
-              </ViewTransition>
+              </SlideTransition>
             )}
-            <ViewTransition key={category.id} name={`category-${slug}`}>
+            <SlideTransition key={category.id} name={`category-${slug}`}>
               <h2 className="text-4xl">{category.name}</h2>
-            </ViewTransition>
+            </SlideTransition>
           </div>
         ) : (
           <p>Categoría no encontrada</p>

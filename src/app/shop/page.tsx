@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { Suspense } from 'react'
 
 import UserWelcome from '@/modules/auth/session/user-welcome'
 import { ProductsCarousel } from '@shop/components/products-carousel'
@@ -23,7 +24,9 @@ export default async function Page() {
         </section>
 
         <section className="container relative">
-          <SearchProducts />
+          <Suspense>
+            <SearchProducts />
+          </Suspense>
         </section>
         {CATEGORIES.map((category, index) => (
           <section
