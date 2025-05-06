@@ -12,6 +12,7 @@ export default function GridCategories() {
           <Link
             href={`/shop/category/${category.slug}`}
             key={index}
+            prefetch={true}
             className="bg-neutral-50 flex-center flex-col gap-5 h-32 hover:bg-secondary hover:text-primary duration-200"
           >
             <SlideTransition name={`category-icon-${category.slug}`}>
