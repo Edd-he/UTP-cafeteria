@@ -1,6 +1,6 @@
-import UserPopover from '@auth/session/user-popover'
 import InstallButton from '@shared/components/install-button'
-import { SidebarTrigger } from '@/modules/shared/components/ui/sidebar'
+import { SidebarTrigger } from '@shared/components/ui/sidebar'
+import UserPopover from '@auth/session/user-popover'
 
 import { CartButton } from '../cart/cart-ui'
 

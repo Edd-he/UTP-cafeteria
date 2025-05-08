@@ -29,6 +29,6 @@ export const ADMIN_LINKS = [
 export const SHOP_LINKS = [
   { label: 'Tienda', href: '/shop', icon: MdStoreMallDirectory },
   { label: 'Carrito', href: '/shop/cart', icon: MdOutlineShoppingCart },
-  { label: 'Compras', href: '/account/purchases', icon: TbMoneybag },
-  { label: 'Cuenta', href: '/account', icon: PiUserCheckLight },
+  { label: 'Compras', href: '/shop/purchases', icon: TbMoneybag },
+  { label: 'Cuenta', href: '/shop/profile', icon: PiUserCheckLight },
 ]

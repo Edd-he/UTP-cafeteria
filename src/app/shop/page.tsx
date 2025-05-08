@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { Suspense } from 'react'
 
-import UserWelcome from '@/modules/auth/session/user-welcome'
+import UserWelcome from '@auth/session/user-welcome'
 import { ProductsCarousel } from '@shop/components/products-carousel'
 import { Button } from '@shared/components/ui/button'
 import { CATEGORIES } from '@/lib/categories'

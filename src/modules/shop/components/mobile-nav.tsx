@@ -27,6 +27,7 @@ export function MobileNavegation() {
           <Link
             key={index}
             href={link.href}
+            prefetch={true}
             onClick={() => setActiveIndex(index)}
             className={`w-full flex-center flex-col gap-1 text-xs p-4 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${
               activeIndex === index

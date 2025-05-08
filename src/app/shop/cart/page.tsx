@@ -19,8 +19,8 @@ import { CartDetails } from '@shop/cart/details-container'
 export default async function Page() {
   return (
     <>
-      <main className="relative w-full h-full flex max-xl:flex-col gap-5 y-5 max-sm:pb-24">
-        <div className="w-full relative xl:h-[calc(100vh-100px)] flex flex-col gap-5 xl:p-5">
+      <main className="relative size-full flex max-xl:flex-col gap-5 max-sm:pb-24 max-xl:pt-5">
+        <div className="w-full relative xl:h-[calc(100vh-60px)] flex flex-col gap-5 xl:p-5">
           <Card className="max-w-sm">
             <CardHeader>
               <CardTitle className="text-lg flex gap-2 items-center">
@@ -51,7 +51,7 @@ export default async function Page() {
           </Card>
         </div>
 
-        <Card className="xl:h-[calc(100vh-100px)] xl:max-w-screen-xs w-full xl:border-none xl:rounded-none xl:shadow-none">
+        <Card className="xl:h-[calc(100vh-60px)] xl:max-w-screen-xs w-full xl:border-none xl:rounded-none xl:shadow-none">
           <CardHeader>
             <CardTitle>Detalles</CardTitle>
             <CardDescription>

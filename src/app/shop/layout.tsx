@@ -9,9 +9,9 @@ export default function Layout({ children }: { children: ReactNode }) {
     <>
       <SidebarProvider>
         <AppSidebar />
-        <div className="w-full">
+        <div className="w-full bg-neutral-50">
           <Header />
-          <div className="w-full  px-5 bg-neutral-50">{children}</div>
+          <div className="w-full px-5 ">{children}</div>
         </div>
         <MobileNavegation />
       </SidebarProvider>

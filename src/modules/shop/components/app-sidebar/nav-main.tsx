@@ -31,7 +31,7 @@ export function NavMain({
   }, [pathname, links])
 
   const itemHeight = 56
-  const gap = activeIndex === 0 || activeIndex === 3 ? 0 : 4
+  const gap = activeIndex === 0 ? 0 : 4
   return (
     <SidebarGroup className="relative px-0">
       <SidebarGroupLabel>Navegación</SidebarGroupLabel>
@@ -39,7 +39,7 @@ export function NavMain({
         <span
           className="absolute right-0 top-0 w-1 h-14 bg-red-500 transition-transform duration-300  z-10"
           style={{
-            transform: `translateY(${activeIndex * itemHeight + gap}px)`,
+            transform: `translateY(${activeIndex * itemHeight + gap * activeIndex}px)`,
           }}
         />
 
@@ -54,6 +54,7 @@ export function NavMain({
               <Link
                 href={link.href}
                 onClick={() => setActiveIndex(index)}
+                prefetch={true}
                 className={`w-full rounded h-full flex items-center gap-4 tracking-wide p-3 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 duration-200 transition-all ${
                   index === activeIndex
                     ? 'bg-secondary'
