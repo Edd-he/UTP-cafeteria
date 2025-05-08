@@ -1,19 +1,19 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-unused-vars */
 'use client'
-import { useState,useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { AiOutlineLoading } from 'react-icons/ai'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
 import { Button } from '@/modules/shared/components/ui/button'
 import { Input } from '@/modules/shared/components/ui/input'
-import { useRouter } from 'next/navigation'
 
 export default function Page() {
-  const {prefetch} = useRouter()
+  const { prefetch } = useRouter()
   const [loading] = useState(false)
 
-  useEffect(()=>{
+  useEffect(() => {
     prefetch('/shop')
   })
   return (
