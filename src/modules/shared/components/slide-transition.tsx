@@ -60,7 +60,7 @@ export function SlideTransition({
       <div
         className={cx(
           `${name}-enter-slide-${startName}`,
-          `${name}-exit-slide-${endName}`
+          `${name}-exit-slide-${endName}`,
         )}
       >
         <ViewTransition name={name}>{children}</ViewTransition>

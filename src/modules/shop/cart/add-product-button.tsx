@@ -2,11 +2,14 @@
 import { AiOutlineLoading } from 'react-icons/ai'
 import { MdOutlineShoppingCart } from 'react-icons/md'
 import { useState } from 'react'
+import { Button } from '@shared/components/ui/button'
 
 import { useCartStore } from '@/store/cart-store'
 import { sleep } from '@/lib/utils'
-import { Button } from '@shared/components/ui/button'
-import type { CartProduct, Product } from '@shop/interfaces/products.interfaces'
+import type {
+  CartProduct,
+  Product,
+} from '@/modules/shared/interfaces/products.interfaces'
 
 type Props = {
   product: Product

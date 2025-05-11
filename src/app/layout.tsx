@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { ReactNode } from 'react'
-
 import { Toaster } from '@shared/components/ui/sonner'
+
 import { NextAuthProvider } from '@/providers/session-provider'
 import { META_DATA } from '@/config/metadata'
 import { lato } from '@/config/fonts'

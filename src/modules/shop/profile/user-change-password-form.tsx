@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-
 import {
   Card,
   CardContent,
@@ -11,11 +10,6 @@ import {
 } from '@shared/components/ui/card'
 import { Button } from '@shared/components/ui/button'
 import { Input } from '@shared/components/ui/input'
-
-type Input = {
-  password: string
-  newPassword: string
-}
 
 export default function UserChangePasswordForm() {
   const [loading] = useState(false)

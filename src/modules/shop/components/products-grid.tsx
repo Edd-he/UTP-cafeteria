@@ -1,8 +1,6 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client'
 
 import { useState } from 'react'
-
 import CustomImage from '@shared/components/custom-image'
 import ProductsGridSkeleton from '@shop/skelletons/products-grid-skeleton'
 import {
@@ -13,9 +11,10 @@ import {
   CardHeader,
   CardTitle,
 } from '@shared/components/ui/card'
-import { Product } from '@shop/interfaces/products.interfaces'
 
 import { AddCartProductButton } from '../cart/add-product-button'
+
+import { Product } from '@/modules/shared/interfaces/products.interfaces'
 
 interface Props {
   category?: string

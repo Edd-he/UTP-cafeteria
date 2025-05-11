@@ -1,10 +1,10 @@
 import { RxCaretLeft } from 'react-icons/rx'
 import Link from 'next/link'
-
 import { Button } from '@shared/components/ui/button'
 import ProductsGrid from '@shop/components/products-grid'
 import { SearchByName } from '@shared/filters'
 import FiltersContainer from '@shop/components/filters-container'
+
 import { CATEGORIES } from '@/lib/categories'
 import { SlideTransition } from '@/modules/shared/components/slide-transition'
 

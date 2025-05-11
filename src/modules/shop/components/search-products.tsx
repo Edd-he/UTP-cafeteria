@@ -2,7 +2,6 @@
 import { useRouter, useSearchParams } from 'next/navigation'
 import { IoSearchOutline } from 'react-icons/io5'
 import { useDebouncedCallback } from 'use-debounce'
-
 import { Input } from '@shared/components/ui/input'
 
 export default function SearchProducts() {

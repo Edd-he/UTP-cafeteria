@@ -10,7 +10,7 @@ export default function UTP({ iconClassName, className }: Props) {
   return (
     <span className="h-full flex flex-center">
       <span className={`${tourney.className} ${className}`}>UTP</span>
-      <AiOutlinePlus strokeWidth={60} className={`${iconClassName}`} />
+      <AiOutlinePlus strokeWidth={70} className={`${iconClassName}`} />
     </span>
   )
 }

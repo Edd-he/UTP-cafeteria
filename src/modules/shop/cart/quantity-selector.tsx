@@ -2,11 +2,11 @@
 
 import { ChangeEvent, useState } from 'react'
 import { MdRemove, MdAdd } from 'react-icons/md'
-
-import { useCartStore } from '@/store/cart-store'
 import { Input } from '@shared/components/ui/input'
 import { Button } from '@shared/components//ui/button'
-import { CartProduct } from '@shop/interfaces/products.interfaces'
+
+import { useCartStore } from '@/store/cart-store'
+import { CartProduct } from '@/modules/shared/interfaces/products.interfaces'
 
 type Props = {
   product: CartProduct
@@ -14,7 +14,7 @@ type Props = {
 
 export default function QuantitySelector({ product }: Props) {
   const updateProductQuantity = useCartStore(
-    (state) => state.updateProductQuantity
+    (state) => state.updateProductQuantity,
   )
   const [count, setCount] = useState(product.quantity)
 

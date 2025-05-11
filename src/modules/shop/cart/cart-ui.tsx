@@ -3,7 +3,6 @@ import { MdOutlineShoppingCart } from 'react-icons/md'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { AiOutlineLoading } from 'react-icons/ai'
-
 import CustomImage from '@shared/components/custom-image'
 import { useMediaQuery } from '@shared/hooks/use-media-query'
 import {
@@ -19,13 +18,14 @@ import {
   DialogTitle,
 } from '@shared/components/ui/dialog'
 import { Button } from '@shared/components/ui/button'
-import { useCartStore } from '@/store/cart-store'
 
 import RemoveProductButton from './remove-product-button'
 
+import { useCartStore } from '@/store/cart-store'
+
 const CartIcon = ({ click }: { click: () => void }) => {
   const totalQuantity = useCartStore((state) =>
-    state.getTotalProductsQuantity()
+    state.getTotalProductsQuantity(),
   )
   const [loaded, setloaded] = useState(false)
 

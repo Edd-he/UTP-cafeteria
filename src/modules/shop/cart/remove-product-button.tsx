@@ -1,9 +1,9 @@
 'use client'
 import { CiTrash } from 'react-icons/ci'
-
-import { CartProduct } from '@shop/interfaces/products.interfaces'
-import { useCartStore } from '@/store/cart-store'
 import { Button } from '@shared/components/ui/button'
+
+import { CartProduct } from '@/modules/shared/interfaces/products.interfaces'
+import { useCartStore } from '@/store/cart-store'
 
 type Props = {
   product: CartProduct

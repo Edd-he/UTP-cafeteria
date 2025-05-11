@@ -2,7 +2,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
-import { CartProduct } from '@shop/interfaces/products.interfaces'
+import { CartProduct } from '@/modules/shared/interfaces/products.interfaces'
 
 type CartState = {
   cart: CartProduct[]

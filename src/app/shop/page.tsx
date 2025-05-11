@@ -1,14 +1,13 @@
 import Link from 'next/link'
 import { Suspense } from 'react'
-
 import UserWelcome from '@auth/session/user-welcome'
 import { ProductsCarousel } from '@shop/components/products-carousel'
 import { Button } from '@shared/components/ui/button'
-import { CATEGORIES } from '@/lib/categories'
 import GridCategories from '@shop/components/categories-grid'
 import SearchProducts from '@shop/components/search-products'
 
-export const dynamic = 'force-dynamic'
+import { CATEGORIES } from '@/lib/categories'
+
 export default async function Page() {
   const limit = 8
 

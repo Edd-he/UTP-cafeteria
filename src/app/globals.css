@@ -1,5 +1,5 @@
-@import "tailwindcss";
-@import "tw-animate-css";
+@import 'tailwindcss';
+@import 'tw-animate-css';
 @plugin 'tailwind-scrollbar';
 @custom-variant dark (&:is(.dark *));
 
@@ -37,7 +37,8 @@
   --color-secondary: var(--secondary);
   --color-primary-foreground: var(--primary-foreground);
   --color-primary: var(--color-red-600);
-  --color-primary-dark: var(--primary-dark);
+  --color-blue-light: var(--blue-light);
+  --color-blue-dark: var(--blue-dark);
   --color-popover-foreground: var(--popover-foreground);
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
@@ -49,6 +50,7 @@
 }
 
 :root {
+  --blue-light: hsl(219, 98%, 51%);
   --gray-light: hsl(0, 0%, 95%);
   --radius: 0.3rem;
   --background: hsl(0 0% 100%);
@@ -124,7 +126,7 @@
   }
 
   body {
-    @apply relative w-screen overflow-x-hidden bg-background
+    @apply relative w-screen overflow-x-hidden bg-background;
   }
 }
 
@@ -133,7 +135,7 @@
 }
 
 @utility container {
-    margin-inline: auto;
+  margin-inline: auto;
 }
 
 @layer base {
@@ -147,7 +149,7 @@
 
 @supports (view-transition-name: test) {
   [data-support] [data-support-yes] {
-      display: inline;
+    display: inline;
   }
   [data-support] [data-support-no] {
     display: none;
@@ -156,7 +158,7 @@
 
 @supports not (view-transition-name: test) {
   [data-support] [data-support-yes] {
-      display: none;
+    display: none;
   }
   [data-support] [data-support-no] {
     display: inline;

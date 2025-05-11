@@ -1,10 +1,11 @@
 'use client'
 
 import CustomImage from '@shared/components/custom-image'
-import { useCartStore } from '@/store/cart-store'
 import RemoveProductButton from '@shop/cart/remove-product-button'
 
 import QuantitySelector from './quantity-selector'
+
+import { useCartStore } from '@/store/cart-store'
 
 export function CartTable() {
   const cart = useCartStore((state) => state.cart)

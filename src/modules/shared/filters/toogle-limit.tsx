@@ -1,12 +1,13 @@
 'use client'
+import { useSearchParams, usePathname, useRouter } from 'next/navigation'
+
 import {
   Select,
-  SelectTrigger,
-  SelectValue,
   SelectContent,
   SelectItem,
-} from '@radix-ui/react-select'
-import { useSearchParams, usePathname, useRouter } from 'next/navigation'
+  SelectTrigger,
+  SelectValue,
+} from '../components/ui/select'
 
 export function ToogleLimit() {
   const searchParams = useSearchParams()

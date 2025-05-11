@@ -25,7 +25,7 @@ export default function CloseSessionButton({
         onClick={handleCloseSession}
         className={cn(
           'flex-center duration-200 p-2 rounded gap-2 hover:bg-secondary active:bg-pressed',
-          className
+          className,
         )}
       >
         <CiLogout size={iconSize} />

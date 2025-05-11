@@ -31,8 +31,8 @@ export function MobileNavegation() {
             onClick={() => setActiveIndex(index)}
             className={`w-full flex-center flex-col gap-1 text-xs p-4 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${
               activeIndex === index
-                ? 'bg-secondary '
-                : 'active:bg-primary/10 hover:bg-secondary'
+                ? 'bg-blue-light/10'
+                : 'active:bg-blue-light/10 hover:bg-secondary'
             }`}
           >
             <Icon size={20} />

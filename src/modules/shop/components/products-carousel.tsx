@@ -2,7 +2,6 @@
 /* eslint-disable no-unused-vars */
 'use client'
 import { useState } from 'react'
-
 import CustomImage from '@shared/components/custom-image'
 import {
   Card,
@@ -22,7 +21,7 @@ import {
 
 import { AddCartProductButton } from '../cart/add-product-button'
 import { ProductsCarouselSkeleton } from '../skelletons/products-carousel-skeleton'
-import { Product } from '../interfaces/products.interfaces'
+import { Product } from '../../shared/interfaces/products.interfaces'
 
 interface Props {
   category: string

@@ -2,6 +2,7 @@
 import { useSearchParams, usePathname, useRouter } from 'next/navigation'
 import { useDebouncedCallback } from 'use-debounce'
 import { IoSearchOutline } from 'react-icons/io5'
+import { URLSearchParams } from 'url'
 
 import { Input } from '../components/ui/input'
 

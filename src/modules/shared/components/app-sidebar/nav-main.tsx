@@ -4,7 +4,6 @@ import { IconType } from 'react-icons'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
-
 import {
   SidebarGroup,
   SidebarGroupLabel,
@@ -13,15 +12,15 @@ import {
   SidebarMenuItem,
 } from '@shared/components/ui/sidebar'
 
-export function NavMain({
-  links,
-}: {
+interface Props {
   links: {
     href: string
     label: string
     icon?: IconType
   }[]
-}) {
+}
+
+export function NavMain({ links }: Props) {
   const pathname = usePathname()
   const [activeIndex, setActiveIndex] = useState(0)
 
@@ -57,8 +56,8 @@ export function NavMain({
                 prefetch={true}
                 className={`w-full rounded h-full flex items-center gap-4 tracking-wide p-3 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 duration-200 transition-all ${
                   index === activeIndex
-                    ? 'bg-secondary'
-                    : 'active:bg-primary/10 hover:bg-secondary'
+                    ? 'bg-blue-light/10'
+                    : 'active:bg-blue-light/10 hover:bg-secondary'
                 }`}
               >
                 {link.icon && <link.icon />}

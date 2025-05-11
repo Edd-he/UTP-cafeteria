@@ -1,4 +1,5 @@
 import { PurchaseCard } from '@shop/profile/purchase-card'
+
 import { formatDate } from '@/lib/utils'
 
 export default async function Page() {
