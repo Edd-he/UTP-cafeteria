@@ -3,7 +3,7 @@
 import { RiDeleteBin6Line } from 'react-icons/ri'
 import { FiEdit } from 'react-icons/fi'
 import { MdOutlineUnfoldMore } from 'react-icons/md'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { HiOutlineArrowsUpDown } from 'react-icons/hi2'
 import Link from 'next/link'
 import Pagination from '@shared/components/ui/pagination'
@@ -21,11 +21,13 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@shared/components/ui/popover'
+import { toast } from 'sonner'
 
 import TableSkeleton from '../skelletons/table-skeleton'
 import { DeleteProductDialog } from './delete-product-dialog'
 
 import { Product } from '@/modules/shared/interfaces/products.interfaces'
+import { useGetData } from '@/modules/shared/hooks/use-get-data'
 
 type SortConfig = {
   key: keyof Product
@@ -44,16 +46,21 @@ export default function ProductsTbl({ query, status, page, limit }: Props) {
     key: 'id',
     order: 'asc',
   })
-  const [products, setProducts] = useState<Product[]>([])
-  const [loading, setLoading] = useState<boolean>(true)
-  const [totalPages, settotalPages] = useState<number>(0)
+  const {
+    data: products,
+    setData,
+    loading,
+    refresh,
+    error,
+  } = useGetData<Product[]>(
+    `/api/products?page=${page}&query=${query}&status=${status}&limit=${limit}`,
+  )
   const [open, setOpen] = useState(false)
-  const [productDelete, setProductDelete] = useState<Product>()
-  const [refreshKey, setRefreshKey] = useState(0)
-  const [productsCount, setProductsCount] = useState(limit)
+  const [productDelete, setProductDelete] = useState<Product | null>(null)
+  const [productsCount] = useState(limit)
 
   const handleRefresh = () => {
-    setRefreshKey((prevKey) => prevKey + 1)
+    refresh()
   }
 
   const handleOpenChange = (newState: boolean) => {
@@ -65,7 +72,7 @@ export default function ProductsTbl({ query, status, page, limit }: Props) {
       sortConfig.key === key && sortConfig.order === 'asc' ? 'desc' : 'asc'
 
     setSortConfig({ key, order })
-
+    if (!products) return
     const sortedData = [...products].sort((a, b) => {
       if (a[key] < b[key]) {
         return order === 'asc' ? -1 : 1
@@ -78,29 +85,10 @@ export default function ProductsTbl({ query, status, page, limit }: Props) {
       return 0
     })
 
-    setProducts(sortedData)
+    setData(sortedData)
   }
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      setLoading(true)
-      try {
-        const response = await fetch(
-          `/api/products?page=${page}&query=${query}&status=${status}&limit=${limit}`,
-        )
-        const { totalPages, products } = await response.json()
-        settotalPages(totalPages)
-        setProducts(products)
-        setProductsCount(products.length)
-      } catch (error) {
-        console.error('Error:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchProducts()
-  }, [page, limit, query, status, refreshKey])
+  if (error) toast.error(error)
 
   return (
     <Card>
@@ -142,7 +130,7 @@ export default function ProductsTbl({ query, status, page, limit }: Props) {
           <tbody className="max-sm:text-xs relative">
             {loading ? (
               <TableSkeleton rows={Math.min(limit, productsCount)} />
-            ) : products.length > 0 ? (
+            ) : products && products.length > 0 ? (
               products.map((product, index) => (
                 <tr
                   key={index}
@@ -210,7 +198,7 @@ export default function ProductsTbl({ query, status, page, limit }: Props) {
         </table>
       </CardContent>
       <CardFooter>
-        <Pagination totalPages={totalPages} />
+        <Pagination totalPages={3} />
       </CardFooter>
       <DeleteProductDialog
         open={open}

@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { AiOutlineLoading } from 'react-icons/ai'
 import CustomImage from '@shared/components/custom-image'
-import { useMediaQuery } from '@shared/hooks/use-media-query'
 import {
   Drawer,
   DrawerContent,
@@ -21,6 +20,7 @@ import { Button } from '@shared/components/ui/button'
 
 import RemoveProductButton from './remove-product-button'
 
+import { useMediaQuery } from '@/modules/shared/hooks/use-media-query'
 import { useCartStore } from '@/store/cart-store'
 
 const CartIcon = ({ click }: { click: () => void }) => {

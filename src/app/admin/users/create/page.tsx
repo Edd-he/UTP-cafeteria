@@ -28,18 +28,17 @@ import { UserSchema } from '@/modules/admin/schemas/user-schema'
 import { DniQueryForm } from '@/modules/admin/users/dni-query-form'
 import { FetchDniDialog } from '@/modules/admin/users/fetch-dni-dialog'
 import { UserFormData } from '@/modules/shared/interfaces'
+import { usePostData } from '@/modules/shared/hooks/use-post-data'
 
 export default function Page() {
-  const [loading, setLoading] = useState(false)
+  const { postData, loading, error } = usePostData('')
   const [open, setOpen] = useState(false)
-  const router = useRouter()
+  const { push } = useRouter()
 
   const {
     register,
-
     control,
     setValue,
-
     handleSubmit,
     formState: { errors },
   } = useForm<UserFormData>({
@@ -57,51 +56,14 @@ export default function Page() {
   }
 
   const onSubmit: SubmitHandler<UserFormData> = async (data) => {
-    setLoading(true)
-    try {
-      const response = await fetch('/api/users', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      })
+    await postData(data)
 
-      if (!response.ok) {
-        const errorResponse = await response.json()
-        throw {
-          message: errorResponse.message || 'Error en la solicitud',
-          details: errorResponse.error,
-        }
-      }
-
-      toast('Usuario Creado Correctamente', {
-        description: `${new Date().toLocaleDateString('es-ES', {
-          weekday: 'long',
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric',
-          hour: 'numeric',
-          minute: 'numeric',
-        })}`,
-        duration: 5000,
-        action: {
-          label: 'Entendido',
-          onClick: () => console.warn('Entendido'),
-        },
-      })
-
-      router.push('/admin/users')
-    } catch (error: any) {
-      setLoading(false)
-
-      const errorMessage = error.message || 'Error desconocido'
-      const errorDetails = error.details
-        ? `El campo ${error.details} es inválido`
-        : ''
-
-      toast.error(errorMessage, { description: errorDetails })
+    if (error) {
+      toast.error(error)
+      return
     }
+    toast.success('Usuario Creado Correctamente')
+    push('/admin/users')
   }
 
   return (

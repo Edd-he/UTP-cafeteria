@@ -6,7 +6,7 @@ import { toast } from 'sonner'
 import { useForm, Controller, SubmitHandler } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import _ from 'lodash'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { AiOutlineLoading } from 'react-icons/ai'
 import { Textarea } from '@shared/components/ui/textarea'
 import { Input } from '@shared/components/ui/input'
@@ -31,45 +31,44 @@ import ImageUploader from '@shared/components/image-uploader'
 
 import { CATEGORIES } from '@/lib/categories'
 import { convertToBase64 } from '@/lib/utils'
+import { useGetData } from '@/modules/shared/hooks/use-get-data'
+import { usePutData } from '@/modules/shared/hooks/user-put-data'
 
-export default function Page({ params }: { params: { id: string } }) {
-  const [loading, setLoading] = useState(false)
+type Props = {
+  params: Promise<{ id: string }>
+}
+export default async function Page({ params }: Props) {
+  const { id } = await params
+  const { push } = useRouter()
+  const {
+    data,
+    error: getError,
+    loading: getLoading,
+  } = useGetData<ProductFormData>(`/api/products/${id}`)
+  const {
+    putData,
+    error: putError,
+    loading: putLoading,
+  } = usePutData(`/api/products/${id}`)
   const [product, setProduct] = useState<ProductFormData>()
-  const router = useRouter()
   const {
     register,
-    reset,
     control,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm<ProductFormData>({
     resolver: zodResolver(ProductSchema),
   })
 
-  useEffect(() => {
-    const fetchProduct = async () => {
-      try {
-        const response = await fetch(`/api/products/${params.id}`)
-        const { product, message, error } = await response.json()
-        console.log(product)
-        if (product) {
-          setProduct(product)
-          reset(product)
-          return
-        }
+  if (data !== null) {
+    setProduct(data)
+    reset(data)
+  }
 
-        toast.error(message, { description: error })
-      } catch (error) {
-        console.error('Error:', error)
-      }
-    }
-
-    fetchProduct()
-  }, [params.id, reset])
+  if (getError) toast.error(getError)
 
   const onSubmit: SubmitHandler<ProductFormData> = async (data) => {
-    setLoading(true)
-
     let image = 'PENDIENTE'
 
     if (
@@ -80,69 +79,23 @@ export default function Page({ params }: { params: { id: string } }) {
     )
       image = await convertToBase64(data.img)
 
-    const formData = {
-      status: data.status,
-      name: data.name,
-      description: data.description,
-      price: data.price,
-      category: data.category,
-      discount: data.discount,
-      orderLimit: data.orderLimit,
-      img: image,
-    }
+    const formData = { ...data, img: image }
 
     if (_.isEqual(product, data)) {
-      setLoading(false)
       toast.warning('No se está actualizando nada en los datos del producto')
       return
     }
 
-    try {
-      const response = await fetch(`/api/products/${params.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      })
+    await putData(formData)
 
-      if (!response.ok) {
-        const errorResponse = await response.json()
-        throw {
-          message: errorResponse.message || 'Error en la solicitud',
-          details: errorResponse.error,
-        }
-      }
-
-      toast('Actualizado Correctamente', {
-        description: `${new Date().toLocaleDateString('es-ES', {
-          weekday: 'long',
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric',
-          hour: 'numeric',
-          minute: 'numeric',
-        })}`,
-        duration: 5000,
-        action: {
-          label: 'Entendido',
-          onClick: () => console.log('Entendido'),
-        },
-      })
-
-      router.push('/admin/products')
-    } catch (error: any) {
-      setLoading(false)
-
-      const errorMessage = error.message || 'Error desconocido'
-      const errorDetails = error.details
-        ? `El campo ${error.details} es inválido`
-        : ''
-
-      toast.error(errorMessage, { description: errorDetails })
-    } finally {
-      setLoading(false)
+    if (putError) {
+      toast.error(getError)
+      return
     }
+
+    toast('Producto Actualizado Correctamente')
+
+    push('/admin/products')
   }
 
   return (
@@ -154,7 +107,7 @@ export default function Page({ params }: { params: { id: string } }) {
           </Link>
         </Button>
 
-        <h1 className="text-3xl">Editar Producto {params.id}</h1>
+        <h1 className="text-3xl">Editar Producto {id}</h1>
       </section>
 
       <form
@@ -341,8 +294,8 @@ export default function Page({ params }: { params: { id: string } }) {
             </CardContent>
           </Card>
 
-          <Button variant={'secondary'} disabled={loading}>
-            {loading ? (
+          <Button variant={'secondary'} disabled={getLoading || putLoading}>
+            {getLoading || putLoading ? (
               <AiOutlineLoading
                 size={18}
                 className="animate-spin ease-in-out"

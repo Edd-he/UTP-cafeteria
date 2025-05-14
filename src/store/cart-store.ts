@@ -114,6 +114,6 @@ export const useCartStore = create<CartState>()(
     }),
     {
       name: 'cart',
-    }
-  )
+    },
+  ),
 )

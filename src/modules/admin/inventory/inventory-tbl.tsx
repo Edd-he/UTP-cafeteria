@@ -2,7 +2,7 @@
 
 import { MdOutlineUnfoldMore } from 'react-icons/md'
 import { HiOutlineArrowsUpDown } from 'react-icons/hi2'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import Pagination from '@shared/components/ui/pagination'
 import {
   Popover,
@@ -18,10 +18,12 @@ import {
   CardTitle,
 } from '@shared/components/ui/card'
 import { Button } from '@shared/components/ui/button'
+import { toast } from 'sonner'
 
 import TableSkeleton from '../skelletons/table-skeleton'
 
 import { ProductInventory } from '@/modules/shared/interfaces/products.interfaces'
+import { useGetData } from '@/modules/shared/hooks/use-get-data'
 
 type SortConfig = {
   key: keyof ProductInventory
@@ -41,17 +43,22 @@ export default function InventoryTbl({ query, status, page, limit }: Props) {
     key: 'id',
     order: 'asc',
   })
-  const [products, setProducts] = useState<ProductInventory[]>([])
-  const [loading, setLoading] = useState<boolean>(true)
-  const [totalPages, settotalPages] = useState<number>(0)
-  const [refreshKey] = useState(0)
-  const [productsCount, setProductsCount] = useState(limit)
+  const {
+    data: products,
+    setData,
+    loading,
+    error,
+  } = useGetData<ProductInventory[]>(
+    `/api/inventory?page=${page}&query=${query}&status=${status}&limit=${limit}`,
+  )
 
   const handleSort = (key: keyof ProductInventory) => {
     const order =
       sortConfig.key === key && sortConfig.order === 'asc' ? 'desc' : 'asc'
 
     setSortConfig({ key, order })
+
+    if (!products) return
 
     const sortedData = [...products].sort((a, b) => {
       if (a[key] < b[key]) {
@@ -65,29 +72,10 @@ export default function InventoryTbl({ query, status, page, limit }: Props) {
       return 0
     })
 
-    setProducts(sortedData)
+    setData(sortedData)
   }
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      setLoading(true)
-      try {
-        const response = await fetch(
-          `/api/inventory?page=${page}&query=${query}&status=${status}&limit=${limit}`,
-        )
-        const { totalPages, products } = await response.json()
-        settotalPages(totalPages)
-        setProducts(products)
-        setProductsCount(products.length)
-      } catch (error) {
-        console.warn('Error:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchProducts()
-  }, [page, limit, query, status, refreshKey])
+  if (error) toast.error(error)
 
   return (
     <Card x-chunk="products-table">
@@ -125,9 +113,9 @@ export default function InventoryTbl({ query, status, page, limit }: Props) {
             </tr>
           </thead>
           <tbody className="max-sm:text-xs relative">
-            {loading ? (
-              <TableSkeleton rows={Math.min(limit, productsCount)} />
-            ) : products.length > 0 ? (
+            {products && loading ? (
+              <TableSkeleton rows={Math.min(limit, products.length)} />
+            ) : products && products.length > 0 ? (
               products.map((product, index) => (
                 <tr
                   key={index}
@@ -184,7 +172,7 @@ export default function InventoryTbl({ query, status, page, limit }: Props) {
         </table>
       </CardContent>
       <CardFooter>
-        <Pagination totalPages={totalPages} />
+        <Pagination totalPages={5} />
       </CardFooter>
     </Card>
   )

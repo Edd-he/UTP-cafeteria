@@ -1,3 +1,4 @@
+'use client'
 import { Button } from '@shared/components/ui/button'
 import Link from 'next/link'
 import { MdOutlineChevronLeft } from 'react-icons/md'
@@ -9,21 +10,29 @@ import {
   CardHeader,
   CardTitle,
 } from '@shared/components/ui/card'
+import { notFound } from 'next/navigation'
 
-import SalesTbl from '@/modules/admin/sales/sales-tbl'
+import { useGetData } from '@/modules/shared/hooks/use-get-data'
+import SaleItemsTbl from '@/modules/admin/sales/saleItems-tbl'
+import { SaleItem, SaleDetails } from '@/modules/shared/interfaces'
 
-export default async function Page({ params }: { params: { id: string } }) {
-  const id = parseInt(params.id, 10)
+type Props = {
+  params: Promise<{ id: string }>
+}
 
-  if (!saleDetails) {
-    return (
-      <div>
-        <h1>Error</h1>
-        <p>No se encontró la venta con el ID: {id}</p>
-      </div>
-    )
+type Sale = {
+  SaleDetails: SaleDetails
+  SaleItems: SaleItem[]
+}
+
+export default async function Page({ params }: Props) {
+  const { id } = await params
+  const saleId = parseInt(id, 10)
+  const { data } = useGetData<Sale>(`/api/sales/${saleId}`)
+  if (data === null) {
+    notFound()
   }
-
+  const { SaleDetails, SaleItems } = data
   return (
     <>
       <section className="w-full flex gap-5">
@@ -32,22 +41,24 @@ export default async function Page({ params }: { params: { id: string } }) {
             <MdOutlineChevronLeft size={25} />
           </Link>
         </Button>
-        <h1 className="text-3xl">Venta Registrada: {saleDetails.created}</h1>
+        <h1 className="text-3xl">Venta Registrada: {}</h1>
       </section>
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-xl">{saleDetails.userName}</CardTitle>
+          <CardTitle className="text-xl">{SaleDetails.userName}</CardTitle>
 
           <CardDescription className="text-base">
-            Transacción: {saleDetails.transaction}
+            Transacción: {SaleDetails.transaction}
           </CardDescription>
           <CardDescription className="text-base">
-            Importe Total: S/{saleDetails.totalPayment}
+            Importe Total: S/{SaleDetails.totalPayment}
           </CardDescription>
         </CardHeader>
-        <CardContent></CardContent>
-        <CardFooter>Metodo de Pago: {saleDetails.paymentMethod}</CardFooter>
+        <CardContent>
+          <SaleItemsTbl items={SaleItems} />
+        </CardContent>
+        <CardFooter>Metodo de Pago: {SaleDetails.paymentMethod}</CardFooter>
       </Card>
     </>
   )

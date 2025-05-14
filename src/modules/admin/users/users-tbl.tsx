@@ -1,5 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable no-unused-vars */
 'use client'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { RiDeleteBin6Line } from 'react-icons/ri'
 import { FiEdit } from 'react-icons/fi'
 import { MdOutlineUnfoldMore } from 'react-icons/md'
@@ -18,12 +20,14 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@shared/components/ui/popover'
+import { toast } from 'sonner'
 
 import TableSkeleton from '../skelletons/table-skeleton'
 
 import Pagination from '@/modules/shared/components/ui/pagination'
 import { Button } from '@/modules/shared/components/ui/button'
 import { User } from '@/modules/shared/interfaces'
+import { useGetData } from '@/modules/shared/hooks/use-get-data'
 
 type SortConfig = {
   key: keyof User
@@ -42,16 +46,14 @@ export default function UserTbl({ page, limit, status, query }: Props) {
     key: 'id',
     order: 'asc',
   })
-  const [users, setUsers] = useState<User[]>([])
-  const [loading, setLoading] = useState<boolean>(true)
-  const [totalPages, settotalPages] = useState<number>(0)
-  const [usersCount, setUsersCount] = useState(limit)
+  const { data: users, setData, loading, error } = useGetData<User[]>('')
+  const [usersCount] = useState(limit)
 
   const handleSort = (key: keyof User) => {
     const order =
       sortConfig.key === key && sortConfig.order === 'asc' ? 'desc' : 'asc'
     setSortConfig({ key, order })
-
+    if (users === null) return
     const sortedData = [...users].sort((a, b) => {
       if (a[key] < b[key]) {
         return order === 'asc' ? -1 : 1
@@ -62,30 +64,10 @@ export default function UserTbl({ page, limit, status, query }: Props) {
       return 0
     })
 
-    setUsers(sortedData)
+    setData(sortedData)
   }
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      setLoading(true)
-      try {
-        const response = await fetch(
-          `/api/users?page=${page}&query=${query}&status=${status}&limit=${limit}`,
-        )
-
-        const { totalPages, users } = await response.json()
-        settotalPages(totalPages)
-        setUsers(users)
-        setUsersCount(users.length)
-      } catch (error) {
-        console.error('Error:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchUsers()
-  }, [page, limit, query, status])
+  if (error) toast.error(error)
 
   return (
     <Card x-chunk="users-table">
@@ -129,7 +111,7 @@ export default function UserTbl({ page, limit, status, query }: Props) {
           <tbody className=" max-sm:text-xs relative">
             {loading ? (
               <TableSkeleton rows={Math.min(limit, usersCount)} />
-            ) : users.length > 0 ? (
+            ) : users && users.length > 0 ? (
               users.map((user, index) => (
                 <tr
                   key={index}
@@ -184,7 +166,7 @@ export default function UserTbl({ page, limit, status, query }: Props) {
         </table>
       </CardContent>
       <CardFooter>
-        <Pagination totalPages={totalPages} />
+        <Pagination totalPages={5} />
       </CardFooter>
     </Card>
   )

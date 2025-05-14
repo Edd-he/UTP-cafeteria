@@ -1,7 +1,6 @@
 /* eslint-disable no-unused-vars */
 'use client'
 import { toast } from 'sonner'
-import { useState } from 'react'
 import { AiOutlineLoading } from 'react-icons/ai'
 import { Button } from '@shared/components/ui/button'
 import {
@@ -13,9 +12,10 @@ import {
 } from '@shared/components/ui/dialog'
 
 import { Product } from '@/modules/shared/interfaces/products.interfaces'
+import { useDeleteData } from '@/modules/shared/hooks/use-delete-data'
 
 type Props = {
-  product: Product | undefined
+  product: Product | null
   open: boolean
   handleOpenChange: (open: boolean) => void
   handlRefresh: () => void
@@ -27,53 +27,25 @@ export function DeleteProductDialog({
   handleOpenChange,
   handlRefresh,
 }: Props) {
-  const [loading, setLoading] = useState(false)
-
+  const { deleteData, error, loading } = useDeleteData(
+    `/api/products/${product?.id}`,
+  )
   const handleDelete = async () => {
     try {
       console.warn(product)
-      setLoading(true)
 
-      const response = await fetch(`/api/products/${product?.id}`, {
-        method: 'DELETE',
-      })
-
-      if (!response.ok) {
-        const errorResponse = await response.json()
-        throw {
-          message: errorResponse.message || 'Error en la solicitud',
-          details: errorResponse.error,
-        }
-      }
+      await deleteData()
 
       handleOpenChange(false)
       handlRefresh()
-
-      toast('Eliminado Correctamente', {
-        description: `${new Date().toLocaleDateString('es-ES', {
-          weekday: 'long',
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric',
-          hour: 'numeric',
-          minute: 'numeric',
-        })}`,
-        duration: 5000,
-        action: {
-          label: 'Entendido',
-          onClick: () => console.warn('Entendido'),
-        },
-      })
+      if (error) {
+        throw new Error(error)
+      }
+      toast('Eliminado Correctamente')
     } catch (error: any) {
-      setLoading(false)
-      const errorMessage = error.message || 'Error desconocido'
-      const errorDetails = error.details
-        ? `El campo ${error.details} es inválido`
-        : ''
+      if (error instanceof Error) toast.error(error.message)
 
-      toast.error(errorMessage, { description: errorDetails })
-    } finally {
-      setLoading(false)
+      console.error(error)
     }
   }
 

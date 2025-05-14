@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { MdOutlineUnfoldMore } from 'react-icons/md'
 import { HiOutlineArrowsUpDown } from 'react-icons/hi2'
 import Link from 'next/link'
@@ -21,6 +21,8 @@ import {
 import Pagination from '@shared/components/ui/pagination'
 
 import TableSkeleton from '../skelletons/table-skeleton'
+
+import { useGetData } from '@/modules/shared/hooks/use-get-data'
 
 export type Sale = {
   id: number
@@ -51,15 +53,19 @@ export default function SalesTbl({ page, limit, status, query }: Props) {
     key: 'id',
     order: 'asc',
   })
-  const [sales, setSales] = useState<Sale[]>([])
-  const [loading, setLoading] = useState<boolean>(false)
-  const [totalPages, settotalPages] = useState<number>(0)
+  const {
+    data: sales,
+    setData,
+    loading,
+  } = useGetData<Sale[]>(
+    `/api/sales?page=${page}&query=${query}&statusSale=${status}&limit=${limit}`,
+  )
 
   const handleSort = (key: keyof Sale) => {
     const order =
       sortConfig.key === key && sortConfig.order === 'asc' ? 'desc' : 'asc'
     setSortConfig({ key, order })
-
+    if (!sales) return
     const sortedData = [...sales].sort((a, b) => {
       if (a[key] < b[key]) {
         return order === 'asc' ? -1 : 1
@@ -70,28 +76,8 @@ export default function SalesTbl({ page, limit, status, query }: Props) {
       return 0
     })
 
-    setSales(sortedData)
+    setData(sortedData)
   }
-
-  useEffect(() => {
-    const fetchSales = async () => {
-      try {
-        const response = await fetch(
-          `/api/sales?page=${page}&query=${query}&statusSale=${status}&limit=${limit}`,
-        )
-        const data = await response.json()
-
-        settotalPages(data.totalPages)
-        setSales(data.sales)
-      } catch (error) {
-        console.error('Error:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchSales()
-  }, [page, limit, query, status])
 
   return (
     <Card x-chunk="sales-table">
@@ -126,7 +112,7 @@ export default function SalesTbl({ page, limit, status, query }: Props) {
           <tbody className=" text-xs sm:text-sm relative w-full">
             {loading ? (
               <TableSkeleton rows={limit} />
-            ) : sales.length > 0 ? (
+            ) : sales && sales.length > 0 ? (
               sales.map((sale, index) => (
                 <tr
                   key={index}
@@ -177,7 +163,7 @@ export default function SalesTbl({ page, limit, status, query }: Props) {
         </table>
       </CardContent>
       <CardFooter>
-        <Pagination totalPages={totalPages} />
+        <Pagination totalPages={5} />
       </CardFooter>
     </Card>
   )

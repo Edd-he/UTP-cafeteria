@@ -7,17 +7,17 @@ import {
   CardDescription,
 } from '@shared/components/ui/card'
 
-export default async function Page({
-  params,
-}: {
-  params: { id: string; ticker?: string }
-}) {
+type Props = {
+  params: Promise<{ id: string }>
+}
+export default async function Page({ params }: Props) {
+  const { id } = await params
   return (
     <>
       <div className="flex w-full gap-5">
         <Card className="w-full max-w-screen-xs">
           <CardHeader className="gap-3">
-            <CardTitle className="font-normal">Producto {params.id}</CardTitle>
+            <CardTitle className="font-normal">Producto {id}</CardTitle>
             <div className="flex justify-between">
               <CardDescription className="text-xl flex flex-col gap-3">
                 <span>Marca</span>

@@ -3,7 +3,6 @@
 import { PiUserCheckLight } from 'react-icons/pi'
 import { useSession } from 'next-auth/react'
 import { AiOutlineLoading } from 'react-icons/ai'
-
 import { Button } from '@shared/components/ui/button'
 import {
   Popover,

@@ -3,7 +3,6 @@ import {
   HiOutlineChevronDoubleLeft,
   HiOutlineChevronDoubleRight,
 } from 'react-icons/hi'
-
 import clsx from 'clsx'
 import Link from 'next/link'
 import { usePathname, useSearchParams } from 'next/navigation'
@@ -73,8 +72,8 @@ function PaginationNumber({
   const className = clsx(
     'flex h-10 w-10 items-center justify-center text-sm border dark:border-accent  rounded-md',
     {
-      '': position === 'first' || position === 'single',
-      '': position === 'last' || position === 'single',
+      'rounded-l-md': position === 'first',
+      'rounded-r-md': position === 'last',
       'z-10 bg-primary text-primary-foreground': isActive,
       'hover:bg-secondary': !isActive && position !== 'middle',
       'text-muted': position === 'middle',

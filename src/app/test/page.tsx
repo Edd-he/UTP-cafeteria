@@ -1,7 +1,7 @@
 import { Suspense } from 'react'
 
 import CountryList from '@/modules/test/components/country-list'
-
+export const dynamic = 'force-dynamic'
 export default function Page() {
   return (
     <main className="p-6 max-w-xl mx-auto">

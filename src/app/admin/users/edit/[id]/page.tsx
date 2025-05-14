@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { useForm, Controller, SubmitHandler } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { AiOutlineLoading } from 'react-icons/ai'
 import {
   Select,
@@ -14,6 +14,7 @@ import {
   SelectContent,
   SelectItem,
 } from '@radix-ui/react-select'
+import _ from 'lodash'
 
 import { UserEditSchema } from '@/modules/admin/schemas/user-schema'
 import UserChangePasswordDialog from '@/modules/admin/users/change-pasword-dialog'
@@ -28,13 +29,25 @@ import {
 } from '@/modules/shared/components/ui/card'
 import { Input } from '@/modules/shared/components/ui/input'
 import { UserEditFormData } from '@/modules/shared/interfaces'
+import { useGetData } from '@/modules/shared/hooks/use-get-data'
+import { usePutData } from '@/modules/shared/hooks/user-put-data'
 
-export default function Page({ params }: { params: { id: string } }) {
-  const [setUser] = useState<UserEditFormData>()
-  const router = useRouter()
-  const [loading, setLoading] = useState(false)
-  const [open, setOpen] = useState(false)
-
+type Props = {
+  params: Promise<{ id: string }>
+}
+export default async function Page({ params }: Props) {
+  const { id } = await params
+  const { push } = useRouter()
+  const {
+    data,
+    loading: getLoading,
+    error: getError,
+  } = useGetData<UserEditFormData>(`/api/users/${id}`)
+  const {
+    putData,
+    loading: putLoading,
+    error: putError,
+  } = usePutData(`/api/users/${id}`)
   const {
     register,
     reset,
@@ -45,6 +58,8 @@ export default function Page({ params }: { params: { id: string } }) {
   } = useForm<UserEditFormData>({
     resolver: zodResolver(UserEditSchema),
   })
+  const [user, setUser] = useState<UserEditFormData>()
+  const [open, setOpen] = useState(false)
 
   const handleOpenChange = (newState: boolean) => {
     setOpen(newState)
@@ -56,73 +71,27 @@ export default function Page({ params }: { params: { id: string } }) {
     setValue('lastName', lastName)
   }
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const response = await fetch(`/api/users/${params.id}`)
-        const { user, message, error } = await response.json()
+  if (data !== null) {
+    reset(data)
+    setUser(data)
+  }
 
-        if (user) {
-          setUser(user)
-          reset(user)
-          return
-        }
-
-        toast.error(message, { description: error })
-      } catch (error) {
-        console.error('Error:', error)
-      }
-    }
-
-    fetchUser()
-  }, [params.id, reset])
+  if (getError) toast.error(getError)
 
   const onSubmit: SubmitHandler<UserEditFormData> = async (data) => {
-    setLoading(true)
-    try {
-      const response = await fetch(`/api/users/${params.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      })
-
-      if (!response.ok) {
-        const errorResponse = await response.json()
-        throw {
-          message: errorResponse.message || 'Error en la solicitud',
-          details: errorResponse.error,
-        }
-      }
-
-      toast('Usuario Actualizado Correctamente', {
-        description: `${new Date().toLocaleDateString('es-ES', {
-          weekday: 'long',
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric',
-          hour: 'numeric',
-          minute: 'numeric',
-        })}`,
-        duration: 5000,
-        action: {
-          label: 'Entendido',
-          onClick: () => console.warn('Entendido'),
-        },
-      })
-
-      router.push('/admin/users')
-    } catch (error: any) {
-      setLoading(false)
-
-      const errorMessage = error.message || 'Error desconocido'
-      const errorDetails = error.details
-        ? `El campo ${error.details} es inválido`
-        : ''
-
-      toast.error(errorMessage, { description: errorDetails })
+    await putData(data)
+    if (putError) {
+      toast.error(putError)
+      return
     }
+    if (_.isEqual(user, data)) {
+      toast.warning('No se está actualizando nada en los datos del producto')
+      return
+    }
+
+    toast('Usuario Actualizado Correctamente')
+
+    push('/admin/users')
   }
 
   return (
@@ -134,8 +103,8 @@ export default function Page({ params }: { params: { id: string } }) {
           </Link>
         </Button>
         <span className="flex-center gap-2 max-md:flex-col">
-          <h1 className="text-3xl">Editar Usuario ID : {params.id}</h1>
-          <UserChangePasswordDialog id={parseInt(params.id)} />
+          <h1 className="text-3xl">Editar Usuario ID : {id}</h1>
+          <UserChangePasswordDialog id={parseInt(id)} />
         </span>
       </section>
 
@@ -274,8 +243,12 @@ export default function Page({ params }: { params: { id: string } }) {
             </CardContent>
           </Card>
 
-          <Button variant={'secondary'} type="submit" disabled={loading}>
-            {loading ? (
+          <Button
+            variant={'secondary'}
+            type="submit"
+            disabled={getLoading || putLoading}
+          >
+            {getLoading || putLoading ? (
               <AiOutlineLoading
                 size={18}
                 className="animate-spin ease-in-out"

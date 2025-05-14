@@ -3,7 +3,6 @@ export const revalidate = 0
 import { MdShoppingCart } from 'react-icons/md'
 import Image from 'next/image'
 import Link from 'next/link'
-
 import { Button } from '@shared/components/ui/button'
 import {
   Card,

@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 'use client'
 import { useState, ChangeEvent, DragEvent, useRef } from 'react'
 import { PiUploadSimpleThin } from 'react-icons/pi'

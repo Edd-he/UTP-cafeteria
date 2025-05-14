@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { useForm, Controller, SubmitHandler } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useState } from 'react'
 import { AiOutlineLoading } from 'react-icons/ai'
 import { Textarea } from '@shared/components/ui/textarea'
 import { Input } from '@shared/components/ui/input'
@@ -30,9 +29,10 @@ import { ProductSchema } from '@admin/schemas/product-schema'
 
 import { CATEGORIES } from '@/lib/categories'
 import { convertToBase64 } from '@/lib/utils'
+import { usePostData } from '@/modules/shared/hooks/use-post-data'
 
 export default function Page() {
-  const [loading, setLoading] = useState(false)
+  const { postData, loading, error } = usePostData('/products')
   const {
     register,
     control,
@@ -42,71 +42,24 @@ export default function Page() {
     resolver: zodResolver(ProductSchema),
   })
 
-  const router = useRouter()
+  const { push } = useRouter()
 
   const onSubmit: SubmitHandler<ProductFormData> = async (data) => {
-    setLoading(true)
-
     let image = 'PENDIENTE'
 
-    if (data.img) image = await convertToBase64(data.img)
+    if (data.img) image = await convertToBase64(data.img as unknown as File)
 
-    const formData = {
-      status: data.status,
-      name: data.name,
-      description: data.description,
-      price: data.price,
-      category: data.category,
-      discount: data.discount,
-      orderLimit: data.orderLimit,
-      img: image,
+    const formData = { ...data, img: image }
+
+    await postData(formData)
+
+    if (error) {
+      toast.error(error)
+      return
     }
 
-    try {
-      const response = await fetch('/api/products', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      })
-
-      if (!response.ok) {
-        const errorResponse = await response.json()
-        throw {
-          message: errorResponse.message || 'Error en la solicitud',
-          details: errorResponse.error,
-        }
-      }
-
-      toast('Product Creado Correctamente', {
-        description: `${new Date().toLocaleDateString('es-ES', {
-          weekday: 'long',
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric',
-          hour: 'numeric',
-          minute: 'numeric',
-        })}`,
-        duration: 5000,
-        action: {
-          label: 'Entendido',
-          onClick: () => console.log('Entendido'),
-        },
-      })
-
-      router.push('/admin/products')
-    } catch (error: any) {
-      setLoading(false)
-
-      const errorMessage = error.message || 'Error desconocido'
-      const errorDetails = error.details
-        ? `El campo ${error.details} es inválido`
-        : ''
-
-      console.log(errorMessage)
-      toast.error(errorMessage, { description: errorDetails })
-    }
+    toast.success('Producto Creado Correctamente')
+    push('/admin/products')
   }
 
   return (
@@ -272,7 +225,7 @@ export default function Page() {
                 control={control}
                 render={({ field }) => (
                   <ImageUploader
-                    value={field.value}
+                    value={field.value as unknown as File}
                     onChange={field.onChange}
                   />
                 )}

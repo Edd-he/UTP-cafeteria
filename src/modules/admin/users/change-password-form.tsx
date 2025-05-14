@@ -1,38 +1,48 @@
 'use client'
 
-import { useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { SubmitHandler, useForm } from 'react-hook-form'
-
 import { Button } from '@shared/components/ui/button'
 import { Input } from '@shared/components/ui/input'
+import { toast } from 'sonner'
 
-import { changeUserPassword } from '../server_actions/user-actions'
+import { ChangePasswordSchema } from '../schemas/change-password-schema'
 
-import { ChangePasswordSchema } from '@/Schemas/change-password-schema'
+import { usePostData } from '@/modules/shared/hooks/use-post-data'
 
-interface Props {
+type Props = {
   id: number
   onSuccess: () => void
 }
 
-interface InputForm {
+type InputForm = {
   password: string
   newPassword: string
 }
 
 export default function ChangePasswordForm({ id, onSuccess }: Props) {
-  const [loading, setLoading] = useState(false)
+  const { postData, error, loading } = usePostData(
+    `/api/users/${id}/change-password`,
+  )
   const {
     register,
     handleSubmit,
     formState: { errors },
+    reset,
   } = useForm<InputForm>({
     resolver: zodResolver(ChangePasswordSchema),
   })
 
   const onSubmit: SubmitHandler<InputForm> = async (data) => {
-    setLoading(true)
+    await postData(data)
+    if (error) {
+      toast.error(error)
+      return
+    }
+
+    toast.success('Contraseña cambiada con éxito')
+    reset()
+    onSuccess()
   }
 
   return (

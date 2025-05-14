@@ -1,16 +1,22 @@
+import { Suspense } from 'react'
+
 import OrdersContainer from '@/modules/admin/orders/orders-container'
 import OrdersTabs from '@/modules/admin/orders/orders-tabs'
-import { ToogleLimit } from '@/modules/shared/filters'
+import SearchOrders from '@/modules/admin/orders/search-orders'
 
 export default function Page() {
   return (
     <>
       <section className="w-full flex items-end justify-between max-sm:flex-col-reverse gap-3">
-        <div className="space-y-2 max-sm:w-full">
-          <ToogleLimit />
+        <div className=" relative w-full">
+          <Suspense>
+            <SearchOrders />
+          </Suspense>
         </div>
       </section>
-      <OrdersTabs />
+      <Suspense>
+        <OrdersTabs />
+      </Suspense>
       <section>
         <OrdersContainer />
       </section>

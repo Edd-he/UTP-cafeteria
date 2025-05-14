@@ -1,5 +1,3 @@
-/* eslint-disable no-undef */
-
 'use client'
 import { useEffect, useState } from 'react'
 import { BsDownload } from 'react-icons/bs'

@@ -2,8 +2,6 @@
 
 import soap from 'soap'
 
-import { sleep } from '@/lib/utils'
-
 const WSDL_URL =
   'http://webservices.oorsprong.org/websamples.countryinfo/CountryInfoService.wso?WSDL'
 
@@ -11,8 +9,6 @@ export async function getCountries(): Promise<{
   countries: string[]
   error?: string
 }> {
-  await sleep(4000)
-
   return new Promise((resolve) => {
     soap.createClient(WSDL_URL, (err, client) => {
       if (err) {
