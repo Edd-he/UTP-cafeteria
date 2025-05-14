@@ -3,7 +3,7 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
 import { CartProduct } from '@/modules/shared/interfaces/products.interfaces'
-
+console.warn('zuztand')
 type CartState = {
   cart: CartProduct[]
 
