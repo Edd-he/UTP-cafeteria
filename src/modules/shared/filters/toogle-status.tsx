@@ -35,8 +35,8 @@ export function ToogleStatus() {
       </SelectTrigger>
       <SelectContent position="popper" sideOffset={10} hideWhenDetached>
         <SelectItem value="all">Todos</SelectItem>
-        <SelectItem value="en">Activo</SelectItem>
-        <SelectItem value="dis">Inactivo</SelectItem>
+        <SelectItem value="true">Activo</SelectItem>
+        <SelectItem value="false">Inactivo</SelectItem>
       </SelectContent>
     </Select>
   )

@@ -1,55 +1,25 @@
 export type User = {
   id: string
-  created: string
-  updated: string
+  creado: string
+  actualizado: string
   dni: string
-  name: string
-  lastName: string
-  number: string
-  email: string
-  role: number
-  status: boolean
+  nombre: string
+  apellidos: string
+  correo: string
+  rol: string
+  habilitado: boolean
 }
 
 export type UserFormData = {
   dni: string
-  name: string
-  lastName: string
-  number: string
-  email: string
-  role: string
-  status: string
-  password: string
-  confirmPassword?: string
+  correo: string
+  habilitado: boolean
+  contraseña: string
+  confirmar_contraseña?: string
 }
 
 export type UserEditFormData = {
-  dni: string
-  name: string
-  lastName: string
-  number: string
-  email: string
-  role: string
-  status: string
-}
-
-export type UserDTO = {
-  dni: string
-  name: string
-  lastName: string
-  number: string
-  email: string
-  role: number
-  status: boolean
-  password: string
-}
-
-export type UserEditDTO = {
-  dni: string
-  name: string
-  lastName: string
-  number: string
-  email: string
-  role: number
-  status: boolean
+  dni?: string
+  correo?: string
+  habilitado?: boolean
 }

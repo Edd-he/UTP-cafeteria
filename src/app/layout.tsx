@@ -26,7 +26,7 @@ export default function RootLayout({
             <div vaul-drawer-wrapper="" className="bg-background">
               {children}
             </div>
-            <Toaster />
+            <Toaster closeButton />
           </NextAuthProvider>
         </body>
       </html>

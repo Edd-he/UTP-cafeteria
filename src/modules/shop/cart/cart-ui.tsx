@@ -1,5 +1,5 @@
 'use client'
-import { MdOutlineShoppingCart } from 'react-icons/md'
+import { FiShoppingCart } from 'react-icons/fi'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { AiOutlineLoading } from 'react-icons/ai'
@@ -35,19 +35,19 @@ const CartIcon = ({ click }: { click: () => void }) => {
 
   return (
     <Button
-      variant={'outline'}
+      variant={'ghost'}
       onClick={click}
       disabled={!loaded}
-      className="duration-200 w-14 flex-center gap-2"
-      size={'icon'}
+      className="duration-200 w-14 flex-center gap-1"
+      size={'lg'}
     >
       {loaded ? (
         <>
           {totalQuantity}
-          <MdOutlineShoppingCart size={22} />
+          <FiShoppingCart size={30} strokeWidth={3} />
         </>
       ) : (
-        <AiOutlineLoading size={18} className="animate-spin ease-in-out" />
+        <AiOutlineLoading size={25} className="animate-spin ease-in-out" />
       )}
     </Button>
   )
@@ -67,7 +67,7 @@ const Content = ({ click }: { click: () => void }) => {
             >
               <div className="flex gap-3">
                 <CustomImage
-                  src={product.img}
+                  src={product.url}
                   height={90}
                   width={90}
                   alt=""
@@ -75,33 +75,15 @@ const Content = ({ click }: { click: () => void }) => {
                 />
                 <div className="flex flex-col justify-center gap-1">
                   <span className="leading-none tracking-tight font-semibold sm:text-lg max-w-[200px] sm:max-w-[400px] truncate">
-                    {product.name}
+                    {product.nombre}
                   </span>
-                  {product.discount && product.discount > 0 ? (
-                    <span className="flex items-center gap-2">
-                      <span>{product.quantity}</span>
-                      <span> x </span>
-                      <span className="text-sm text-muted-foreground line-through">
-                        S/ {product.price.toFixed(2)}
-                      </span>
-                      <span className="text-sm text-primary-foreground dark:text-white">
-                        S/ {(product.price - product.discount).toFixed(2)}
-                      </span>
-                    </span>
-                  ) : (
-                    <span className="max-sm:text-xs text-sm text-muted-foreground">
-                      {product.quantity} <span> x </span>{' '}
-                      <span>S/ {product.price.toFixed(2)}</span>
-                    </span>
-                  )}
+                  <span className="max-sm:text-xs text-sm text-muted-foreground">
+                    {product.cantidad} <span> x </span>{' '}
+                    <span>S/ {product.precio}</span>
+                  </span>
+
                   <span className="leading-none tracking-tight text-primary-foreground dark:text-white">
-                    S/{' '}
-                    {(
-                      product.quantity *
-                      (product.discount && product.discount > 0
-                        ? product.price - product.discount
-                        : product.price)
-                    ).toFixed(2)}
+                    S/ {product.cantidad * product.precio}
                   </span>
                 </div>
               </div>

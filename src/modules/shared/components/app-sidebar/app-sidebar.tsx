@@ -29,7 +29,10 @@ export function AppSidebar({
         <UTP iconClassName="group-data-[collapsible=icon]:size-2.5 size-[24px] transition-all duration-300" />
       </SidebarHeader>
       <SidebarContent>
-        <NavMain links={typeSidebar === 'admin' ? ADMIN_LINKS : SHOP_LINKS} />
+        <NavMain
+          variant={typeSidebar}
+          links={typeSidebar === 'admin' ? ADMIN_LINKS : SHOP_LINKS}
+        />
       </SidebarContent>
       <SidebarRail />
     </Sidebar>

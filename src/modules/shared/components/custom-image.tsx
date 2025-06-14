@@ -1,6 +1,6 @@
 import Image from 'next/image'
 
-import { CATEGORIES } from '@/lib/categories'
+import { PRODUCT_CATEGORIRES } from '@/lib/categories'
 
 type Props = {
   src: string
@@ -19,7 +19,7 @@ export default function CustomImage({
   className,
   alt,
 }: Props) {
-  const cat = CATEGORIES.find((cat) => cat.slug === category)
+  const cat = PRODUCT_CATEGORIRES.find((cat) => cat.value === category)
 
   return (
     <>

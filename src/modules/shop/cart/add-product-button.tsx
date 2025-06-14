@@ -9,7 +9,7 @@ import { sleep } from '@/lib/utils'
 import type {
   CartProduct,
   Product,
-} from '@/modules/shared/interfaces/products.interfaces'
+} from '@/modules/shared/interfaces/product.interfaces'
 
 type Props = {
   product: Product
@@ -25,14 +25,13 @@ export function AddCartProductButton({ product }: Props) {
     await sleep(1000)
     const cartProduct: CartProduct = {
       id: product.id,
-      name: product.name,
-      description: product.description,
-      price: parseFloat(product.price),
-      discount: parseFloat(product.discount),
-      maxQuantity: Math.min(product.stock, product.orderLimit),
-      quantity: 1,
-      category: product.category,
-      img: product.img,
+      nombre: product.nombre,
+      descripcion: product.descripcion,
+      precio: Number(product.precio),
+      limite_de_orden: Math.min(product.stock, product.limite_de_orden),
+      cantidad: 1,
+      category: product.categoria,
+      url: product.url,
     }
 
     addCartProduct(cartProduct)

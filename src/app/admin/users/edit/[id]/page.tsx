@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client'
 import Link from 'next/link'
 import { MdOutlineChevronLeft } from 'react-icons/md'
@@ -5,49 +7,56 @@ import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { useForm, Controller, SubmitHandler } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useState } from 'react'
+import { use, useEffect, useState } from 'react'
 import { AiOutlineLoading } from 'react-icons/ai'
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from '@radix-ui/react-select'
-import _ from 'lodash'
+import _, { last } from 'lodash'
 
-import { UserEditSchema } from '@/modules/admin/schemas/user-schema'
+import { UserEditSchema } from '@/modules/admin/schemas/users.schema'
 import UserChangePasswordDialog from '@/modules/admin/users/change-pasword-dialog'
-import { DniQueryForm } from '@/modules/admin/users/dni-query-form'
+import { DniQueryForm } from '@/modules/admin/users/fetch-dni-form'
 import { FetchDniDialog } from '@/modules/admin/users/fetch-dni-dialog'
 import { Button } from '@/modules/shared/components/ui/button'
+import { Input } from '@/modules/shared/components/ui/input'
+import { User, UserEditFormData } from '@/modules/shared/interfaces'
+import { useGetData } from '@/modules/shared/hooks/use-get-data'
 import {
   Card,
   CardHeader,
   CardTitle,
   CardContent,
 } from '@/modules/shared/components/ui/card'
-import { Input } from '@/modules/shared/components/ui/input'
-import { UserEditFormData } from '@/modules/shared/interfaces'
-import { useGetData } from '@/modules/shared/hooks/use-get-data'
-import { usePutData } from '@/modules/shared/hooks/user-put-data'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/modules/shared/components/ui/select'
+import { BACKEND_URL } from '@/lib/constants'
+import { useSendRequest } from '@/modules/shared/hooks/use-send-request'
 
+type ReniecData = {
+  nombre: string
+  apellidos: string
+}
 type Props = {
   params: Promise<{ id: string }>
 }
-export default async function Page({ params }: Props) {
-  const { id } = await params
+export default function Page({ params }: Props) {
+  const { id } = use(params)
   const { push } = useRouter()
+  const [reniecData, setReniecData] = useState<ReniecData>()
+  const [open, setOpen] = useState(false)
   const {
-    data,
+    data: user,
     loading: getLoading,
     error: getError,
-  } = useGetData<UserEditFormData>(`/api/users/${id}`)
-  const {
-    putData,
-    loading: putLoading,
-    error: putError,
-  } = usePutData(`/api/users/${id}`)
+  } = useGetData<User>(`${BACKEND_URL}/usuarios/${id}/obtener-usuario`)
+  const { sendRequest, loading } = useSendRequest(
+    `${BACKEND_URL}/usuarios/${id}/actualizar-usuario`,
+    'PATCH',
+  )
+
   const {
     register,
     reset,
@@ -58,34 +67,36 @@ export default async function Page({ params }: Props) {
   } = useForm<UserEditFormData>({
     resolver: zodResolver(UserEditSchema),
   })
-  const [user, setUser] = useState<UserEditFormData>()
-  const [open, setOpen] = useState(false)
 
   const handleOpenChange = (newState: boolean) => {
     setOpen(newState)
   }
 
-  const handleFetchReniec = (dni: string, name: string, lastName: string) => {
+  const handleFetchReniec = (
+    dni: string,
+    nombre: string,
+    apellidos: string,
+  ) => {
     setValue('dni', dni)
-    setValue('name', name)
-    setValue('lastName', lastName)
-  }
-
-  if (data !== null) {
-    reset(data)
-    setUser(data)
+    setReniecData({ nombre, apellidos })
   }
 
   if (getError) toast.error(getError)
 
   const onSubmit: SubmitHandler<UserEditFormData> = async (data) => {
-    await putData(data)
-    if (putError) {
-      toast.error(putError)
+    if (user === null) {
+      toast.warning('Error al obtener el usuario')
       return
     }
-    if (_.isEqual(user, data)) {
-      toast.warning('No se está actualizando nada en los datos del producto')
+    if (_.isEqual(extractEditableFields(user), data)) {
+      toast.warning('No se está actualizando nada en los datos del usuario')
+      return
+    }
+
+    const { error } = await sendRequest(data)
+
+    if (error) {
+      toast.error(error)
       return
     }
 
@@ -93,6 +104,13 @@ export default async function Page({ params }: Props) {
 
     push('/admin/users')
   }
+
+  useEffect(() => {
+    if (user) {
+      setReniecData({ nombre: user.nombre, apellidos: user.apellidos })
+      reset(extractEditableFields(user))
+    }
+  }, [user, reset])
 
   return (
     <>
@@ -103,8 +121,8 @@ export default async function Page({ params }: Props) {
           </Link>
         </Button>
         <span className="flex-center gap-2 max-md:flex-col">
-          <h1 className="text-3xl">Editar Usuario ID : {id}</h1>
-          <UserChangePasswordDialog id={parseInt(id)} />
+          <h1 className="text-3xl">Editar Usuario</h1>
+          <UserChangePasswordDialog id={Number(id)} />
         </span>
       </section>
 
@@ -119,11 +137,14 @@ export default async function Page({ params }: Props) {
             </CardHeader>
             <CardContent>
               <Controller
-                name="status"
+                name="habilitado"
                 control={control}
-                defaultValue="1"
+                defaultValue={true}
                 render={({ field }) => (
-                  <Select onValueChange={field.onChange} value={field.value}>
+                  <Select
+                    onValueChange={(value) => field.onChange(value === '1')}
+                    value={field.value ? '1' : '0'}
+                  >
                     <SelectTrigger className="hover:bg-secondary">
                       <SelectValue placeholder="Seleccionar" />
                     </SelectTrigger>
@@ -138,8 +159,11 @@ export default async function Page({ params }: Props) {
                   </Select>
                 )}
               />
-              {errors.status && (
-                <p className="text-red-600 text-xs">{errors.status.message}</p>
+
+              {errors.habilitado && (
+                <p className="text-red-600 text-xs">
+                  {errors.habilitado.message}
+                </p>
               )}
             </CardContent>
           </Card>
@@ -165,20 +189,16 @@ export default async function Page({ params }: Props) {
               </label>
               <label className="flex flex-col gap-2">
                 <span className="text-sm">Nombres</span>
-                <Input id="name" {...register('name')} />
-                {errors.name && (
-                  <p className="text-red-600 text-xs">{errors.name.message}</p>
-                )}
+                <span className="p-2 border rounded text-sm">
+                  {reniecData?.nombre}
+                </span>
               </label>
 
               <label className="flex flex-col gap-2">
                 <span className="text-sm">Apellidos</span>
-                <Input id="lastName" {...register('lastName')} />
-                {errors.lastName && (
-                  <p className="text-red-600 text-xs">
-                    {errors.lastName.message}
-                  </p>
-                )}
+                <span className="p-2 border rounded text-sm">
+                  {reniecData?.apellidos}
+                </span>
               </label>
             </CardContent>
           </Card>
@@ -190,18 +210,10 @@ export default async function Page({ params }: Props) {
             <CardContent className="flex gap-5 max-md:flex-col">
               <label className="flex flex-col gap-2 w-full">
                 <span className="text-sm">Correo Electrónico</span>
-                <Input id="email" {...register('email')} />
-                {errors.email && (
-                  <p className="text-red-600 text-xs">{errors.email.message}</p>
-                )}
-              </label>
-
-              <label className="flex flex-col gap-2 w-full">
-                <span className="text-sm">Número</span>
-                <Input id="number" {...register('number')} />
-                {errors.number && (
+                <Input id="email" {...register('correo')} />
+                {errors.correo && (
                   <p className="text-red-600 text-xs">
-                    {errors.number.message}
+                    {errors.correo.message}
                   </p>
                 )}
               </label>
@@ -216,39 +228,11 @@ export default async function Page({ params }: Props) {
                 Rol asignado
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <Controller
-                name="role"
-                control={control}
-                defaultValue="1"
-                render={({ field }) => (
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <SelectTrigger className="hover:bg-secondary">
-                      <SelectValue placeholder="Seleccionar" />
-                    </SelectTrigger>
-                    <SelectContent
-                      position="popper"
-                      sideOffset={5}
-                      hideWhenDetached
-                    >
-                      <SelectItem value="1">Administrador</SelectItem>
-                      <SelectItem value="0">Cliente</SelectItem>
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-              {errors.role && (
-                <p className="text-red-600 text-xs">{errors.role.message}</p>
-              )}
-            </CardContent>
+            <CardContent></CardContent>
           </Card>
 
-          <Button
-            variant={'secondary'}
-            type="submit"
-            disabled={getLoading || putLoading}
-          >
-            {getLoading || putLoading ? (
+          <Button type="submit" disabled={getLoading || loading}>
+            {getLoading || loading ? (
               <AiOutlineLoading
                 size={18}
                 className="animate-spin ease-in-out"
@@ -267,4 +251,9 @@ export default async function Page({ params }: Props) {
       </FetchDniDialog>
     </>
   )
+}
+
+function extractEditableFields(user: User): UserEditFormData {
+  const { id, creado, actualizado, nombre, apellidos, ...editable } = user
+  return editable
 }

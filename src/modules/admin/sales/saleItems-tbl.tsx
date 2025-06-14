@@ -1,52 +1,15 @@
 'use client'
-import { useState } from 'react'
+
 import { HiOutlineArrowsUpDown } from 'react-icons/hi2'
 import { Button } from '@shared/components/ui/button'
-import { SaleItem } from '@shared/interfaces/sale.interfaces'
 
-type SortConfig = {
-  key: keyof SaleItem
-  order: 'asc' | 'desc'
-}
-
-type Props = {
-  items: SaleItem[]
-}
-
-export default function SaleItemsTbl({ items }: Props) {
-  const [sortConfig, setSortConfig] = useState<SortConfig>({
-    key: 'id',
-    order: 'asc',
-  })
-  const [saleItems, setItems] = useState<SaleItem[]>(items)
-
-  const handleSort = (key: keyof SaleItem) => {
-    const order =
-      sortConfig.key === key && sortConfig.order === 'asc' ? 'desc' : 'asc'
-
-    setSortConfig({ key, order })
-
-    const sortedData = [...items].sort((a, b) => {
-      if (a[key] < b[key]) {
-        return order === 'asc' ? -1 : 1
-      }
-
-      if (a[key] > b[key]) {
-        return order === 'asc' ? 1 : -1
-      }
-
-      return 0
-    })
-
-    setItems(sortedData)
-  }
-
+export default function SaleItemsTbl() {
   return (
     <table className="table-auto text-center text-sm w-full">
       <thead className=" border-b relative text-sm w-full">
         <tr className="h-16 w-full">
           <td>
-            <Button onClick={() => handleSort('id')} variant={'ghost'}>
+            <Button variant={'ghost'}>
               <HiOutlineArrowsUpDown />
               Id
             </Button>
@@ -59,7 +22,7 @@ export default function SaleItemsTbl({ items }: Props) {
         </tr>
       </thead>
       <tbody className="max-sm:text-xs relative">
-        {saleItems.map((item, index) => (
+        {/* {saleItems.map((item, index) => (
           <tr
             key={index}
             className="hover:bg-muted/50 duration-300 relative h-24"
@@ -71,7 +34,7 @@ export default function SaleItemsTbl({ items }: Props) {
             <td className="max-xs:hidden">S/ {item.discount}</td>
             <td className="max-xs:hidden">S/ {item.totalPrice}</td>
           </tr>
-        ))}
+        ))} */}
       </tbody>
     </table>
   )

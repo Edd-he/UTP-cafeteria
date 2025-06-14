@@ -1,56 +1,33 @@
 export type Product = {
   id: number
-  created: string
-  updated: string
-  name: string
-  description: string
-  price: string
-  discount: string
-  category: string
-  status: boolean
+  creado: string
+  actualizado: string
+  nombre: string
+  descripcion: string
+  precio: string
+  categoria: string
+  habilitado: boolean
   stock: number
-  orderLimit: number
-  img: any
-}
-
-export type ProductInventory = {
-  id: number
-  name: string
-  status: boolean
-  stock: number
-  lastStockEntry: string
+  limite_de_orden: number
+  url: any
 }
 
 export type CartProduct = {
   id: number
-  name: string
-  description: string
-  price: number
-  discount: number
-  maxQuantity: number
-  quantity: number
+  nombre: string
+  descripcion: string
+  precio: number
+  limite_de_orden: number
+  cantidad: number
   category: string
-  img: any
+  url: any
 }
 
 export type ProductFormData = {
-  name: string
-  description: string
-  status: string
-  category: string
-  price: string
-  discount: string
-  orderLimit: string
-  img: any
-}
-
-export type ProductDTO = {
-  name: string
-  description: string
-  status: boolean
-  category: string
-  price: number
-  discount: number
-  orderLimit: number
-  image: any
+  nombre: string
+  descripcion: string
+  habilitado: boolean
+  categoria: string
+  precio: number
+  limite_de_orden: number
 }

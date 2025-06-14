@@ -4,13 +4,13 @@ import { Button } from '@shared/components/ui/button'
 import ProductsGrid from '@shop/components/products-grid'
 import { SearchByName } from '@shared/filters'
 import FiltersContainer from '@shop/components/filters-container'
+import { Suspense } from 'react'
 
-import { CATEGORIES } from '@/lib/categories'
+import { PRODUCT_CATEGORIRES } from '@/lib/categories'
 import { SlideTransition } from '@/modules/shared/components/slide-transition'
 
 type SearchParams = {
   query?: string
-  page?: string
   max?: string
   order?: string
 }
@@ -21,20 +21,21 @@ type Props = {
 }
 
 export async function generateStaticParams() {
-  return CATEGORIES.map((category) => ({
+  return PRODUCT_CATEGORIRES.map((category) => ({
     slug: category.slug,
   }))
 }
 
 export default async function Page({ params, searchParams }: Props) {
   const { slug } = await params
-  const { query, page, max, order } = await searchParams
-  const category = CATEGORIES.find((category) => category.slug === slug)
+  const { query, max, order } = await searchParams
+  const category = PRODUCT_CATEGORIRES.find(
+    (category) => category.slug === slug,
+  )
   const Icon = category?.icon
 
   const queryValue = query || ''
-  const currentPage = Number(page) || 1
-  const maxValue = Number(max) || 100
+  const maxValue = max || '100'
   const orderValue = order || 'asc'
 
   return (
@@ -71,16 +72,17 @@ export default async function Page({ params, searchParams }: Props) {
       </section>
 
       <section className="container">
-        <SearchByName className="focus-visible:h-14" />
+        <Suspense>
+          <SearchByName className="focus-visible:h-14" />
+        </Suspense>
       </section>
 
       <section className="relative sm:container">
         <ProductsGrid
-          page={currentPage}
           max={maxValue}
           order={orderValue}
           query={queryValue}
-          category={slug}
+          category={category?.value}
         />
       </section>
     </main>

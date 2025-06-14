@@ -24,7 +24,7 @@ export default async function Page({ searchParams }: Props) {
   const queryValue = query || ''
   const currentPage = Number(page) || 1
   const statusValue = status || 'all'
-  const limitValue = Number(limit) || 5
+  const limitValue = Number(limit) || 10
 
   return (
     <>

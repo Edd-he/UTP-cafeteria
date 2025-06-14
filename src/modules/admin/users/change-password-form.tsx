@@ -6,9 +6,9 @@ import { Button } from '@shared/components/ui/button'
 import { Input } from '@shared/components/ui/input'
 import { toast } from 'sonner'
 
-import { ChangePasswordSchema } from '../schemas/change-password-schema'
+import { ChangePasswordSchema } from '../schemas/change-password.schema'
 
-import { usePostData } from '@/modules/shared/hooks/use-post-data'
+import { useSendRequest } from '@/modules/shared/hooks/use-send-request'
 
 type Props = {
   id: number
@@ -21,8 +21,9 @@ type InputForm = {
 }
 
 export default function ChangePasswordForm({ id, onSuccess }: Props) {
-  const { postData, error, loading } = usePostData(
+  const { sendRequest, loading } = useSendRequest(
     `/api/users/${id}/change-password`,
+    'PATCH',
   )
   const {
     register,
@@ -34,7 +35,7 @@ export default function ChangePasswordForm({ id, onSuccess }: Props) {
   })
 
   const onSubmit: SubmitHandler<InputForm> = async (data) => {
-    await postData(data)
+    const { error } = await sendRequest(data)
     if (error) {
       toast.error(error)
       return

@@ -1,12 +1,12 @@
 import type { Metadata } from 'next'
 
 export const META_DATA: Metadata = {
-  title: 'UTP',
+  title: 'UTP+ tienda',
   description:
     'Sistema creado para el curso de Arquitectura orientada a Servicios',
   manifest: '/manifest.json',
   appleWebApp: {
-    title: 'Web App',
+    title: 'UTP+ tienda Web App',
     statusBarStyle: 'default',
   },
 }

@@ -4,7 +4,22 @@ import OrdersContainer from '@/modules/admin/orders/orders-container'
 import OrdersTabs from '@/modules/admin/orders/orders-tabs'
 import SearchOrders from '@/modules/admin/orders/search-orders'
 
-export default function Page() {
+type SearchParams = {
+  query?: string
+  page?: string
+  limit?: string
+  orderStatus?: string
+}
+
+type Props = {
+  searchParams: Promise<SearchParams>
+}
+export default async function Page({ searchParams }: Props) {
+  const { query, page, limit, orderStatus } = await searchParams
+  const queryValue = query || ''
+  const currentPage = Number(page) || 1
+  const limitValue = Number(limit) || 10
+  const statusValue = orderStatus || 'EN_PROCESO'
   return (
     <>
       <section className="w-full flex items-end justify-between max-sm:flex-col-reverse gap-3">
@@ -18,7 +33,12 @@ export default function Page() {
         <OrdersTabs />
       </Suspense>
       <section>
-        <OrdersContainer />
+        <OrdersContainer
+          query={queryValue}
+          page={currentPage}
+          limit={limitValue}
+          status={statusValue}
+        />
       </section>
     </>
   )

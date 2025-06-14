@@ -2,7 +2,7 @@
 
 import { MdOutlineUnfoldMore } from 'react-icons/md'
 import { HiOutlineArrowsUpDown } from 'react-icons/hi2'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Pagination from '@shared/components/ui/pagination'
 import {
   Popover,
@@ -21,117 +21,110 @@ import { Button } from '@shared/components/ui/button'
 import { toast } from 'sonner'
 
 import TableSkeleton from '../skelletons/table-skeleton'
+import { ChangeStockDialog } from './change-stock-dialog'
+import GenerateInventoryButton from './generate-inventory-button'
 
-import { ProductInventory } from '@/modules/shared/interfaces/products.interfaces'
 import { useGetData } from '@/modules/shared/hooks/use-get-data'
-
-type SortConfig = {
-  key: keyof ProductInventory
-  order: 'asc' | 'desc'
-}
+import { BACKEND_URL } from '@/lib/constants'
+import { useSortableData } from '@/modules/shared/hooks/use-sort-data'
+import { ProductInventory } from '@/modules/shared/interfaces/inventory.interfaces'
 
 type Props = {
   query: string
-  status: string
   page: number
   limit: number
-  productId?: string
 }
 
-export default function InventoryTbl({ query, status, page, limit }: Props) {
-  const [sortConfig, setSortConfig] = useState<SortConfig>({
-    key: 'id',
-    order: 'asc',
-  })
+type GetProductsInventory = {
+  data: ProductInventory[]
+  total: number
+  totalPages: number
+}
+
+export default function InventoryTbl({ query, page, limit }: Props) {
   const {
-    data: products,
-    setData,
+    data: fetch,
     loading,
+    refresh,
     error,
-  } = useGetData<ProductInventory[]>(
-    `/api/inventory?page=${page}&query=${query}&status=${status}&limit=${limit}`,
+  } = useGetData<GetProductsInventory>(
+    `${BACKEND_URL}/inventario/obtener-inventario-hoy?page_size=${limit}&page=${page}&query=${query}`,
   )
 
-  const handleSort = (key: keyof ProductInventory) => {
-    const order =
-      sortConfig.key === key && sortConfig.order === 'asc' ? 'desc' : 'asc'
+  const {
+    data: products,
+    sort,
+    updateData,
+  } = useSortableData<ProductInventory>()
+  const [count, setCount] = useState(limit)
+  const [open, setOpen] = useState(false)
+  const [product, setProduct] = useState<ProductInventory>()
 
-    setSortConfig({ key, order })
+  useEffect(() => {
+    if (fetch) {
+      updateData(fetch.data)
+      setCount(fetch.total)
+    }
+  }, [fetch])
 
-    if (!products) return
-
-    const sortedData = [...products].sort((a, b) => {
-      if (a[key] < b[key]) {
-        return order === 'asc' ? -1 : 1
-      }
-
-      if (a[key] > b[key]) {
-        return order === 'asc' ? 1 : -1
-      }
-
-      return 0
-    })
-
-    setData(sortedData)
-  }
-
-  if (error) toast.error(error)
+  useEffect(() => {
+    if (error) toast.error(error)
+  }, [error])
 
   return (
     <Card x-chunk="products-table">
       <CardHeader>
         <CardTitle>Inventario</CardTitle>
         <CardDescription>
-          Administra las entradas y salidas de tus productos.
+          Genera el inventario y administra las entradas y salidas de tus
+          productos.
         </CardDescription>
+        <GenerateInventoryButton
+          onSuccess={refresh}
+          className="max-w-40 ml-auto"
+        />
       </CardHeader>
       <CardContent>
         <table className="table-auto text-sm  text-center w-full relative">
           <thead className="border-b  w-full relative">
             <tr className="h-16 w-full">
               <td>
-                <Button onClick={() => handleSort('id')} variant={'ghost'}>
+                <Button onClick={() => sort('producto_id')} variant={'ghost'}>
                   <HiOutlineArrowsUpDown />
                   Id
                 </Button>
               </td>
               <td>
-                <Button onClick={() => handleSort('name')} variant={'ghost'}>
+                <Button
+                  onClick={() => sort('nombre_producto')}
+                  variant={'ghost'}
+                >
                   <HiOutlineArrowsUpDown />
                   Nombre
                 </Button>
               </td>
-              <td className="max-lg:hidden">Estado</td>
               <td>
-                <Button onClick={() => handleSort('stock')} variant={'ghost'}>
+                <Button onClick={() => sort('stock')} variant={'ghost'}>
                   <HiOutlineArrowsUpDown />
                   Stock
                 </Button>
               </td>
-              <td className="max-lg:hidden">Ultimo Ingreso</td>
+              <td>Ultima Entrada</td>
+              <td className="max-lg:hidden">Ultimo Salida</td>
               <td></td>
             </tr>
           </thead>
-          <tbody className="max-sm:text-xs relative">
+          <tbody className="text-xs relative">
             {products && loading ? (
-              <TableSkeleton rows={Math.min(limit, products.length)} />
+              <TableSkeleton rows={Math.min(limit, count)} />
             ) : products && products.length > 0 ? (
               products.map((product, index) => (
                 <tr
                   key={index}
-                  className="hover:bg-muted/50 duration-300 relative h-24"
+                  className="hover:bg-muted/50 duration-200 relative h-14 border-t"
                 >
-                  <td className=" rounded-l-lg">{product.id}</td>
-                  <td>{product.name}</td>
-                  <td
-                    className={`max-lg:hidden text-shadow-lg ${
-                      product.status
-                        ? 'text-green-500 shadow-green-500/50'
-                        : 'text-red-500 shadow-red-500/50'
-                    }`}
-                  >
-                    {product.status ? 'Activo' : 'Inactivo'}
-                  </td>
+                  <td className=" rounded-l-lg">{product.producto_id}</td>
+                  <td>{product.nombre_producto}</td>
                   <td
                     className={`text-shadow-lg ${
                       product.stock < 5
@@ -144,8 +137,13 @@ export default function InventoryTbl({ query, status, page, limit }: Props) {
                     {product.stock}
                   </td>
                   <td className="max-lg:hidden">
-                    {product.lastStockEntry !== null
-                      ? product.lastStockEntry
+                    {product.ultima_entrada !== null
+                      ? product.ultima_entrada
+                      : 'NO HAY REGISTRO'}
+                  </td>
+                  <td className="max-lg:hidden">
+                    {product.ultima_salida !== null
+                      ? product.ultima_salida
                       : 'NO HAY REGISTRO'}
                   </td>
                   <td className="rounded-r-lg space-x-2 ">
@@ -155,8 +153,18 @@ export default function InventoryTbl({ query, status, page, limit }: Props) {
                       </PopoverTrigger>
                       <PopoverContent
                         align="end"
-                        className="flex flex-col gap-2 items-start text-sm"
-                      ></PopoverContent>
+                        className="lex flex-col gap-2 items-start max-w-40 p-2 text-xs"
+                      >
+                        <button
+                          className="flex items-center gap-2 hover:bg-secondary p-2 rounded-sm w-full"
+                          onClick={() => {
+                            setOpen(true)
+                            setProduct(product)
+                          }}
+                        >
+                          Actualizar Stock
+                        </button>
+                      </PopoverContent>
                     </Popover>
                   </td>
                 </tr>
@@ -172,8 +180,14 @@ export default function InventoryTbl({ query, status, page, limit }: Props) {
         </table>
       </CardContent>
       <CardFooter>
-        <Pagination totalPages={5} />
+        <Pagination totalPages={fetch?.totalPages ?? 0} />
       </CardFooter>
+      <ChangeStockDialog
+        product={product}
+        open={open}
+        setOpen={setOpen}
+        refresh={refresh}
+      />
     </Card>
   )
 }

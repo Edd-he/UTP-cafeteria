@@ -22,17 +22,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@shared/components/ui/select'
-import ImageUploader from '@shared/components/image-uploader'
 import { Button } from '@shared/components/ui/button'
-import { ProductFormData } from '@shared/interfaces/products.interfaces'
-import { ProductSchema } from '@admin/schemas/product-schema'
+import { ProductFormData } from '@shared/interfaces/product.interfaces'
 
-import { CATEGORIES } from '@/lib/categories'
-import { convertToBase64 } from '@/lib/utils'
-import { usePostData } from '@/modules/shared/hooks/use-post-data'
+import { ProductSchema } from '@/modules/admin/schemas/products.schema'
+import { PRODUCT_CATEGORIRES } from '@/lib/categories'
+import { BACKEND_URL } from '@/lib/constants'
+import { useSendRequest } from '@/modules/shared/hooks/use-send-request'
 
 export default function Page() {
-  const { postData, loading, error } = usePostData('/products')
+  const { sendRequest, loading } = useSendRequest(
+    `${BACKEND_URL}/productos/crear-producto`,
+    'POST',
+  )
   const {
     register,
     control,
@@ -40,24 +42,25 @@ export default function Page() {
     formState: { errors },
   } = useForm<ProductFormData>({
     resolver: zodResolver(ProductSchema),
+    defaultValues: {
+      nombre: '',
+      descripcion: '',
+      precio: 0,
+      categoria: '',
+      limite_de_orden: 0,
+      habilitado: true,
+    },
   })
 
   const { push } = useRouter()
 
   const onSubmit: SubmitHandler<ProductFormData> = async (data) => {
-    let image = 'PENDIENTE'
-
-    if (data.img) image = await convertToBase64(data.img as unknown as File)
-
-    const formData = { ...data, img: image }
-
-    await postData(formData)
+    const { error } = await sendRequest(data)
 
     if (error) {
       toast.error(error)
       return
     }
-
     toast.success('Producto Creado Correctamente')
     push('/admin/products')
   }
@@ -85,23 +88,32 @@ export default function Page() {
             </CardHeader>
             <CardContent>
               <Controller
-                name="status"
+                name="habilitado"
                 control={control}
-                defaultValue="1"
+                defaultValue={true}
                 render={({ field }) => (
-                  <Select onValueChange={field.onChange} value={field.value}>
+                  <Select
+                    onValueChange={(value) => field.onChange(value === '1')}
+                    value={field.value ? '1' : '0'}
+                  >
                     <SelectTrigger className="hover:bg-secondary">
                       <SelectValue placeholder="Seleccionar" />
                     </SelectTrigger>
-                    <SelectContent position="popper" hideWhenDetached>
+                    <SelectContent
+                      position="popper"
+                      sideOffset={5}
+                      hideWhenDetached
+                    >
                       <SelectItem value="1">Activo</SelectItem>
                       <SelectItem value="0">Inactivo</SelectItem>
                     </SelectContent>
                   </Select>
                 )}
               />
-              {errors.status && (
-                <p className="text-red-600 text-xs">{errors.status.message}</p>
+              {errors.habilitado && (
+                <p className="text-red-600 text-xs">
+                  {errors.habilitado.message}
+                </p>
               )}
             </CardContent>
           </Card>
@@ -113,18 +125,20 @@ export default function Page() {
             <CardContent className="space-y-2">
               <label className="flex flex-col gap-2">
                 <span>Nombre</span>
-                <Input id="name" {...register('name')} />
-                {errors.name && (
-                  <p className="text-red-600 text-xs">{errors.name.message}</p>
+                <Input id="name" {...register('nombre')} />
+                {errors.nombre && (
+                  <p className="text-red-600 text-xs">
+                    {errors.nombre.message}
+                  </p>
                 )}
               </label>
 
               <label className="flex flex-col gap-2">
                 <span>Descripción</span>
-                <Textarea id="description" {...register('description')} />
-                {errors.description && (
+                <Textarea id="description" {...register('descripcion')} />
+                {errors.descripcion && (
                   <p className="text-red-600 text-xs ">
-                    {errors.description.message}
+                    {errors.descripcion.message}
                   </p>
                 )}
               </label>
@@ -142,12 +156,14 @@ export default function Page() {
                     defaultValue={0}
                     min={0}
                     step={0.01}
-                    id="price"
-                    {...register('price')}
+                    id="precio"
+                    {...register('precio', { valueAsNumber: true })}
                   />
                 </label>
-                {errors.price && (
-                  <p className="text-red-600 text-xs">{errors.price.message}</p>
+                {errors.precio && (
+                  <p className="text-red-600 text-xs">
+                    {errors.precio.message}
+                  </p>
                 )}
               </CardContent>
             </Card>
@@ -157,16 +173,19 @@ export default function Page() {
               </CardHeader>
               <CardContent className="space-y-2">
                 <Controller
-                  name="category"
+                  name="categoria"
                   control={control}
                   render={({ field }) => (
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value ?? ''}
+                    >
                       <SelectTrigger className="hover:bg-secondary">
                         <SelectValue placeholder="Seleccionar" />
                       </SelectTrigger>
                       <SelectContent position="popper" hideWhenDetached>
-                        {CATEGORIES.map((category, index) => (
-                          <SelectItem key={index} value={`${category.slug}`}>
+                        {PRODUCT_CATEGORIRES.map((category, index) => (
+                          <SelectItem key={index} value={`${category.value}`}>
                             {category.name}
                           </SelectItem>
                         ))}
@@ -174,14 +193,15 @@ export default function Page() {
                     </Select>
                   )}
                 />
-                {errors.category && (
+                {errors.categoria && (
                   <p className="text-red-600 text-xs">
-                    {errors.category.message}
+                    {errors.categoria.message}
                   </p>
                 )}
               </CardContent>
             </Card>
           </div>
+          <div className="flex gap-5 max-md:flex-col w-full"></div>
         </div>
         <div className="w-full lg:w-[40%] relative flex flex-col gap-5">
           <Card className="w-full">
@@ -199,19 +219,19 @@ export default function Page() {
                   type="number"
                   defaultValue={0}
                   min={0}
-                  id="orderLimit"
-                  {...register('orderLimit')}
+                  id="limite_de_orden"
+                  {...register('limite_de_orden', { valueAsNumber: true })}
                 />
               </label>
-              {errors.orderLimit && (
+              {errors.limite_de_orden && (
                 <p className="text-red-600 text-xs">
-                  {errors.orderLimit.message}
+                  {errors.limite_de_orden.message}
                 </p>
               )}
             </CardContent>
           </Card>
 
-          <Card className="w-full h-auto relative">
+          {/* <Card className="w-full h-auto relative">
             <CardHeader>
               <CardTitle className="text-xl font-normal">Imagen</CardTitle>
               <CardDescription>
@@ -221,17 +241,18 @@ export default function Page() {
             </CardHeader>
             <CardContent>
               <Controller
-                name="img"
+                name="url"
                 control={control}
                 render={({ field }) => (
                   <ImageUploader
-                    value={field.value as unknown as File}
+                    value={field.value}
                     onChange={field.onChange}
+                    defaultImage={product?.url}
                   />
                 )}
               />
             </CardContent>
-          </Card>
+          </Card> */}
 
           <Button disabled={loading}>
             {loading ? (

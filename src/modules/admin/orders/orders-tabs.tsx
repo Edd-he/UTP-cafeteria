@@ -3,17 +3,18 @@
 import { useSearchParams, usePathname, useRouter } from 'next/navigation'
 
 const tabs = [
-  { label: 'Todas', value: 'todas' },
-  { label: 'En proceso', value: 'proceso' },
-  { label: 'Pendientes', value: 'pendientes' },
-  { label: 'Canceladas', value: 'canceladas' },
+  { label: 'En proceso', value: 'EN_PROCESO' },
+  { label: 'Recoger', value: 'RECOGER' },
+  { label: 'Completada', value: 'COMPLETADA' },
+  { label: 'Abandonadas', value: 'ABANDONADA' },
+  { label: 'Canceladas', value: 'CANCELADAS' },
 ]
 
 export default function OrdersTabs() {
   const searchParams = useSearchParams()
   const pathname = usePathname()
   const { replace } = useRouter()
-  const currentStatus = searchParams.get('orderStatus') || 'todas'
+  const currentStatus = searchParams.get('orderStatus') || 'EN_PROCESO'
 
   function handleOrder(status: string) {
     const params = new URLSearchParams(searchParams)

@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { BsDownload } from 'react-icons/bs'
+import { FiDownload } from 'react-icons/fi'
 
 import { Button } from './ui/button'
 import { useMediaQuery } from '../hooks/use-media-query'
@@ -56,11 +56,11 @@ const InstallButton = () => {
       {installPrompt && (
         <Button
           onClick={handleInstallClick}
-          variant={'outline'}
-          size={'icon'}
+          variant={'ghost'}
+          size={'lg'}
           className="duration-200"
         >
-          <BsDownload size={18} />
+          <FiDownload size={30} />
         </Button>
       )}
     </>

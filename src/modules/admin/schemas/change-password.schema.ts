@@ -2,15 +2,15 @@ import { z } from 'zod'
 
 export const ChangePasswordSchema = z
   .object({
-    password: z
+    contraseña: z
       .string()
       .min(8, { message: 'La contraseña debe tener al menos 8 caracteres' }),
-    newPassword: z.string().min(8, {
+    nueva_contraseña: z.string().min(8, {
       message: 'La nueva contraseña debe tener al menos 8 caracteres',
     }),
   })
   .strict()
-  .refine((data) => data.password !== data.newPassword, {
+  .refine((data) => data.contraseña !== data.nueva_contraseña, {
     message: 'La nueva contraseña no debe ser igual a la antigua',
     path: ['newPassword'],
   })

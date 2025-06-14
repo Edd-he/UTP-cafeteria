@@ -1,13 +1,44 @@
-import { PiPopcorn, PiBreadDuotone, PiBeerBottle } from 'react-icons/pi'
-import { LuMilk } from 'react-icons/lu'
 import { TbCandy } from 'react-icons/tb'
-import { GiFlour } from 'react-icons/gi'
-
-export const CATEGORIES = [
-  { id: 1, icon: PiBreadDuotone, name: 'Panaderia', slug: 'panaderia' },
-  { id: 2, icon: PiBeerBottle, name: 'Bebidas', slug: 'bebidas' },
-  { id: 3, icon: LuMilk, name: 'Lacteos', slug: 'lacteos' },
-  { id: 4, icon: TbCandy, name: 'Confitería', slug: 'confiteria' },
-  { id: 5, icon: PiPopcorn, name: 'Piqueos', slug: 'piqueos' },
-  { id: 8, icon: GiFlour, name: 'Abarrotes', slug: 'abarrotes' },
+import { LuApple } from 'react-icons/lu'
+import { PiHamburgerDuotone } from 'react-icons/pi'
+import { TbBottle } from 'react-icons/tb'
+import { MdHelpOutline } from 'react-icons/md'
+import { LuUtensils } from 'react-icons/lu'
+export const PRODUCT_CATEGORIRES = [
+  {
+    id: 1,
+    icon: PiHamburgerDuotone,
+    name: 'Preparados',
+    slug: 'preparados',
+    value: 'PREPARADOS',
+  },
+  {
+    id: 2,
+    icon: LuApple,
+    name: 'Saludables',
+    slug: 'saludables',
+    value: 'SALUDABLES',
+  },
+  { id: 3, icon: TbBottle, name: 'Bebidas', slug: 'bebidas', value: 'BEBIDAS' },
+  {
+    id: 4,
+    icon: TbCandy,
+    name: 'Snacks',
+    slug: 'snacks',
+    value: 'SNACKS',
+  },
+  {
+    id: 5,
+    icon: LuUtensils,
+    name: 'Almuerzos',
+    slug: 'almuerzos',
+    value: 'ALMUERZOS',
+  },
+  {
+    id: 6,
+    icon: MdHelpOutline,
+    name: 'Otros',
+    slug: 'otros',
+    value: 'OTROS',
+  },
 ]

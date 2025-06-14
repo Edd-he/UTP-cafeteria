@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-unused-vars */
 'use client'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import CustomImage from '@shared/components/custom-image'
 import {
   Card,
@@ -18,19 +18,33 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from '@shared/components/ui/carousel'
+import { toast } from 'sonner'
 
 import { AddCartProductButton } from '../cart/add-product-button'
 import { ProductsCarouselSkeleton } from '../skelletons/products-carousel-skeleton'
-import { Product } from '../../shared/interfaces/products.interfaces'
 
-interface Props {
+import { Product } from '@/modules/shared/interfaces'
+import { useGetData } from '@/modules/shared/hooks/use-get-data'
+import { BACKEND_URL } from '@/lib/constants'
+
+type Props = {
   category: string
-  limit: number
 }
-
-export function ProductsCarousel({ category, limit }: Props) {
-  const [products, setProducts] = useState<Product[]>([])
-  const [loading, setLoading] = useState<boolean>(false)
+type GetProducts = {
+  data: Product[]
+  totalPages: number
+}
+export function ProductsCarousel({ category }: Props) {
+  const {
+    data: products,
+    loading,
+    error,
+  } = useGetData<GetProducts>(
+    `${BACKEND_URL}/productos/obtener-productos-disponibles?page_size=8&category=${category}`,
+  )
+  useEffect(() => {
+    if (error) toast.error(error)
+  }, [error])
 
   return (
     <Carousel
@@ -43,8 +57,8 @@ export function ProductsCarousel({ category, limit }: Props) {
       <CarouselContent className="-ml-2 md:-ml-3">
         {loading ? (
           <ProductsCarouselSkeleton items={6} />
-        ) : products.length > 0 ? (
-          products.map((product, index) => (
+        ) : products && products.data.length > 0 ? (
+          products.data.map((product, index) => (
             <CarouselItem
               key={index}
               className={
@@ -53,14 +67,14 @@ export function ProductsCarousel({ category, limit }: Props) {
             >
               <Card className="p-3 h-80 relative flex flex-col justify-between hover:bg-muted/40 duration-200">
                 <CardHeader className="p-0">
-                  <CardTitle className="text-base">{product.name}</CardTitle>
+                  <CardTitle className="text-base">{product.nombre}</CardTitle>
                   <CardDescription className="text-base">
-                    {product.description}
+                    {product.descripcion}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="p-0 py-2 flex-center">
                   <CustomImage
-                    src={product.img}
+                    src={product.url}
                     width={140}
                     height={140}
                     alt="a"
@@ -68,9 +82,7 @@ export function ProductsCarousel({ category, limit }: Props) {
                   />
                 </CardContent>
                 <CardFooter className="p-0 flex justify-between">
-                  <span className="leading-none">
-                    S/ {parseFloat(product.price).toFixed(2)}
-                  </span>
+                  <span className="leading-none">S/ {product.precio}</span>
                   <AddCartProductButton product={product} />
                 </CardFooter>
               </Card>

@@ -9,7 +9,7 @@ export default function Layout({ children }: { children: ReactNode }) {
     <>
       <SidebarProvider>
         <AppSidebar />
-        <div className="w-full bg-neutral-50">
+        <div className="w-full ">
           <Header />
           <div className="w-full px-5 ">{children}</div>
         </div>

@@ -14,7 +14,7 @@ export function ToogleLimit() {
   const pathname = usePathname()
   const { replace } = useRouter()
 
-  const currentLimit = searchParams.get('limit') || '5'
+  const currentLimit = searchParams.get('limit') || '10'
 
   function handleOrder(term: string) {
     const params = new URLSearchParams(searchParams)
@@ -34,9 +34,9 @@ export function ToogleLimit() {
         <SelectValue />
       </SelectTrigger>
       <SelectContent position="popper" sideOffset={10} hideWhenDetached>
-        <SelectItem value="5">5</SelectItem>
-        <SelectItem value="8">8</SelectItem>
         <SelectItem value="10">10</SelectItem>
+        <SelectItem value="15">15</SelectItem>
+        <SelectItem value="25">25</SelectItem>
       </SelectContent>
     </Select>
   )

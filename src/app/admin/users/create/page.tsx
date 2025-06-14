@@ -24,39 +24,51 @@ import {
 } from '@shared/components/ui/select'
 import { Button } from '@shared/components/ui/button'
 
-import { UserSchema } from '@/modules/admin/schemas/user-schema'
-import { DniQueryForm } from '@/modules/admin/users/dni-query-form'
+import { UserCreateSchema } from '@/modules/admin/schemas/users.schema'
+import { DniQueryForm } from '@/modules/admin/users/fetch-dni-form'
 import { FetchDniDialog } from '@/modules/admin/users/fetch-dni-dialog'
 import { UserFormData } from '@/modules/shared/interfaces'
-import { usePostData } from '@/modules/shared/hooks/use-post-data'
+import { BACKEND_URL } from '@/lib/constants'
+import { useSendRequest } from '@/modules/shared/hooks/use-send-request'
 
+type ReniecData = {
+  nombre: string
+  apellidos: string
+}
 export default function Page() {
-  const { postData, loading, error } = usePostData('')
+  const { sendRequest, loading } = useSendRequest(
+    `${BACKEND_URL}/usuarios/crear-administrador`,
+    'POST',
+  )
   const [open, setOpen] = useState(false)
   const { push } = useRouter()
 
   const {
     register,
-    control,
     setValue,
+    control,
     handleSubmit,
     formState: { errors },
   } = useForm<UserFormData>({
-    resolver: zodResolver(UserSchema),
+    resolver: zodResolver(UserCreateSchema),
   })
+  const [reniecData, setReniecData] = useState<ReniecData>()
 
   const handleOpenChange = (newState: boolean) => {
     setOpen(newState)
   }
 
-  const handleFetchReniec = (dni: string, name: string, lastName: string) => {
+  const handleFetchReniec = (
+    dni: string,
+    nombre: string,
+    apellidos: string,
+  ) => {
+    setReniecData({ nombre, apellidos })
     setValue('dni', dni)
-    setValue('name', name)
-    setValue('lastName', lastName)
   }
 
   const onSubmit: SubmitHandler<UserFormData> = async (data) => {
-    await postData(data)
+    const { error } = await sendRequest(data)
 
     if (error) {
       toast.error(error)
@@ -89,11 +101,14 @@ export default function Page() {
             </CardHeader>
             <CardContent>
               <Controller
-                name="status"
+                name="habilitado"
                 control={control}
-                defaultValue="1"
+                defaultValue={true}
                 render={({ field }) => (
-                  <Select onValueChange={field.onChange} value={field.value}>
+                  <Select
+                    onValueChange={(value) => field.onChange(value === '1')}
+                    value={field.value ? '1' : '0'}
+                  >
                     <SelectTrigger className="hover:bg-secondary">
                       <SelectValue placeholder="Seleccionar" />
                     </SelectTrigger>
@@ -108,8 +123,10 @@ export default function Page() {
                   </Select>
                 )}
               />
-              {errors.status && (
-                <p className="text-red-600 text-xs">{errors.status.message}</p>
+              {errors.habilitado && (
+                <p className="text-red-600 text-xs">
+                  {errors.habilitado.message}
+                </p>
               )}
             </CardContent>
           </Card>
@@ -135,20 +152,16 @@ export default function Page() {
               </label>
               <label className="flex flex-col gap-2">
                 <span className="text-sm">Nombres</span>
-                <Input id="name" {...register('name')} />
-                {errors.name && (
-                  <p className="text-red-600 text-xs">{errors.name.message}</p>
-                )}
+                <Input id="nombre" defaultValue={reniecData?.nombre} readOnly />
               </label>
 
               <label className="flex flex-col gap-2">
                 <span className="text-sm">Apellidos</span>
-                <Input id="lastName" {...register('lastName')} />
-                {errors.lastName && (
-                  <p className="text-red-600 text-xs">
-                    {errors.lastName.message}
-                  </p>
-                )}
+                <Input
+                  id="lastName"
+                  defaultValue={reniecData?.apellidos}
+                  readOnly
+                />
               </label>
             </CardContent>
           </Card>
@@ -160,18 +173,10 @@ export default function Page() {
             <CardContent className="flex gap-5 max-md:flex-col">
               <label className="flex flex-col gap-2 w-full">
                 <span className="text-sm">Correo Electrónico</span>
-                <Input id="email" {...register('email')} />
-                {errors.email && (
-                  <p className="text-red-600 text-xs">{errors.email.message}</p>
-                )}
-              </label>
-
-              <label className="flex flex-col gap-2 w-full">
-                <span className="text-sm">Número</span>
-                <Input id="number" {...register('number')} />
-                {errors.number && (
+                <Input id="correo" {...register('correo')} />
+                {errors.correo && (
                   <p className="text-red-600 text-xs">
-                    {errors.number.message}
+                    {errors.correo.message}
                   </p>
                 )}
               </label>
@@ -186,31 +191,7 @@ export default function Page() {
                 Rol asignado
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <Controller
-                name="role"
-                control={control}
-                defaultValue="1"
-                render={({ field }) => (
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <SelectTrigger className="hover:bg-secondary">
-                      <SelectValue placeholder="Seleccionar" />
-                    </SelectTrigger>
-                    <SelectContent
-                      position="popper"
-                      sideOffset={5}
-                      hideWhenDetached
-                    >
-                      <SelectItem value="1">Administrador</SelectItem>
-                      <SelectItem value="0">Cliente</SelectItem>
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-              {errors.role && (
-                <p className="text-red-600 text-xs">{errors.role.message}</p>
-              )}
-            </CardContent>
+            <CardContent></CardContent>
           </Card>
           <Card>
             <CardHeader>
@@ -220,27 +201,30 @@ export default function Page() {
             <CardContent className="flex flex-col gap-5">
               <label className="flex flex-col gap-2 w-full">
                 <span className="text-sm">Contraseña</span>
-                <Input id="password" {...register('password')} />
-                {errors.password && (
+                <Input id="password" {...register('contraseña')} />
+                {errors.contraseña && (
                   <p className="text-red-600 text-xs">
-                    {errors.password.message}
+                    {errors.contraseña.message}
                   </p>
                 )}
               </label>
 
               <label className="flex flex-col gap-2 w-full">
                 <span className="text-sm">Confirmar Contraseña</span>
-                <Input id="confirmPassword" {...register('confirmPassword')} />
-                {errors.confirmPassword && (
+                <Input
+                  id="confirmPassword"
+                  {...register('confirmar_contraseña')}
+                />
+                {errors.confirmar_contraseña && (
                   <p className="text-red-600 text-xs">
-                    {errors.confirmPassword.message}
+                    {errors.confirmar_contraseña.message}
                   </p>
                 )}
               </label>
             </CardContent>
           </Card>
 
-          <Button variant={'secondary'} type="submit" disabled={loading}>
+          <Button type="submit" disabled={loading}>
             {loading ? (
               <AiOutlineLoading
                 size={18}

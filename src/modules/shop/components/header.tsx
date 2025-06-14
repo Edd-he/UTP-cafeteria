@@ -12,10 +12,10 @@ export default function Header() {
         <SidebarTrigger size={'lg'} />
       </div>
 
-      <div className="flex-center gap-2">
+      <div className="flex-center gap-1">
         <InstallButton />
-        <UserPopover />
         <CartButton />
+        <UserPopover />
       </div>
     </header>
   )

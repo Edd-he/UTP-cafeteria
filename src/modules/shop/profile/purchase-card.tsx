@@ -8,63 +8,62 @@ import {
   CardTitle,
 } from '@shared/components/ui/card'
 
-interface PurchaseCardProps {
-  id: string
-  transaction: string
-  price: number
-  date: string
-  status: 'Completada'
-  discount?: number
+import { Order } from '@/modules/shared/interfaces'
+
+type Props = {
+  order: Order
 }
-
-export function PurchaseCard({
-  id,
-  transaction,
-  price,
-  date,
-  status,
-  discount,
-}: PurchaseCardProps) {
-  const finalPrice = discount ? Math.max(0, price - discount) : price
-
+export function OrderClientCard({ order }: Props) {
+  const { id, monto_total, hora_programada, estado, creado, transaccion } =
+    order
   return (
     <Card className="w-full max-w-md">
       <CardHeader>
         <CardTitle>
           <div className="flex flex-col gap-2">
-            <span>Transacción:</span>
-            <span className="text-2xl font-normal">{transaction}</span>
+            <span className="text-2xl font-normal">ORD-00{id}</span>
           </div>
         </CardTitle>
-        <CardDescription>ID de compra: {id}</CardDescription>
+        <CardDescription className="line-clamp-2">
+          <p>Transacción:</p>
+          <p className="text-black font-semibold">
+            <>{transaccion}</>
+          </p>
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <div className="flex items-baseline justify-between">
-          <p className="text-2xl font-bold">S/{finalPrice.toFixed(2)}</p>
-          {discount && discount > 0 && (
-            <div className="text-right">
-              <p className="text-sm text-muted-foreground line-through">
-                S/{price.toFixed(2)}
-              </p>
-              <Badge variant="secondary" className="ml-2">
-                -S/{discount.toFixed(2)}
-              </Badge>
-            </div>
-          )}
+          <p className="text-xl">S/{monto_total}</p>
         </div>
-        <p className="text-sm text-muted-foreground mt-2">Fecha: {date}</p>
+        <p className="text-sm text-muted-foreground mt-2">
+          Orden creada: {creado}
+        </p>
+        <p className="text-sm text-muted-foreground mt-2">
+          Hora Programada:{' '}
+          <span className="text-black font-semibold">
+            {hora_programada.split(' ')[1]}
+          </span>
+        </p>
       </CardContent>
       <CardFooter>
         <Badge
           variant={
-            status === 'Completada'
+            estado === 'COMPLETADA'
               ? 'default'
-              : status === 'Pendiente'
+              : estado === 'CANCELADA'
                 ? 'secondary'
                 : 'destructive'
           }
         >
-          {status.charAt(0).toUpperCase() + status.slice(1)}
+          {estado === 'COMPLETADA'
+            ? 'Completada'
+            : estado === 'EN_PROCESO'
+              ? 'En proceso'
+              : estado === 'RECOGER'
+                ? 'Listo para recoger'
+                : estado === 'ABANDONADA'
+                  ? 'Abandonada'
+                  : 'cancelada'}
         </Badge>
       </CardFooter>
     </Card>

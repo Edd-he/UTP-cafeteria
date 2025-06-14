@@ -6,7 +6,7 @@ import { Input } from '@shared/components/ui/input'
 import { Button } from '@shared/components//ui/button'
 
 import { useCartStore } from '@/store/cart-store'
-import { CartProduct } from '@/modules/shared/interfaces/products.interfaces'
+import { CartProduct } from '@/modules/shared/interfaces/product.interfaces'
 
 type Props = {
   product: CartProduct
@@ -16,12 +16,12 @@ export default function QuantitySelector({ product }: Props) {
   const updateProductQuantity = useCartStore(
     (state) => state.updateProductQuantity,
   )
-  const [count, setCount] = useState(product.quantity)
+  const [count, setCount] = useState(product.cantidad)
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const value = parseInt(e.target.value, 10)
 
-    if (!isNaN(value) && value >= 1 && value <= product.maxQuantity) {
+    if (!isNaN(value) && value >= 1 && value <= product.limite_de_orden) {
       setCount(value)
       updateProductQuantity(product, value)
     }
@@ -29,7 +29,7 @@ export default function QuantitySelector({ product }: Props) {
 
   const toggleCount = (value: number) => {
     const updatedCount = count + value
-    if (updatedCount >= 1 && updatedCount <= product.maxQuantity) {
+    if (updatedCount >= 1 && updatedCount <= product.limite_de_orden) {
       setCount(updatedCount)
       updateProductQuantity(product, updatedCount)
     }
@@ -52,14 +52,14 @@ export default function QuantitySelector({ product }: Props) {
         value={count}
         onChange={handleInputChange}
         min={1}
-        max={product.maxQuantity}
+        max={product.limite_de_orden}
       />
       <Button
         onClick={() => toggleCount(1)}
         size={'icon'}
         variant={'ghost'}
         className="h-8 w-8"
-        disabled={count >= product.maxQuantity}
+        disabled={count >= product.limite_de_orden}
       >
         <MdAdd size={18} />
       </Button>

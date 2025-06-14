@@ -11,49 +11,45 @@ import {
   DialogTitle,
 } from '@shared/components/ui/dialog'
 
-import { Product } from '@/modules/shared/interfaces/products.interfaces'
-import { useDeleteData } from '@/modules/shared/hooks/use-delete-data'
+import { Product } from '@/modules/shared/interfaces/product.interfaces'
+import { BACKEND_URL } from '@/lib/constants'
+import { useSendRequest } from '@/modules/shared/hooks/use-send-request'
 
 type Props = {
   product: Product | null
   open: boolean
   handleOpenChange: (open: boolean) => void
-  handlRefresh: () => void
+  handleRefresh: () => void
 }
 
-export function DeleteProductDialog({
+export function DeleteProductFormDialog({
   open,
   product,
   handleOpenChange,
-  handlRefresh,
+  handleRefresh,
 }: Props) {
-  const { deleteData, error, loading } = useDeleteData(
-    `/api/products/${product?.id}`,
+  const { sendRequest, loading } = useSendRequest(
+    `${BACKEND_URL}/productos/${product?.id}/remover-producto`,
+    'DELETE',
   )
   const handleDelete = async () => {
-    try {
-      console.warn(product)
+    const { error } = await sendRequest()
 
-      await deleteData()
+    handleOpenChange(false)
+    handleRefresh()
 
-      handleOpenChange(false)
-      handlRefresh()
-      if (error) {
-        throw new Error(error)
-      }
-      toast('Eliminado Correctamente')
-    } catch (error: any) {
-      if (error instanceof Error) toast.error(error.message)
-
-      console.error(error)
+    if (error) {
+      toast.error(error)
+      return
     }
+    toast('Producto Eliminado Correctamente')
   }
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Eliminar {product?.name}</DialogTitle>
+          <DialogTitle>Eliminar {product?.nombre}</DialogTitle>
           <DialogDescription>
             ¿Seguro que deseas eliminar este producto permanentemente?
           </DialogDescription>

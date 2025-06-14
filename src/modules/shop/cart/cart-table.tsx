@@ -13,21 +13,20 @@ export function CartTable() {
   return (
     <table className="w-full table-auto relative divide-y-2 divide-border max-sm:w-[800px]">
       <thead className=" sticky top-0 bg-background z-10 ">
-        <tr className="h-16">
-          <td className=" text-xl tracking-tight leading-none">Producto(s)</td>
-          <td className=" text-lg tracking-tight leading-none">Cantidad</td>
-          <td className=" text-lg tracking-tight leading-none">Precio</td>
-          <td className=" text-lg tracking-tight leading-none">Dscto</td>
+        <tr className="h-14">
+          <td className=" tracking-tight leading-none">Producto(s)</td>
+          <td className=" tracking-tight leading-none">Cantidad</td>
+          <td className=" tracking-tight leading-none">Precio/U</td>
           <td></td>
         </tr>
       </thead>
-      <tbody>
+      <tbody className="text-sm">
         {cart.length > 0 ? (
           cart.map((product, index) => (
-            <tr key={index} className="hover:bg-muted/40 duration-200">
+            <tr key={index} className="hover:bg-muted/40 duration-200 ">
               <td className="flex gap-2 items-center h-32">
                 <CustomImage
-                  src={product.img}
+                  src={product.url}
                   width={96}
                   height={96}
                   alt="a"
@@ -36,18 +35,17 @@ export function CartTable() {
                 />
                 <div className="flex flex-col gap-2">
                   <span className="font-semibold tracking-tight leading-none">
-                    {product.name}
+                    {product.nombre}
                   </span>
                   <span className="text-muted-foreground">
-                    {product.description}
+                    {product.descripcion}
                   </span>
                 </div>
               </td>
               <td>
                 <QuantitySelector product={product} />
               </td>
-              <td>S/ {product.price.toFixed(2)}</td>
-              <td>S/ {product.discount.toFixed(2)}</td>
+              <td>S/ {product.precio}</td>
               <td>
                 <RemoveProductButton product={product} />
               </td>

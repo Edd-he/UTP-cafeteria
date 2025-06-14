@@ -6,11 +6,9 @@ import { Button } from '@shared/components/ui/button'
 import GridCategories from '@shop/components/categories-grid'
 import SearchProducts from '@shop/components/search-products'
 
-import { CATEGORIES } from '@/lib/categories'
+import { PRODUCT_CATEGORIRES } from '@/lib/categories'
 
 export default async function Page() {
-  const limit = 8
-
   return (
     <>
       <main className="w-full flex flex-col gap-16 pt-10 pb-24">
@@ -27,7 +25,7 @@ export default async function Page() {
             <SearchProducts />
           </Suspense>
         </section>
-        {CATEGORIES.map((category, index) => (
+        {PRODUCT_CATEGORIRES.map((category, index) => (
           <section
             key={index}
             className="relative container space-y-5 max-sm:p-0"
@@ -45,7 +43,7 @@ export default async function Page() {
                 <Link href={`/shop/category/${category.slug}`}>Ver Más</Link>
               </Button>
             </div>
-            <ProductsCarousel category={category.slug} limit={limit} />
+            <ProductsCarousel category={category.value} />
           </section>
         ))}
       </main>

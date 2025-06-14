@@ -17,28 +17,31 @@ export const authOptions: NextAuthOptions = {
         const { email, password } = credentials
 
         try {
-          const res = await fetch(BACKEND_URL + '/auth/sign-in', {
+          const response = await fetch(BACKEND_URL + '/auth/iniciar-sesion', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password }),
+            body: JSON.stringify({ correo: email, contraseña: password }),
           })
-          if (!res.ok) {
-            console.error('Error en autenticación:', await res.text())
-            return null
+          if (!response.ok) {
+            const errorBody = await response.json()
+
+            const message = errorBody.message?.[0] || 'Error desconocido'
+            throw new Error(message)
           }
 
-          const user = await res.json()
+          const user = await response.json()
           return user
-        } catch (error) {
-          console.error('Error en la solicitud:', error)
-          return null
+        } catch (e) {
+          if (e instanceof Error)
+            throw new Error(e.message || 'Error desconocido')
+          console.error('Error en la solicitud:', e)
         }
       },
     }),
   ],
-  // pages: {
-  //   signIn: '/auth/login',
-  // },
+  pages: {
+    signIn: '/login',
+  },
   callbacks: {
     async jwt({ token, user }) {
       if (user) return { ...token, ...user }
@@ -46,7 +49,7 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       session.user = token.user
-      session.Tokens = token.Tokens
+      session.tokens = token.tokens
       return session
     },
   },

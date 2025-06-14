@@ -16,7 +16,7 @@ export default function CloseSessionButton({
   className,
 }: Props) {
   const handleCloseSession = async () => {
-    await signOut({ redirect: true, callbackUrl: '/login' })
+    await signOut({ redirect: true, callbackUrl: '/' })
   }
 
   return (

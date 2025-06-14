@@ -9,10 +9,11 @@ import { IoSearchOutline } from 'react-icons/io5'
 
 import { Input } from '@/modules/shared/components/ui/input'
 import { Button } from '@/modules/shared/components/ui/button'
+import { BACKEND_URL } from '@/lib/constants'
 
 type Props = {
   handleOpenChange: (open: boolean) => void
-  handleFetchReniec: (dni: string, name: string, lastName: string) => void
+  handleFetchReniec: (dni: string, nombre: string, apellidos: string) => void
 }
 
 type ReniecDniFormData = {
@@ -50,12 +51,9 @@ export function DniQueryForm({ handleOpenChange, handleFetchReniec }: Props) {
     setServerError('')
 
     try {
-      const response = await fetch(`/api/reniec/dni?dni=${data.dni}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
+      const response = await fetch(
+        `${BACKEND_URL}/usuarios/${data.dni}/verificar-dni`,
+      )
 
       if (!response.ok) {
         const errorResponse = await response.json()

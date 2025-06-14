@@ -12,11 +12,10 @@ type Props = {
   searchParams: Promise<SearchParams>
 }
 export default async function Page({ searchParams }: Props) {
-  const { query, page, status, limit } = await searchParams
+  const { query, page, limit } = await searchParams
   const queryValue = query || ''
   const currentPage = Number(page) || 1
-  const statusValue = status || 'all'
-  const limitValue = Number(limit) || 5
+  const limitValue = Number(limit) || 10
 
   return (
     <>
@@ -28,12 +27,7 @@ export default async function Page({ searchParams }: Props) {
         </div>
       </section>
 
-      <InventoryTbl
-        page={currentPage}
-        limit={limitValue}
-        query={queryValue}
-        status={statusValue}
-      />
+      <InventoryTbl page={currentPage} limit={limitValue} query={queryValue} />
     </>
   )
 }

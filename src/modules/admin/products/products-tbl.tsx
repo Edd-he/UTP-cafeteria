@@ -3,7 +3,7 @@
 import { RiDeleteBin6Line } from 'react-icons/ri'
 import { FiEdit } from 'react-icons/fi'
 import { MdOutlineUnfoldMore } from 'react-icons/md'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { HiOutlineArrowsUpDown } from 'react-icons/hi2'
 import Link from 'next/link'
 import Pagination from '@shared/components/ui/pagination'
@@ -24,15 +24,12 @@ import {
 import { toast } from 'sonner'
 
 import TableSkeleton from '../skelletons/table-skeleton'
-import { DeleteProductDialog } from './delete-product-dialog'
+import { DeleteProductFormDialog } from './delete-product-form-dialog'
 
-import { Product } from '@/modules/shared/interfaces/products.interfaces'
+import { Product } from '@/modules/shared/interfaces/product.interfaces'
 import { useGetData } from '@/modules/shared/hooks/use-get-data'
-
-type SortConfig = {
-  key: keyof Product
-  order: 'asc' | 'desc'
-}
+import { BACKEND_URL } from '@/lib/constants'
+import { useSortableData } from '@/modules/shared/hooks/use-sort-data'
 
 type Props = {
   query: string
@@ -40,122 +37,99 @@ type Props = {
   page: number
   limit: number
 }
+type GetProducts = {
+  data: Product[]
+  total: number
+  totalPages: number
+}
 
 export default function ProductsTbl({ query, status, page, limit }: Props) {
-  const [sortConfig, setSortConfig] = useState<SortConfig>({
-    key: 'id',
-    order: 'asc',
-  })
   const {
-    data: products,
-    setData,
+    data: fetch,
     loading,
     refresh,
     error,
-  } = useGetData<Product[]>(
-    `/api/products?page=${page}&query=${query}&status=${status}&limit=${limit}`,
+  } = useGetData<GetProducts>(
+    `${BACKEND_URL}/productos/obtener-productos?page=${page}&query=${query}&enable=${status}&page_size=${limit}`,
   )
+
+  const { data: products, sort, updateData } = useSortableData<Product>()
   const [open, setOpen] = useState(false)
   const [productDelete, setProductDelete] = useState<Product | null>(null)
-  const [productsCount] = useState(limit)
-
-  const handleRefresh = () => {
-    refresh()
-  }
+  const [count, setCount] = useState(limit)
 
   const handleOpenChange = (newState: boolean) => {
     setOpen(newState)
   }
 
-  const handleSort = (key: keyof Product) => {
-    const order =
-      sortConfig.key === key && sortConfig.order === 'asc' ? 'desc' : 'asc'
+  useEffect(() => {
+    if (fetch) {
+      updateData(fetch.data)
+      setCount(fetch.total)
+    }
+  }, [fetch])
 
-    setSortConfig({ key, order })
-    if (!products) return
-    const sortedData = [...products].sort((a, b) => {
-      if (a[key] < b[key]) {
-        return order === 'asc' ? -1 : 1
-      }
-
-      if (a[key] > b[key]) {
-        return order === 'asc' ? 1 : -1
-      }
-
-      return 0
-    })
-
-    setData(sortedData)
-  }
-
-  if (error) toast.error(error)
-
+  useEffect(() => {
+    if (error) toast.error(error)
+  }, [error])
   return (
     <Card>
       <CardHeader>
         <CardTitle>Productos</CardTitle>
-        <CardDescription>
-          Administra tus productos y visualiza su rendimiento de ventas.
-        </CardDescription>
+        <CardDescription>Administra tus productos</CardDescription>
       </CardHeader>
       <CardContent>
         <table className="table-auto text-center w-full text-sm ">
           <thead className=" border-b relative w-full">
             <tr className="h-16 w-full">
               <td className="max-w-20">
-                <Button onClick={() => handleSort('id')} variant={'ghost'}>
+                <Button onClick={() => sort('id')} variant={'ghost'}>
                   <HiOutlineArrowsUpDown />
                   Id
                 </Button>
               </td>
               <td className="max-w-96">
-                <Button onClick={() => handleSort('name')} variant={'ghost'}>
+                <Button onClick={() => sort('nombre')} variant={'ghost'}>
                   <HiOutlineArrowsUpDown />
                   Nombre
                 </Button>
               </td>
               <td className="max-sm:hidden">Estado</td>
               <td className="max-sm:hidden">
-                <Button onClick={() => handleSort('price')} variant={'ghost'}>
+                <Button onClick={() => sort('precio')} variant={'ghost'}>
                   <HiOutlineArrowsUpDown />
                   Precio
                 </Button>
               </td>
-              <td className="max-lg:hidden">Descuento</td>
               <td className="max-lg:hidden">Creado</td>
-              <td className="max-lg:hidden">Modificado</td>
+              <td className="max-lg:hidden">Actualizado</td>
               <td></td>
             </tr>
           </thead>
-          <tbody className="max-sm:text-xs relative">
+          <tbody className="text-xs relative">
             {loading ? (
-              <TableSkeleton rows={Math.min(limit, productsCount)} />
+              <TableSkeleton rows={Math.min(limit, count)} />
             ) : products && products.length > 0 ? (
               products.map((product, index) => (
                 <tr
                   key={index}
-                  className="hover:bg-muted/50  duration-300 relative h-24"
+                  className="hover:bg-muted/50 duration-300 relative h-14 border-t"
                 >
                   <td className=" rounded-l-lg">{product.id}</td>
 
-                  <td className=" ">{product.name}</td>
+                  <td className=" ">{product.nombre}</td>
                   <td
                     className={`max-sm:hidden  text-shadow-lg ${
-                      product.status
+                      product.habilitado
                         ? 'text-green-500 shadow-green-500/50'
                         : 'text-red-500 shadow-red-500/50'
                     }`}
                   >
-                    {product.status ? 'Activo' : 'Inactivo'}
+                    {product.habilitado ? 'Activo' : 'Inactivo'}
                   </td>
-                  <td className="max-sm:hidden">
-                    S/ {parseFloat(product.price).toFixed(2)}
-                  </td>
-                  <td className="max-lg:hidden">
-                    S/ {parseFloat(product.discount).toFixed(2)}
-                  </td>
-                  <td className="max-lg:hidden">{product.created}</td>
-                  <td className="max-lg:hidden">{product.updated}</td>
+                  <td className="max-sm:hidden">S/ {product.precio}</td>
+                  <td className="max-lg:hidden">{product.creado}</td>
+                  <td className="max-lg:hidden">{product.actualizado}</td>
                   <td className="rounded-r-lg space-x-2 ">
                     <Popover>
                       <PopoverTrigger className="p-2 rounded bg-transparent hover:shadow-lg hover:shadow-secondary/50 hover:bg-background duration-300">
@@ -163,7 +137,7 @@ export default function ProductsTbl({ query, status, page, limit }: Props) {
                       </PopoverTrigger>
                       <PopoverContent
                         align="end"
-                        className="flex flex-col gap-2 items-start text-sm w-auto "
+                        className="flex flex-col items-start text-xs max-w-40 p-2"
                       >
                         {/* <Link href={`/admin/products/${product.id}`} className="flex items-center gap-2 hover:bg-secondary p-2 w-full rounded-sm ">
 												<AiOutlineInfoCircle size={18} /> Información
@@ -198,13 +172,13 @@ export default function ProductsTbl({ query, status, page, limit }: Props) {
         </table>
       </CardContent>
       <CardFooter>
-        <Pagination totalPages={3} />
+        <Pagination totalPages={fetch?.totalPages ?? 0} />
       </CardFooter>
-      <DeleteProductDialog
+      <DeleteProductFormDialog
         open={open}
         product={productDelete}
         handleOpenChange={handleOpenChange}
-        handlRefresh={handleRefresh}
+        handleRefresh={refresh}
       />
     </Card>
   )

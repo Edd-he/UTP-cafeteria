@@ -2,7 +2,7 @@
 import { CiTrash } from 'react-icons/ci'
 import { Button } from '@shared/components/ui/button'
 
-import { CartProduct } from '@/modules/shared/interfaces/products.interfaces'
+import { CartProduct } from '@/modules/shared/interfaces/product.interfaces'
 import { useCartStore } from '@/store/cart-store'
 
 type Props = {

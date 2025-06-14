@@ -2,78 +2,67 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
-import { CartProduct } from '@/modules/shared/interfaces/products.interfaces'
-console.warn('zuztand')
+import { CartProduct } from '@/modules/shared/interfaces/product.interfaces'
+
 type CartState = {
   cart: CartProduct[]
-
+  time: Date
+  setTime: (time: Date) => void
+  updateTime: () => void
   getTotalProductsQuantity: () => number
   getFinalPrice: () => number
-  getTotalProductsPrice: () => number
-  getTotalDiscount: () => number
   addProduct: (product: CartProduct) => void
   updateProductQuantity: (product: CartProduct, quantity: number) => void
   removeProduct: (product: CartProduct) => void
   resetItems: () => void
+  isTimeValid: () => boolean
 }
 
 export const useCartStore = create<CartState>()(
   persist(
     (set, get) => ({
       cart: [],
-      resetItems: () => {
-        set({ cart: [] })
+      time: new Date(),
+
+      setTime: (newTime: Date) => {
+        const today = new Date()
+        const updated = new Date(
+          today.getFullYear(),
+          today.getMonth(),
+          today.getDate(),
+          newTime.getHours(),
+          newTime.getMinutes(),
+          0,
+          0,
+        )
+        set({ time: updated })
       },
+
+      isTimeValid: () => {
+        const { time } = get()
+        const hour = time.getHours()
+        return hour >= 9 && hour < 19
+      },
+
+      updateTime: () => {
+        set({ time: new Date() })
+      },
+
       getTotalProductsQuantity: () => {
         const { cart } = get()
-        let totalQuantity = 0
-
-        for (let i = 0; i < cart.length; i++) {
-          const quantity = cart[i].quantity
-          totalQuantity += quantity
-        }
-
-        return totalQuantity
-      },
-
-      getTotalDiscount: () => {
-        const { cart } = get()
-        let totalDiscount = 0
-
-        for (let i = 0; i < cart.length; i++) {
-          totalDiscount += cart[i].discount
-        }
-
-        return totalDiscount
-      },
-
-      getTotalProductsPrice: () => {
-        const { cart } = get()
-        let totalPrice = 0
-
-        for (let i = 0; i < cart.length; i++) {
-          const price = cart[i].quantity * cart[i].price
-          totalPrice += price
-        }
-
-        return totalPrice
+        return cart.reduce((total, item) => total + item.cantidad, 0)
       },
 
       getFinalPrice: () => {
         const { cart } = get()
-        let finalPrice = 0
-
-        for (let i = 0; i < cart.length; i++) {
-          const price = cart[i].quantity * (cart[i].price - cart[i].discount)
-          finalPrice += price
-        }
-
-        return finalPrice
+        return cart.reduce(
+          (total, item) => total + item.cantidad * item.precio,
+          0,
+        )
       },
 
       addProduct: (product: CartProduct) => {
         const { cart } = get()
-
         const inCart = cart.some((item) => item.id === product.id)
 
         if (!inCart) {
@@ -83,37 +72,42 @@ export const useCartStore = create<CartState>()(
 
         const updatedCart = cart.map((item) => {
           if (item.id === product.id) {
-            if (item.maxQuantity <= item.quantity + product.quantity)
-              return { ...item, quantity: item.maxQuantity }
-
-            return { ...item, quantity: item.quantity + product.quantity }
+            if (item.limite_de_orden <= item.cantidad + product.cantidad) {
+              return { ...item, cantidad: item.limite_de_orden }
+            }
+            return { ...item, cantidad: item.cantidad + product.cantidad }
           }
           return item
         })
 
         set({ cart: updatedCart })
       },
+
       updateProductQuantity: (product: CartProduct, quantity: number) => {
         const { cart } = get()
-        const updateCartQuantity = cart.map((item) => {
-          if (item.id === product.id) {
-            return { ...item, quantity: quantity }
-          }
-          return item
-        })
-
-        set({ cart: updateCartQuantity })
+        const updatedCart = cart.map((item) =>
+          item.id === product.id ? { ...item, cantidad: quantity } : item,
+        )
+        set({ cart: updatedCart })
       },
+
       removeProduct: (product: CartProduct) => {
         const { cart } = get()
-
         const newCart = cart.filter((item) => item.id !== product.id)
-
         set({ cart: newCart })
+      },
+
+      resetItems: () => {
+        set({ cart: [] })
       },
     }),
     {
       name: 'cart',
+      onRehydrateStorage: () => (state) => {
+        if (state && typeof state.time === 'string') {
+          state.time = new Date(state.time)
+        }
+      },
     },
   ),
 )

@@ -6,11 +6,10 @@ import { toast } from 'sonner'
 import { useForm, Controller, SubmitHandler } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import _ from 'lodash'
-import { useState } from 'react'
+import { use, useEffect } from 'react'
 import { AiOutlineLoading } from 'react-icons/ai'
 import { Textarea } from '@shared/components/ui/textarea'
 import { Input } from '@shared/components/ui/input'
-import { ProductSchema } from '@admin/schemas/product-schema'
 import {
   Card,
   CardHeader,
@@ -26,31 +25,29 @@ import {
   SelectValue,
 } from '@shared/components/ui/select'
 import { Button } from '@shared/components/ui/button'
-import { ProductFormData } from '@shared/interfaces'
-import ImageUploader from '@shared/components/image-uploader'
+import { Product, ProductFormData } from '@shared/interfaces'
 
-import { CATEGORIES } from '@/lib/categories'
-import { convertToBase64 } from '@/lib/utils'
+import { ProductSchema } from '@/modules/admin/schemas/products.schema'
+import { PRODUCT_CATEGORIRES } from '@/lib/categories'
 import { useGetData } from '@/modules/shared/hooks/use-get-data'
-import { usePutData } from '@/modules/shared/hooks/user-put-data'
+import { BACKEND_URL } from '@/lib/constants'
+import { useSendRequest } from '@/modules/shared/hooks/use-send-request'
 
 type Props = {
   params: Promise<{ id: string }>
 }
-export default async function Page({ params }: Props) {
-  const { id } = await params
+export default function Page({ params }: Props) {
+  const { id } = use(params)
   const { push } = useRouter()
+  const { sendRequest, loading } = useSendRequest(
+    `${BACKEND_URL}/productos/${id}/actualizar-producto`,
+    'PATCH',
+  )
   const {
-    data,
+    data: product,
     error: getError,
     loading: getLoading,
-  } = useGetData<ProductFormData>(`/api/products/${id}`)
-  const {
-    putData,
-    error: putError,
-    loading: putLoading,
-  } = usePutData(`/api/products/${id}`)
-  const [product, setProduct] = useState<ProductFormData>()
+  } = useGetData<Product>(`${BACKEND_URL}/productos/${id}/obtener-producto`)
   const {
     register,
     control,
@@ -61,35 +58,28 @@ export default async function Page({ params }: Props) {
     resolver: zodResolver(ProductSchema),
   })
 
-  if (data !== null) {
-    setProduct(data)
-    reset(data)
-  }
-
   if (getError) toast.error(getError)
 
+  useEffect(() => {
+    if (product) {
+      reset(extractEditableFields(product))
+    }
+  }, [product, reset])
+
   const onSubmit: SubmitHandler<ProductFormData> = async (data) => {
-    let image = 'PENDIENTE'
-
-    if (
-      data.img &&
-      data.img !== null &&
-      data.img !== undefined &&
-      data.img !== 'PENDIENTE'
-    )
-      image = await convertToBase64(data.img)
-
-    const formData = { ...data, img: image }
-
-    if (_.isEqual(product, data)) {
+    if (!product) {
+      toast.error('Error al obtener el producto')
+      return
+    }
+    if (_.isEqual(extractEditableFields(product), data)) {
       toast.warning('No se está actualizando nada en los datos del producto')
       return
     }
 
-    await putData(formData)
+    const { error } = await sendRequest(data)
 
-    if (putError) {
-      toast.error(getError)
+    if (error) {
+      toast.error(error)
       return
     }
 
@@ -111,7 +101,9 @@ export default async function Page({ params }: Props) {
       </section>
 
       <form
-        onSubmit={handleSubmit(onSubmit)}
+        onSubmit={handleSubmit(onSubmit, (invalidData) => {
+          console.warn('Errores de validación:', invalidData)
+        })}
         className="flex max-w-screen-xl max-lg:flex-col w-full mx-auto gap-5"
       >
         <div className="flex flex-col gap-5 w-full lg:w-[60%]">
@@ -121,23 +113,32 @@ export default async function Page({ params }: Props) {
             </CardHeader>
             <CardContent>
               <Controller
-                name="status"
+                name="habilitado"
                 control={control}
-                defaultValue="1"
+                defaultValue={true}
                 render={({ field }) => (
-                  <Select onValueChange={field.onChange} value={field.value}>
+                  <Select
+                    onValueChange={(value) => field.onChange(value === '1')}
+                    value={field.value ? '1' : '0'}
+                  >
                     <SelectTrigger className="hover:bg-secondary">
                       <SelectValue placeholder="Seleccionar" />
                     </SelectTrigger>
-                    <SelectContent position="popper" hideWhenDetached>
+                    <SelectContent
+                      position="popper"
+                      sideOffset={5}
+                      hideWhenDetached
+                    >
                       <SelectItem value="1">Activo</SelectItem>
                       <SelectItem value="0">Inactivo</SelectItem>
                     </SelectContent>
                   </Select>
                 )}
               />
-              {errors.status && (
-                <p className="text-red-600 text-xs">{errors.status.message}</p>
+              {errors.habilitado && (
+                <p className="text-red-600 text-xs">
+                  {errors.habilitado.message}
+                </p>
               )}
             </CardContent>
           </Card>
@@ -149,18 +150,20 @@ export default async function Page({ params }: Props) {
             <CardContent className="space-y-2">
               <label className="flex flex-col gap-2">
                 <span>Nombre</span>
-                <Input id="name" {...register('name')} />
-                {errors.name && (
-                  <p className="text-red-600 text-xs">{errors.name.message}</p>
+                <Input id="name" {...register('nombre')} />
+                {errors.nombre && (
+                  <p className="text-red-600 text-xs">
+                    {errors.nombre.message}
+                  </p>
                 )}
               </label>
 
               <label className="flex flex-col gap-2">
                 <span>Descripción</span>
-                <Textarea id="description" {...register('description')} />
-                {errors.description && (
+                <Textarea id="description" {...register('descripcion')} />
+                {errors.descripcion && (
                   <p className="text-red-600 text-xs ">
-                    {errors.description.message}
+                    {errors.descripcion.message}
                   </p>
                 )}
               </label>
@@ -178,12 +181,14 @@ export default async function Page({ params }: Props) {
                     defaultValue={0}
                     min={0}
                     step={0.01}
-                    id="price"
-                    {...register('price')}
+                    id="precio"
+                    {...register('precio', { valueAsNumber: true })}
                   />
                 </label>
-                {errors.price && (
-                  <p className="text-red-600 text-xs">{errors.price.message}</p>
+                {errors.precio && (
+                  <p className="text-red-600 text-xs">
+                    {errors.precio.message}
+                  </p>
                 )}
               </CardContent>
             </Card>
@@ -193,16 +198,19 @@ export default async function Page({ params }: Props) {
               </CardHeader>
               <CardContent className="space-y-2">
                 <Controller
-                  name="category"
+                  name="categoria"
                   control={control}
                   render={({ field }) => (
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value ?? ''}
+                    >
                       <SelectTrigger className="hover:bg-secondary">
                         <SelectValue placeholder="Seleccionar" />
                       </SelectTrigger>
                       <SelectContent position="popper" hideWhenDetached>
-                        {CATEGORIES.map((category, index) => (
-                          <SelectItem key={index} value={`${category.slug}`}>
+                        {PRODUCT_CATEGORIRES.map((category, index) => (
+                          <SelectItem key={index} value={`${category.value}`}>
                             {category.name}
                           </SelectItem>
                         ))}
@@ -210,38 +218,15 @@ export default async function Page({ params }: Props) {
                     </Select>
                   )}
                 />
-                {errors.category && (
+                {errors.categoria && (
                   <p className="text-red-600 text-xs">
-                    {errors.category.message}
+                    {errors.categoria.message}
                   </p>
                 )}
               </CardContent>
             </Card>
           </div>
-          <div className="flex gap-5 max-md:flex-col w-full">
-            <Card className="w-full">
-              <CardHeader>
-                <CardTitle className="text-xl font-normal">Descuento</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                <label className="flex flex-col gap-2">
-                  <Input
-                    type="number"
-                    defaultValue={0}
-                    step={0.01}
-                    min={0}
-                    id="discount"
-                    {...register('discount')}
-                  />
-                </label>
-                {errors.discount && (
-                  <p className="text-red-600 text-xs">
-                    {errors.discount.message}
-                  </p>
-                )}
-              </CardContent>
-            </Card>
-          </div>
+          <div className="flex gap-5 max-md:flex-col w-full"></div>
         </div>
         <div className="w-full lg:w-[40%] relative flex flex-col gap-5">
           <Card className="w-full">
@@ -259,19 +244,19 @@ export default async function Page({ params }: Props) {
                   type="number"
                   defaultValue={0}
                   min={0}
-                  id="orderLimit"
-                  {...register('orderLimit')}
+                  id="limite_de_orden"
+                  {...register('limite_de_orden', { valueAsNumber: true })}
                 />
               </label>
-              {errors.orderLimit && (
+              {errors.limite_de_orden && (
                 <p className="text-red-600 text-xs">
-                  {errors.orderLimit.message}
+                  {errors.limite_de_orden.message}
                 </p>
               )}
             </CardContent>
           </Card>
 
-          <Card className="w-full h-auto relative">
+          {/* <Card className="w-full h-auto relative">
             <CardHeader>
               <CardTitle className="text-xl font-normal">Imagen</CardTitle>
               <CardDescription>
@@ -281,21 +266,21 @@ export default async function Page({ params }: Props) {
             </CardHeader>
             <CardContent>
               <Controller
-                name="img"
+                name="url"
                 control={control}
                 render={({ field }) => (
                   <ImageUploader
                     value={field.value}
                     onChange={field.onChange}
-                    defaultImage={product?.img}
+                    defaultImage={product?.url}
                   />
                 )}
               />
             </CardContent>
-          </Card>
+          </Card> */}
 
-          <Button variant={'secondary'} disabled={getLoading || putLoading}>
-            {getLoading || putLoading ? (
+          <Button disabled={getLoading || loading}>
+            {getLoading || loading ? (
               <AiOutlineLoading
                 size={18}
                 className="animate-spin ease-in-out"
@@ -308,4 +293,23 @@ export default async function Page({ params }: Props) {
       </form>
     </>
   )
+}
+
+function extractEditableFields(product: Product): ProductFormData {
+  const {
+    nombre,
+    descripcion,
+    precio,
+    categoria,
+    habilitado,
+    limite_de_orden,
+  } = product
+  return {
+    nombre,
+    descripcion,
+    precio: Number(precio),
+    categoria,
+    habilitado,
+    limite_de_orden,
+  }
 }

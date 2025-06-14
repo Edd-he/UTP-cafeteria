@@ -12,7 +12,8 @@ import {
   SidebarMenuItem,
 } from '@shared/components/ui/sidebar'
 
-interface Props {
+type Props = {
+  variant: 'admin' | 'cliente'
   links: {
     href: string
     label: string
@@ -20,13 +21,18 @@ interface Props {
   }[]
 }
 
-export function NavMain({ links }: Props) {
+export function NavMain({ links, variant }: Props) {
   const pathname = usePathname()
   const [activeIndex, setActiveIndex] = useState(0)
 
   useEffect(() => {
-    const index = links.findIndex((link) => link.href === pathname)
-    setActiveIndex(index !== -1 ? index : 0)
+    if (variant === 'admin') {
+      const index = links.findIndex((link) => pathname.startsWith(link.href))
+      setActiveIndex(index !== -1 ? index : 0)
+    } else {
+      const index = links.findIndex((link) => pathname === link.href)
+      setActiveIndex(index !== -1 ? index : 0)
+    }
   }, [pathname, links])
 
   const itemHeight = 56

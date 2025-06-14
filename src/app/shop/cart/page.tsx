@@ -1,7 +1,4 @@
-export const revalidate = 0
-
 import { MdShoppingCart } from 'react-icons/md'
-import Image from 'next/image'
 import Link from 'next/link'
 import { Button } from '@shared/components/ui/button'
 import {
@@ -13,9 +10,11 @@ import {
   CardFooter,
 } from '@shared/components/ui/card'
 import { CartTable } from '@shop/cart/cart-table'
-import { CartDetails } from '@shop/cart/details-container'
 
-export default async function Page() {
+import { CartDetails } from '@/modules/shop/cart/cart-details'
+import PayOrderButton from '@/modules/shop/cart/pay-order-button'
+
+export default function Page() {
   return (
     <>
       <main className="relative size-full flex max-xl:flex-col gap-5 max-sm:pb-24 max-xl:pt-5">
@@ -23,13 +22,6 @@ export default async function Page() {
           <Card className="max-w-sm">
             <CardHeader>
               <CardTitle className="text-lg flex gap-2 items-center">
-                <Image
-                  src={'/mass_icon.png'}
-                  height={20}
-                  width={30}
-                  alt=""
-                  className="dark:invert"
-                />
                 A punto de realizar tu pedido
               </CardTitle>
               <CardDescription>
@@ -62,9 +54,10 @@ export default async function Page() {
             <CartDetails />
           </CardContent>
           <CardFooter className="p-6 flex flex-col gap-5">
-            <Button variant={'outline'} asChild className="sm:text-lg w-full">
+            <Button variant={'outline'} asChild className="w-full">
               <Link href={'/shop'}>Continuar Comprando</Link>
             </Button>
+            <PayOrderButton className="w-full" />
           </CardFooter>
         </Card>
       </main>

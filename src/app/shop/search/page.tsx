@@ -19,10 +19,9 @@ type Props = {
 }
 
 export default async function Page({ searchParams }: Props) {
-  const { query, page, max, order } = await searchParams
+  const { query, max, order } = await searchParams
   const queryValue = query || ''
-  const currentPage = Number(page) || 1
-  const maxValue = Number(max) || 100
+  const maxValue = max || '100'
   const orderValue = order || 'asc'
 
   return (
@@ -53,12 +52,7 @@ export default async function Page({ searchParams }: Props) {
         </Suspense>
       </section>
       <section className="relative sm:container">
-        <ProductsGrid
-          page={currentPage}
-          max={maxValue}
-          order={orderValue}
-          query={queryValue}
-        />
+        <ProductsGrid max={maxValue} order={orderValue} query={queryValue} />
       </section>
     </main>
   )
