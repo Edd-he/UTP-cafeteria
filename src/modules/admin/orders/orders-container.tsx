@@ -1,9 +1,8 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 'use client'
-
 import { toast } from 'sonner'
-import { useEffect, useOptimistic, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { OrderCard } from './order-card'
 import OrderChangeStatusDialog from './order-change-status-dialog'
@@ -11,10 +10,7 @@ import OrderChangeStatusDialog from './order-change-status-dialog'
 import { useGetData } from '@/modules/shared/hooks/use-get-data'
 import { BACKEND_URL } from '@/lib/constants'
 import { useSortableData } from '@/modules/shared/hooks/use-sort-data'
-import {
-  Order,
-  OrderStatus,
-} from '@/modules/shared/interfaces/order.interfaces'
+import { Order } from '@/modules/shared/interfaces/order.interfaces'
 import OrdersSkeleton from '@/modules/shared/skelletons/orders-skeleton'
 
 type Props = {
@@ -29,7 +25,6 @@ type GetOrders = {
   total: number
   totalPages: number
 }
-
 export default function OrdersContainer({ query, page, limit, status }: Props) {
   const {
     data: fetch,
@@ -45,12 +40,6 @@ export default function OrdersContainer({ query, page, limit, status }: Props) {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
-  const [optimisticOrders, setOptimisticOrder] = useOptimistic(
-    orders,
-    (current, updated: Order) =>
-      current.map((o) => (o.id === updated.id ? updated : o)),
-  )
-
   const handleOpenDialog = (order: Order) => {
     setSelectedOrder(order)
     setIsDialogOpen(true)
@@ -60,12 +49,6 @@ export default function OrdersContainer({ query, page, limit, status }: Props) {
     setIsDialogOpen(false)
     setSelectedOrder(null)
   }
-
-  const handleEstadoOptimista = (orden: Order, nuevoEstado: string) => {
-    const actualizada = { ...orden, estado: nuevoEstado as OrderStatus }
-    setOptimisticOrder(actualizada)
-  }
-
   useEffect(() => {
     if (fetch) {
       updateData(fetch.data)
@@ -76,7 +59,6 @@ export default function OrdersContainer({ query, page, limit, status }: Props) {
   useEffect(() => {
     if (error) toast.error(error)
   }, [error])
-
   return (
     <>
       {loading ? (
@@ -85,10 +67,10 @@ export default function OrdersContainer({ query, page, limit, status }: Props) {
         </div>
       ) : fetch?.data !== undefined && fetch?.data.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {optimisticOrders.map((order) => (
+          {orders.map((order) => (
             <OrderCard
               key={order.id}
-              order={order}
+              order={order as Order}
               onChangeStatusClick={() => handleOpenDialog(order)}
             />
           ))}
@@ -103,7 +85,6 @@ export default function OrdersContainer({ query, page, limit, status }: Props) {
         onClose={handleCloseDialog}
         order={selectedOrder}
         refresh={refresh}
-        updateOptimisticOrder={handleEstadoOptimista}
       />
     </>
   )
