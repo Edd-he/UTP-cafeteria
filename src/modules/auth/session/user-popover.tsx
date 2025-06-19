@@ -28,7 +28,7 @@ export default function UserPopover() {
                 className="animate-spin ease-in-out"
               />
             ) : session?.user ? (
-              session.user.usuario
+              session.user.usuario.split(' ')[0]
             ) : (
               ''
             )}

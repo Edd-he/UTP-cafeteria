@@ -1,4 +1,5 @@
 import { Timer, User, DollarSign } from 'lucide-react'
+import { IoCheckmark } from 'react-icons/io5'
 
 import {
   Card,
@@ -8,10 +9,15 @@ import {
 } from '@/modules/shared/components/ui/card'
 import { Badge } from '@/modules/shared/components/ui/badge'
 import { Order, OrderStatus } from '@/modules/shared/interfaces'
+import { Button } from '@/modules/shared/components/ui/button'
 
-export function OrderCard({ order }: { order: Order }) {
+type Props = {
+  order: Order
+  onChangeStatusClick: () => void
+}
+export function OrderCard({ order, onChangeStatusClick }: Props) {
   return (
-    <Card className="w-full">
+    <Card className="w-full h-70">
       <CardHeader className="pb-2">
         <div className="flex justify-between items-start">
           <div className="font-bold text-lg">ORD-00{order.id}</div>
@@ -46,11 +52,16 @@ export function OrderCard({ order }: { order: Order }) {
           </div>
         </div>
       </CardContent>
-      <CardFooter>
+      <CardFooter className="flex justify-between">
         <div className="flex items-center gap-2 font-bold">
           <DollarSign className="h-4 w-4" />
           <span>Total: S/{order.monto_total}</span>
         </div>
+        {!['COMPLETADA', 'CANCELADA', 'ABANDONADA'].includes(order.estado) && (
+          <Button onClick={onChangeStatusClick}>
+            <IoCheckmark />
+          </Button>
+        )}
       </CardFooter>
     </Card>
   )

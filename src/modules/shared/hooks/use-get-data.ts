@@ -16,6 +16,7 @@ export function useGetData<T>(url: string, auth?: string) {
       try {
         const res = await fetch(url, {
           method: 'GET',
+          cache: 'no-store',
           headers: {
             ...(auth && { Authorization: `Bearer ${auth}` }),
             'Content-Type': 'application/json',

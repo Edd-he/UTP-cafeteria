@@ -23,7 +23,7 @@ import {
 } from '@shared/components/ui/popover'
 import { toast } from 'sonner'
 
-import TableSkeleton from '../skelletons/table-skeleton'
+import TableSkeleton from '../../shared/skelletons/table-skeleton'
 import { DeleteProductFormDialog } from './delete-product-form-dialog'
 
 import { Product } from '@/modules/shared/interfaces/product.interfaces'

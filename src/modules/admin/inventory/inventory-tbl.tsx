@@ -20,7 +20,7 @@ import {
 import { Button } from '@shared/components/ui/button'
 import { toast } from 'sonner'
 
-import TableSkeleton from '../skelletons/table-skeleton'
+import TableSkeleton from '../../shared/skelletons/table-skeleton'
 import { ChangeStockDialog } from './change-stock-dialog'
 import GenerateInventoryButton from './generate-inventory-button'
 

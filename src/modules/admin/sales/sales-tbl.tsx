@@ -20,7 +20,7 @@ import {
 } from '@shared/components/ui/popover'
 import Pagination from '@shared/components/ui/pagination'
 
-import TableSkeleton from '../skelletons/table-skeleton'
+import TableSkeleton from '../../shared/skelletons/table-skeleton'
 
 import { useGetData } from '@/modules/shared/hooks/use-get-data'
 

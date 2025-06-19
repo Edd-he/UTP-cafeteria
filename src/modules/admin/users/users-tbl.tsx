@@ -20,7 +20,7 @@ import {
 } from '@shared/components/ui/popover'
 import { toast } from 'sonner'
 
-import TableSkeleton from '../skelletons/table-skeleton'
+import TableSkeleton from '../../shared/skelletons/table-skeleton'
 import { DeleteUserFormDialog } from './delete-user-form-dialog'
 
 import Pagination from '@/modules/shared/components/ui/pagination'

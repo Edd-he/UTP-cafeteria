@@ -8,6 +8,7 @@ import { useGetData } from '@/modules/shared/hooks/use-get-data'
 import { BACKEND_URL } from '@/lib/constants'
 import { useSortableData } from '@/modules/shared/hooks/use-sort-data'
 import { Order } from '@/modules/shared/interfaces/order.interfaces'
+import OrdersSkeleton from '@/modules/shared/skelletons/orders-skeleton'
 
 type Props = {
   query: string
@@ -27,7 +28,11 @@ export default function MyOrdersContainer({
   limit,
   access,
 }: Props) {
-  const { data: fetch, error } = useGetData<GetOrders>(
+  const {
+    data: fetch,
+    loading,
+    error,
+  } = useGetData<GetOrders>(
     `${BACKEND_URL}/ordenes/obtener-ordenes-usuario?page_size=${limit}&page=${page}&query=${query}`,
     access,
   )
@@ -45,14 +50,19 @@ export default function MyOrdersContainer({
   }, [error])
   return (
     <>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {orders.map((order) => (
-          <MyOrderCard key={order.id} order={order as Order} />
-        ))}
-      </div>
-      {orders.length === 0 && (
+      {loading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <OrdersSkeleton count={6} />
+        </div>
+      ) : fetch?.data !== undefined && fetch?.data.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {orders.map((order) => (
+            <MyOrderCard key={order.id} order={order as Order} />
+          ))}
+        </div>
+      ) : (
         <div className="text-center py-10 text-muted-foreground">
-          No tienes Ordenes
+          No se encontraron órdenes que coincidan con tu búsqueda.
         </div>
       )}
     </>
