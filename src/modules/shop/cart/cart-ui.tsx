@@ -82,8 +82,8 @@ const Content = ({ click }: { click: () => void }) => {
                     <span>S/ {product.precio}</span>
                   </span>
 
-                  <span className="leading-none tracking-tight text-primary-foreground dark:text-white">
-                    S/ {product.cantidad * product.precio}
+                  <span className="leading-none tracking-tight">
+                    Subtotal: S/ {product.cantidad * product.precio}
                   </span>
                 </div>
               </div>

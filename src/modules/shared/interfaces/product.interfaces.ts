@@ -22,12 +22,3 @@ export type CartProduct = {
   category: string
   url: any
 }
-
-export type ProductFormData = {
-  nombre: string
-  descripcion: string
-  habilitado: boolean
-  categoria: string
-  precio: number
-  limite_de_orden: number
-}

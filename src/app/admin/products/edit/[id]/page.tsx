@@ -6,7 +6,7 @@ import { toast } from 'sonner'
 import { useForm, Controller, SubmitHandler } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import _ from 'lodash'
-import { use, useEffect } from 'react'
+import { use, useEffect, useState } from 'react'
 import { AiOutlineLoading } from 'react-icons/ai'
 import { Textarea } from '@shared/components/ui/textarea'
 import { Input } from '@shared/components/ui/input'
@@ -25,13 +25,17 @@ import {
   SelectValue,
 } from '@shared/components/ui/select'
 import { Button } from '@shared/components/ui/button'
-import { Product, ProductFormData } from '@shared/interfaces'
+import { Product } from '@shared/interfaces'
 
-import { ProductSchema } from '@/modules/admin/schemas/products.schema'
+import {
+  productEditSchema,
+  ProductSchema,
+} from '@/modules/admin/schemas/products.schema'
 import { PRODUCT_CATEGORIRES } from '@/lib/categories'
 import { useGetData } from '@/modules/shared/hooks/use-get-data'
 import { BACKEND_URL } from '@/lib/constants'
 import { useSendRequest } from '@/modules/shared/hooks/use-send-request'
+import ImageUploader from '@/modules/shared/components/image-uploader'
 
 type Props = {
   params: Promise<{ id: string }>
@@ -42,6 +46,8 @@ export default function Page({ params }: Props) {
   const { sendRequest, loading } = useSendRequest(
     `${BACKEND_URL}/productos/${id}/actualizar-producto`,
     'PATCH',
+    '',
+    true,
   )
   const {
     data: product,
@@ -54,19 +60,22 @@ export default function Page({ params }: Props) {
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<ProductFormData>({
+  } = useForm<productEditSchema>({
     resolver: zodResolver(ProductSchema),
   })
+
+  const [currentImage, setCurrentImage] = useState<string>('PENDIENTE')
 
   if (getError) toast.error(getError)
 
   useEffect(() => {
     if (product) {
       reset(extractEditableFields(product))
+      setCurrentImage(product.url)
     }
   }, [product, reset])
 
-  const onSubmit: SubmitHandler<ProductFormData> = async (data) => {
+  const onSubmit: SubmitHandler<productEditSchema> = async (data) => {
     if (!product) {
       toast.error('Error al obtener el producto')
       return
@@ -76,14 +85,25 @@ export default function Page({ params }: Props) {
       return
     }
 
-    const { error } = await sendRequest(data)
+    const form = new FormData()
+    form.append('nombre', data.nombre)
+    form.append('descripcion', data.descripcion)
+    form.append('habilitado', data.habilitado.toString())
+    form.append('precio', data.precio.toString())
+    form.append('categoria', data.categoria)
+    form.append('limite_de_orden', data.limite_de_orden.toString())
+    if (data.file) {
+      form.append('file', data.file)
+    }
+
+    const { error } = await sendRequest(form)
 
     if (error) {
       toast.error(error)
       return
     }
 
-    toast('Producto Actualizado Correctamente')
+    toast.success('Producto Actualizado Correctamente')
 
     push('/admin/products')
   }
@@ -101,9 +121,7 @@ export default function Page({ params }: Props) {
       </section>
 
       <form
-        onSubmit={handleSubmit(onSubmit, (invalidData) => {
-          console.warn('Errores de validación:', invalidData)
-        })}
+        onSubmit={handleSubmit(onSubmit)}
         className="flex max-w-screen-xl max-lg:flex-col w-full mx-auto gap-5"
       >
         <div className="flex flex-col gap-5 w-full lg:w-[60%]">
@@ -255,8 +273,7 @@ export default function Page({ params }: Props) {
               )}
             </CardContent>
           </Card>
-
-          {/* <Card className="w-full h-auto relative">
+          <Card className="w-full h-auto relative">
             <CardHeader>
               <CardTitle className="text-xl font-normal">Imagen</CardTitle>
               <CardDescription>
@@ -266,19 +283,23 @@ export default function Page({ params }: Props) {
             </CardHeader>
             <CardContent>
               <Controller
-                name="url"
+                name="file"
                 control={control}
                 render={({ field }) => (
                   <ImageUploader
                     value={field.value}
                     onChange={field.onChange}
-                    defaultImage={product?.url}
+                    defaultImage={currentImage ?? 'PENDIENTE'}
                   />
                 )}
               />
             </CardContent>
-          </Card> */}
-
+            {errors.file && (
+              <p className="text-red-600 text-xs">
+                {errors.file.message?.toString()}
+              </p>
+            )}
+          </Card>
           <Button disabled={getLoading || loading}>
             {getLoading || loading ? (
               <AiOutlineLoading
@@ -295,7 +316,7 @@ export default function Page({ params }: Props) {
   )
 }
 
-function extractEditableFields(product: Product): ProductFormData {
+function extractEditableFields(product: Product): productEditSchema {
   const {
     nombre,
     descripcion,

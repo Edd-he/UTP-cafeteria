@@ -31,8 +31,9 @@ export function useSendRequest<T>(
         headers,
         body: isFormData ? payload : JSON.stringify(payload),
       })
-      console.warn(res)
+
       const result = await res.json()
+
       if (!res.ok) {
         const message = parseErrorHttpMessage(result.message)
         return { error: message }
@@ -40,7 +41,6 @@ export function useSendRequest<T>(
 
       return { data: result }
     } catch (e: any) {
-      console.error(e)
       const message = e?.message || 'Error desconocido'
       return { error: message }
     } finally {

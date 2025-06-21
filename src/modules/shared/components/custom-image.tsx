@@ -33,7 +33,11 @@ export default function CustomImage({
         />
       ) : (
         cat?.icon && (
-          <cat.icon size={50} className={'text-muted'} aria-label={alt} />
+          <cat.icon
+            size={50}
+            className={'text-primary-foreground/70'}
+            aria-label={alt}
+          />
         )
       )}
     </>

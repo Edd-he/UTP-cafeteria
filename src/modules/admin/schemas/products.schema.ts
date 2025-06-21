@@ -45,4 +45,23 @@ export const ProductSchema = z.object({
       invalid_type_error: 'El límite debe ser un número',
     })
     .min(1, { message: 'El límite no puede ser menor a 0' }),
+  file: z
+    .instanceof(File, { message: 'Debes seleccionar un archivo.' })
+    .refine((file) => file.size <= 1 * 1024 * 1024, {
+      message: 'El archivo debe ser menor a 5MB.',
+    })
+    .refine(
+      (file) =>
+        ['image/jpeg', 'image/png', 'image/webp', 'image/gif'].includes(
+          file.type,
+        ),
+      {
+        message: 'Solo se permiten imágenes JPEG, PNG o WEBP.',
+      },
+    )
+    .optional(),
 })
+
+export type productCreateSchema = z.infer<typeof ProductSchema>
+
+export type productEditSchema = productCreateSchema

@@ -23,24 +23,29 @@ import {
   SelectValue,
 } from '@shared/components/ui/select'
 import { Button } from '@shared/components/ui/button'
-import { ProductFormData } from '@shared/interfaces/product.interfaces'
 
-import { ProductSchema } from '@/modules/admin/schemas/products.schema'
+import {
+  productCreateSchema,
+  ProductSchema,
+} from '@/modules/admin/schemas/products.schema'
 import { PRODUCT_CATEGORIRES } from '@/lib/categories'
 import { BACKEND_URL } from '@/lib/constants'
 import { useSendRequest } from '@/modules/shared/hooks/use-send-request'
+import ImageUploader from '@/modules/shared/components/image-uploader'
 
 export default function Page() {
   const { sendRequest, loading } = useSendRequest(
     `${BACKEND_URL}/productos/crear-producto`,
     'POST',
+    '',
+    true,
   )
   const {
     register,
     control,
     handleSubmit,
     formState: { errors },
-  } = useForm<ProductFormData>({
+  } = useForm<productCreateSchema>({
     resolver: zodResolver(ProductSchema),
     defaultValues: {
       nombre: '',
@@ -54,8 +59,18 @@ export default function Page() {
 
   const { push } = useRouter()
 
-  const onSubmit: SubmitHandler<ProductFormData> = async (data) => {
-    const { error } = await sendRequest(data)
+  const onSubmit: SubmitHandler<productCreateSchema> = async (data) => {
+    const form = new FormData()
+    form.append('nombre', data.nombre)
+    form.append('descripcion', data.descripcion)
+    form.append('habilitado', data.habilitado.toString())
+    form.append('precio', data.precio.toString())
+    form.append('categoria', data.categoria)
+    form.append('limite_de_orden', data.limite_de_orden.toString())
+    if (data.file) {
+      form.append('file', data.file)
+    }
+    const { error } = await sendRequest(form)
 
     if (error) {
       toast.error(error)
@@ -231,7 +246,7 @@ export default function Page() {
             </CardContent>
           </Card>
 
-          {/* <Card className="w-full h-auto relative">
+          <Card className="w-full h-auto relative">
             <CardHeader>
               <CardTitle className="text-xl font-normal">Imagen</CardTitle>
               <CardDescription>
@@ -241,19 +256,23 @@ export default function Page() {
             </CardHeader>
             <CardContent>
               <Controller
-                name="url"
+                name="file"
                 control={control}
                 render={({ field }) => (
                   <ImageUploader
                     value={field.value}
                     onChange={field.onChange}
-                    defaultImage={product?.url}
+                    defaultImage={''}
                   />
                 )}
               />
             </CardContent>
-          </Card> */}
-
+            {errors.file && (
+              <p className="text-red-600 text-xs">
+                {errors.file.message?.toString()}
+              </p>
+            )}
+          </Card>
           <Button disabled={loading}>
             {loading ? (
               <AiOutlineLoading

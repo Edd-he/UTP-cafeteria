@@ -40,8 +40,22 @@ export const useCartStore = create<CartState>()(
 
       isTimeValid: () => {
         const { time } = get()
-        const hour = time.getHours()
-        return hour >= 9 && hour < 19
+        const now = new Date()
+        const scheduled = new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          now.getDate(),
+          time.getHours(),
+          time.getMinutes(),
+          0,
+          0,
+        )
+
+        const hour = scheduled.getHours()
+        const timeRange = hour >= 9 && hour < 19
+        const notPast = scheduled.getTime() >= now.getTime()
+
+        return timeRange && notPast
       },
 
       updateTime: () => {

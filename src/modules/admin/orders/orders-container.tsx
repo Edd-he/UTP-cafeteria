@@ -32,7 +32,7 @@ export default function OrdersContainer({ query, page, limit, status }: Props) {
     refresh,
     error,
   } = useGetData<GetOrders>(
-    `${BACKEND_URL}/ordenes/obtener-ordenes?page_size=${limit}&page=${page}&query=${query}&status=${status}`,
+    `${BACKEND_URL}/ordenes/obtener-ordenes-hoy?page_size=${limit}&page=${page}&query=${query}&status=${status}`,
   )
 
   const { data: orders, updateData } = useSortableData<Order>()
