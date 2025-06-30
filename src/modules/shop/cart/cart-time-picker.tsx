@@ -21,9 +21,9 @@ export default function CartTimePicker() {
         <span className="tracking-tight leading-none">Hora Programada:</span>
         <TimePicker date={date} setDate={setDate} />
       </div>
-      {date && (date.getHours() < 9 || date.getHours() >= 19) && (
+      {date && (date.getHours() < 9 || date.getHours() >= 22) && (
         <p className="text-xs text-red-500 w-full text-center">
-          La hora permitida es entre las 9:00 y 19:00
+          La hora permitida es entre las 9:00 y 22:00
         </p>
       )}
     </div>

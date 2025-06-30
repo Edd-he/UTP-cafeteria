@@ -1,10 +1,10 @@
 import { z } from 'zod'
 
-import { PRODUCT_CATEGORIRES } from '@/lib/categories'
+import { PRODUCT_CATEGORIES } from '@/lib/categories'
 
-const mapCategory = PRODUCT_CATEGORIRES.map((category) => category.value)
+const mapCategory = PRODUCT_CATEGORIES.map((category) => category.value)
 
-export const ProductSchema = z.object({
+export const productSchema = z.object({
   nombre: z
     .string({
       required_error: 'El nombre es obligatorio',
@@ -61,7 +61,3 @@ export const ProductSchema = z.object({
     )
     .optional(),
 })
-
-export type productCreateSchema = z.infer<typeof ProductSchema>
-
-export type productEditSchema = productCreateSchema

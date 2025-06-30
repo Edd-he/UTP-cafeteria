@@ -1,12 +1,12 @@
 import Link from 'next/link'
 
-import { PRODUCT_CATEGORIRES } from '@/lib/categories'
+import { PRODUCT_CATEGORIES } from '@/lib/categories'
 import { SlideTransition } from '@/modules/shared/components/slide-transition'
 
 export default function GridCategories() {
   return (
     <div className="w-full grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 grid-flow-row gap-[2px] bg-secondary">
-      {PRODUCT_CATEGORIRES.map((category, index) => {
+      {PRODUCT_CATEGORIES.map((category, index) => {
         const Icon = category.icon
         return (
           <Link

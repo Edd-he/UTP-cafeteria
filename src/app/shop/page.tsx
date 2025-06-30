@@ -6,7 +6,7 @@ import { Button } from '@shared/components/ui/button'
 import GridCategories from '@shop/components/categories-grid'
 import SearchProducts from '@shop/components/search-products'
 
-import { PRODUCT_CATEGORIRES } from '@/lib/categories'
+import { PRODUCT_CATEGORIES } from '@/lib/categories'
 
 export default async function Page() {
   return (
@@ -25,7 +25,7 @@ export default async function Page() {
             <SearchProducts />
           </Suspense>
         </section>
-        {PRODUCT_CATEGORIRES.map((category, index) => (
+        {PRODUCT_CATEGORIES.map((category, index) => (
           <section
             key={index}
             className="relative container space-y-5 max-sm:p-0"

@@ -11,7 +11,7 @@ import {
   DialogTitle,
 } from '@shared/components/ui/dialog'
 
-import { Product } from '@/modules/shared/interfaces/product.interfaces'
+import { Product } from '@/modules/shared/types/product.interfaces'
 import { BACKEND_URL } from '@/lib/constants'
 import { useSendRequest } from '@/modules/shared/hooks/use-send-request'
 
@@ -28,21 +28,20 @@ export function DeleteProductFormDialog({
   handleOpenChange,
   handleRefresh,
 }: Props) {
-  const { sendRequest, loading } = useSendRequest(
-    `${BACKEND_URL}/productos/${product?.id}/remover-producto`,
-    'DELETE',
-  )
+  const DELETE_URL = `${BACKEND_URL}/productos/${product?.id}/remover-producto`
+  const { sendRequest, loading } = useSendRequest(DELETE_URL, 'DELETE')
+
   const handleDelete = async () => {
     const { error } = await sendRequest()
-
-    handleOpenChange(false)
-    handleRefresh()
 
     if (error) {
       toast.error(error)
       return
     }
-    toast('Producto Eliminado Correctamente')
+    handleOpenChange(false)
+    handleRefresh()
+
+    toast.success('Producto Eliminado Correctamente')
   }
 
   return (

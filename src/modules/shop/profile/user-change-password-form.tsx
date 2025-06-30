@@ -13,7 +13,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { SubmitHandler, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 
-import { ChangePasswordSchema } from '@/modules/admin/schemas/change-password.schema'
+import { changePasswordSchema } from '@/modules/admin/schemas/change-password.schema'
 import { useSendRequest } from '@/modules/shared/hooks/use-send-request'
 
 type Props = {
@@ -35,7 +35,7 @@ export default function UserChangePasswordForm({ id }: Props) {
     formState: { errors },
     reset,
   } = useForm<InputForm>({
-    resolver: zodResolver(ChangePasswordSchema),
+    resolver: zodResolver(changePasswordSchema),
   })
 
   const onSubmit: SubmitHandler<InputForm> = async (data) => {

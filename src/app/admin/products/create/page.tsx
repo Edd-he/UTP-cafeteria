@@ -23,43 +23,38 @@ import {
   SelectValue,
 } from '@shared/components/ui/select'
 import { Button } from '@shared/components/ui/button'
+import { z } from 'zod'
 
-import {
-  productCreateSchema,
-  ProductSchema,
-} from '@/modules/admin/schemas/products.schema'
-import { PRODUCT_CATEGORIRES } from '@/lib/categories'
+import { productSchema } from '@/modules/admin/schemas/products.schema'
+import { PRODUCT_CATEGORIES } from '@/lib/categories'
 import { BACKEND_URL } from '@/lib/constants'
 import { useSendRequest } from '@/modules/shared/hooks/use-send-request'
 import ImageUploader from '@/modules/shared/components/image-uploader'
+import { Switch } from '@/modules/shared/components/ui/switch'
+
+type CreateProductSchemaType = z.infer<typeof productSchema>
 
 export default function Page() {
-  const { sendRequest, loading } = useSendRequest(
-    `${BACKEND_URL}/productos/crear-producto`,
-    'POST',
-    '',
-    true,
-  )
+  const POST_URL = `${BACKEND_URL}/productos/crear-producto`
+  const { sendRequest, loading } = useSendRequest(POST_URL, 'POST', '', true)
+
   const {
     register,
     control,
+    watch,
+    setValue,
     handleSubmit,
     formState: { errors },
-  } = useForm<productCreateSchema>({
-    resolver: zodResolver(ProductSchema),
+  } = useForm<CreateProductSchemaType>({
+    resolver: zodResolver(productSchema),
     defaultValues: {
-      nombre: '',
-      descripcion: '',
-      precio: 0,
-      categoria: '',
-      limite_de_orden: 0,
       habilitado: true,
     },
   })
 
   const { push } = useRouter()
 
-  const onSubmit: SubmitHandler<productCreateSchema> = async (data) => {
+  const onSubmit: SubmitHandler<CreateProductSchemaType> = async (data) => {
     const form = new FormData()
     form.append('nombre', data.nombre)
     form.append('descripcion', data.descripcion)
@@ -79,6 +74,7 @@ export default function Page() {
     toast.success('Producto Creado Correctamente')
     push('/admin/products')
   }
+  const habilitado = watch('habilitado')
 
   return (
     <>
@@ -97,39 +93,18 @@ export default function Page() {
         className="flex max-w-screen-xl max-lg:flex-col w-full mx-auto gap-5"
       >
         <div className="flex flex-col gap-5 w-full lg:w-[60%]">
-          <Card className="max-w-72">
-            <CardHeader>
-              <CardTitle className="text-xl font-normal">Estado</CardTitle>
-            </CardHeader>
+          <Card className="flex-row items-center justify-between p-4">
+            <div className="space-y-0.5">
+              <label className="text-lg">Estado</label>
+              <p className="text-sm text-gray-500">
+                Verifica si el producto estará habilitado
+              </p>
+            </div>
             <CardContent>
-              <Controller
-                name="habilitado"
-                control={control}
-                defaultValue={true}
-                render={({ field }) => (
-                  <Select
-                    onValueChange={(value) => field.onChange(value === '1')}
-                    value={field.value ? '1' : '0'}
-                  >
-                    <SelectTrigger className="hover:bg-secondary">
-                      <SelectValue placeholder="Seleccionar" />
-                    </SelectTrigger>
-                    <SelectContent
-                      position="popper"
-                      sideOffset={5}
-                      hideWhenDetached
-                    >
-                      <SelectItem value="1">Activo</SelectItem>
-                      <SelectItem value="0">Inactivo</SelectItem>
-                    </SelectContent>
-                  </Select>
-                )}
+              <Switch
+                checked={habilitado}
+                onCheckedChange={(value) => setValue('habilitado', value)}
               />
-              {errors.habilitado && (
-                <p className="text-red-600 text-xs">
-                  {errors.habilitado.message}
-                </p>
-              )}
             </CardContent>
           </Card>
 
@@ -199,7 +174,7 @@ export default function Page() {
                         <SelectValue placeholder="Seleccionar" />
                       </SelectTrigger>
                       <SelectContent position="popper" hideWhenDetached>
-                        {PRODUCT_CATEGORIRES.map((category, index) => (
+                        {PRODUCT_CATEGORIES.map((category, index) => (
                           <SelectItem key={index} value={`${category.value}`}>
                             {category.name}
                           </SelectItem>

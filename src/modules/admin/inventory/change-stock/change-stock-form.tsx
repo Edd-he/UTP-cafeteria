@@ -12,13 +12,11 @@ import {
   SelectItem,
 } from '@shared/components/ui/select'
 import { Input } from '@shared/components/ui/input'
+import { z } from 'zod'
 
-import { ChangeStockSchema } from '../schemas/change-stock.schema'
+import { changeStockSchema } from '../../schemas/change-stock.schema'
 
-import {
-  ChangeStockFormData,
-  ProductInventory,
-} from '@/modules/shared/interfaces/inventory.interfaces'
+import { ProductInventory } from '@/modules/shared/types/inventory.interfaces'
 import { Button } from '@/modules/shared/components/ui/button'
 import { BACKEND_URL } from '@/lib/constants'
 import { useSendRequest } from '@/modules/shared/hooks/use-send-request'
@@ -27,12 +25,11 @@ type Props = {
   product: ProductInventory | undefined
   onSuccess: () => void
 }
+type ChangeStockSchemaType = z.infer<typeof changeStockSchema>
 
 export function ChangeStockForm({ product, onSuccess }: Props) {
-  const { sendRequest, loading } = useSendRequest(
-    `${BACKEND_URL}/inventario/actualizar-stock`,
-    'PATCH',
-  )
+  const PATCH_URL = `${BACKEND_URL}/inventario/actualizar-stock`
+  const { sendRequest, loading } = useSendRequest(PATCH_URL, 'PATCH')
   const {
     register,
     reset,
@@ -40,17 +37,16 @@ export function ChangeStockForm({ product, onSuccess }: Props) {
     setValue,
     handleSubmit,
     formState: { errors },
-  } = useForm<ChangeStockFormData>({
-    resolver: zodResolver(ChangeStockSchema),
+  } = useForm<ChangeStockSchemaType>({
+    resolver: zodResolver(changeStockSchema),
   })
 
   useEffect(() => {
     if (product) setValue('producto_id', product.producto_id)
   }, [product, setValue])
 
-  const onSubmit: SubmitHandler<ChangeStockFormData> = async (data) => {
+  const onSubmit: SubmitHandler<ChangeStockSchemaType> = async (data) => {
     const { error } = await sendRequest(data)
-    console.warn(error)
     if (error) {
       toast.error(error)
       return
@@ -63,9 +59,7 @@ export function ChangeStockForm({ product, onSuccess }: Props) {
 
   return (
     <form
-      onSubmit={handleSubmit(onSubmit, (invalidData) => {
-        console.warn('Errores de validación:', invalidData)
-      })}
+      onSubmit={handleSubmit(onSubmit)}
       className="flex flex-col gap-7 pt-6 text-left"
     >
       <label className="flex flex-col gap-2 w-full">

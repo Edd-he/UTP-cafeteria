@@ -2,7 +2,6 @@
 
 import { useEffect } from 'react'
 import CustomImage from '@shared/components/custom-image'
-import ProductsGridSkeleton from '@shop/skelletons/products-grid-skeleton'
 import {
   Card,
   CardContent,
@@ -13,9 +12,10 @@ import {
 } from '@shared/components/ui/card'
 import { toast } from 'sonner'
 
-import { AddCartProductButton } from '../cart/add-product-button'
+import { AddCartProductButton } from '../cart/add-cart-product-button'
 
-import { Product } from '@/modules/shared/interfaces/product.interfaces'
+import ProductsGridSkeleton from '@/modules/shop/skeletons/products-grid-skeleton'
+import { Product } from '@/modules/shared/types/product.interfaces'
 import { useGetData } from '@/modules/shared/hooks/use-get-data'
 import { BACKEND_URL } from '@/lib/constants'
 
@@ -33,13 +33,9 @@ type GetProducts = {
 }
 
 export default function ProductsGrid({ query, max, order, category }: Props) {
-  const {
-    data: products,
-    loading,
-    error,
-  } = useGetData<GetProducts>(
-    `${BACKEND_URL}/productos/obtener-productos-disponibles?max_price=${max}&query=${query}&order=${order}${category ? `&category=${category}` : ''}`,
-  )
+  const GET_URL = `${BACKEND_URL}/productos/obtener-productos-disponibles?max_price=${max}&query=${query}&order=${order}${category ? `&category=${category}` : ''}`
+  const { data: products, loading, error } = useGetData<GetProducts>(GET_URL)
+
   useEffect(() => {
     if (error) toast.error(error)
   }, [error])

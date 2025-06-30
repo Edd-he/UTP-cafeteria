@@ -20,15 +20,15 @@ import {
 } from '@shared/components/ui/popover'
 import { toast } from 'sonner'
 
-import TableSkeleton from '../../shared/skelletons/table-skeleton'
-import { DeleteUserFormDialog } from './delete-user-form-dialog'
+import TableSkeleton from '../../shared/skeletons/table-skeleton'
+import { DeleteUserDialog } from './delete-user-dialog'
 
 import Pagination from '@/modules/shared/components/ui/pagination'
 import { Button } from '@/modules/shared/components/ui/button'
 import { useGetData } from '@/modules/shared/hooks/use-get-data'
 import { useSortableData } from '@/modules/shared/hooks/use-sort-data'
 import { BACKEND_URL } from '@/lib/constants'
-import { User } from '@/modules/shared/interfaces'
+import { User } from '@/modules/shared/types'
 
 type Props = {
   query: string
@@ -42,15 +42,11 @@ type GetUsers = {
   totalPages: number
 }
 export default function UserTbl({ page, limit, status, query }: Props) {
-  const {
-    data: fetch,
-    refresh,
-    loading,
-    error,
-  } = useGetData<GetUsers>(
-    `${BACKEND_URL}/usuarios/obtener-usuarios?page=${page}&query=${query}&enable=${status}&page_size=${limit}`,
-  )
+  const GET_URL = `${BACKEND_URL}/usuarios/obtener-administradores?page=${page}&query=${query}&enable=${status}&page_size=${limit}`
+  const { data: fetch, refresh, loading, error } = useGetData<GetUsers>(GET_URL)
+
   const { data: users, updateData, sort } = useSortableData<User>()
+
   const [userDelete, setUserDelete] = useState<User | null>(null)
   const [count, setCount] = useState(limit)
   const [open, setOpen] = useState(false)
@@ -58,6 +54,7 @@ export default function UserTbl({ page, limit, status, query }: Props) {
   const handleOpenChange = (newState: boolean) => {
     setOpen(newState)
   }
+
   useEffect(() => {
     if (fetch) {
       updateData(fetch.data)
@@ -68,6 +65,7 @@ export default function UserTbl({ page, limit, status, query }: Props) {
   useEffect(() => {
     if (error) toast.error(error)
   }, [error])
+
   return (
     <Card x-chunk="users-table">
       <CardHeader>
@@ -75,6 +73,7 @@ export default function UserTbl({ page, limit, status, query }: Props) {
         <CardDescription>
           Administra los permisos de tus usuarios
         </CardDescription>
+        <CardDescription>Total de Usuarios: {count}</CardDescription>
       </CardHeader>
       <CardContent>
         <table className="table-auto text-center text-sm w-full relative">
@@ -169,9 +168,9 @@ export default function UserTbl({ page, limit, status, query }: Props) {
         </table>
       </CardContent>
       <CardFooter>
-        <Pagination totalPages={fetch?.totalPages ?? 0} />
+        <Pagination totalPages={fetch?.totalPages ?? 1} />
       </CardFooter>
-      <DeleteUserFormDialog
+      <DeleteUserDialog
         open={open}
         user={userDelete}
         handleOpenChange={handleOpenChange}

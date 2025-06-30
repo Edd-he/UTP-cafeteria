@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { MdOutlineChevronLeft } from 'react-icons/md'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
-import { useForm, Controller, SubmitHandler } from 'react-hook-form'
+import { useForm, SubmitHandler } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
 import { AiOutlineLoading } from 'react-icons/ai'
@@ -15,44 +15,40 @@ import {
   CardContent,
   CardDescription,
 } from '@shared/components/ui/card'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@shared/components/ui/select'
 import { Button } from '@shared/components/ui/button'
+import { z } from 'zod'
 
-import { UserCreateSchema } from '@/modules/admin/schemas/users.schema'
-import { DniQueryForm } from '@/modules/admin/users/fetch-dni-form'
-import { FetchDniDialog } from '@/modules/admin/users/fetch-dni-dialog'
-import { UserFormData } from '@/modules/shared/interfaces'
+import { createUserSchema } from '@/modules/admin/schemas/users.schema'
+import { FetchReniecDialog } from '@/modules/admin/users/fetch-reniec/fetch-reniec-dialog'
 import { BACKEND_URL } from '@/lib/constants'
 import { useSendRequest } from '@/modules/shared/hooks/use-send-request'
+import { Switch } from '@/modules/shared/components/ui/switch'
 
 type ReniecData = {
   nombre: string
   apellidos: string
 }
+
+type CreateUserSchemaType = z.infer<typeof createUserSchema>
+
 export default function Page() {
-  const { sendRequest, loading } = useSendRequest(
-    `${BACKEND_URL}/usuarios/crear-administrador`,
-    'POST',
-  )
+  const POST_URL = `${BACKEND_URL}/usuarios/crear-administrador`
+  const { sendRequest, loading } = useSendRequest(POST_URL, 'POST')
+
+  const [reniecData, setReniecData] = useState<ReniecData>()
   const [open, setOpen] = useState(false)
+
   const { push } = useRouter()
 
   const {
     register,
     setValue,
-    control,
+    watch,
     handleSubmit,
     formState: { errors },
-  } = useForm<UserFormData>({
-    resolver: zodResolver(UserCreateSchema),
+  } = useForm<CreateUserSchemaType>({
+    resolver: zodResolver(createUserSchema),
   })
-  const [reniecData, setReniecData] = useState<ReniecData>()
 
   const handleOpenChange = (newState: boolean) => {
     setOpen(newState)
@@ -67,7 +63,7 @@ export default function Page() {
     setValue('dni', dni)
   }
 
-  const onSubmit: SubmitHandler<UserFormData> = async (data) => {
+  const onSubmit: SubmitHandler<CreateUserSchemaType> = async (data) => {
     const { error } = await sendRequest(data)
 
     if (error) {
@@ -77,6 +73,8 @@ export default function Page() {
     toast.success('Usuario Creado Correctamente')
     push('/admin/users')
   }
+
+  const habilitado = watch('habilitado')
 
   return (
     <>
@@ -95,39 +93,18 @@ export default function Page() {
         className="flex max-w-screen-xl w-full mx-auto max-lg:flex-col gap-5"
       >
         <div className="flex flex-col gap-5 w-full lg:w-[60%]">
-          <Card className="max-w-72">
-            <CardHeader>
-              <CardTitle className="text-xl font-normal">Estado</CardTitle>
-            </CardHeader>
+          <Card className="flex-row items-center justify-between p-4">
+            <div className="space-y-0.5">
+              <label className="text-lg">Estado</label>
+              <p className="text-sm text-gray-500">
+                Verifica si el producto estará habilitado
+              </p>
+            </div>
             <CardContent>
-              <Controller
-                name="habilitado"
-                control={control}
-                defaultValue={true}
-                render={({ field }) => (
-                  <Select
-                    onValueChange={(value) => field.onChange(value === '1')}
-                    value={field.value ? '1' : '0'}
-                  >
-                    <SelectTrigger className="hover:bg-secondary">
-                      <SelectValue placeholder="Seleccionar" />
-                    </SelectTrigger>
-                    <SelectContent
-                      position="popper"
-                      sideOffset={5}
-                      hideWhenDetached
-                    >
-                      <SelectItem value="1">Activo</SelectItem>
-                      <SelectItem value="0">Inactivo</SelectItem>
-                    </SelectContent>
-                  </Select>
-                )}
+              <Switch
+                checked={habilitado}
+                onCheckedChange={(value) => setValue('habilitado', value)}
               />
-              {errors.habilitado && (
-                <p className="text-red-600 text-xs">
-                  {errors.habilitado.message}
-                </p>
-              )}
             </CardContent>
           </Card>
 
@@ -168,11 +145,10 @@ export default function Page() {
 
           <Card className="max-w-screen-md">
             <CardHeader>
-              <CardTitle className="text-xl font-normal">Contacto</CardTitle>
+              <CardTitle>Código</CardTitle>
             </CardHeader>
             <CardContent className="flex gap-5 max-md:flex-col">
               <label className="flex flex-col gap-2 w-full">
-                <span className="text-sm">Correo Electrónico</span>
                 <Input id="correo" {...register('correo')} />
                 {errors.correo && (
                   <p className="text-red-600 text-xs">
@@ -185,14 +161,6 @@ export default function Page() {
         </div>
 
         <div className="w-full lg:w-[40%] relative flex flex-col gap-5">
-          <Card className="w-full">
-            <CardHeader>
-              <CardTitle className="text-xl font-normal">
-                Rol asignado
-              </CardTitle>
-            </CardHeader>
-            <CardContent></CardContent>
-          </Card>
           <Card>
             <CardHeader>
               <CardTitle className="text-xl font-normal">Contraseña</CardTitle>
@@ -236,12 +204,11 @@ export default function Page() {
           </Button>
         </div>
       </form>
-      <FetchDniDialog open={open} handleOpenChange={handleOpenChange}>
-        <DniQueryForm
-          handleOpenChange={handleOpenChange}
-          handleFetchReniec={handleFetchReniec}
-        />
-      </FetchDniDialog>
+      <FetchReniecDialog
+        handleFetchReniec={handleFetchReniec}
+        handleOpenChange={handleOpenChange}
+        open={open}
+      />
     </>
   )
 }

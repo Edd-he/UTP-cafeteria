@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 'use client'
 
-import { ReactNode } from 'react'
+import { FetchReniecForm } from './fetch-reniec-form'
 
 import {
   Dialog,
@@ -12,12 +12,16 @@ import {
 } from '@/modules/shared/components/ui/dialog'
 
 type Props = {
-  children?: ReactNode
   open: boolean
   handleOpenChange: (open: boolean) => void
+  handleFetchReniec: (dni: string, nombre: string, apellidos: string) => void
 }
 
-export function FetchDniDialog({ open, handleOpenChange, children }: Props) {
+export function FetchReniecDialog({
+  open,
+  handleOpenChange,
+  handleFetchReniec,
+}: Props) {
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent>
@@ -25,7 +29,10 @@ export function FetchDniDialog({ open, handleOpenChange, children }: Props) {
           <DialogTitle className="text-2xl">Consultar DNI</DialogTitle>
           <DialogDescription className="text-xl text-left flex justify-between items-center"></DialogDescription>
 
-          <>{children}</>
+          <FetchReniecForm
+            handleFetchReniec={handleFetchReniec}
+            handleOpenChange={handleOpenChange}
+          />
         </DialogHeader>
       </DialogContent>
     </Dialog>

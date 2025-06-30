@@ -23,10 +23,10 @@ import {
 } from '@shared/components/ui/popover'
 import { toast } from 'sonner'
 
-import TableSkeleton from '../../shared/skelletons/table-skeleton'
-import { DeleteProductFormDialog } from './delete-product-form-dialog'
+import TableSkeleton from '../../shared/skeletons/table-skeleton'
+import { DeleteProductFormDialog } from './delete-product-dialog'
 
-import { Product } from '@/modules/shared/interfaces/product.interfaces'
+import { Product } from '@/modules/shared/types/product.interfaces'
 import { useGetData } from '@/modules/shared/hooks/use-get-data'
 import { BACKEND_URL } from '@/lib/constants'
 import { useSortableData } from '@/modules/shared/hooks/use-sort-data'
@@ -44,14 +44,13 @@ type GetProducts = {
 }
 
 export default function ProductsTbl({ query, status, page, limit }: Props) {
+  const GET_URL = `${BACKEND_URL}/productos/obtener-productos?page=${page}&query=${query}&enable=${status}&page_size=${limit}`
   const {
     data: fetch,
     loading,
     refresh,
     error,
-  } = useGetData<GetProducts>(
-    `${BACKEND_URL}/productos/obtener-productos?page=${page}&query=${query}&enable=${status}&page_size=${limit}`,
-  )
+  } = useGetData<GetProducts>(GET_URL)
 
   const { data: products, sort, updateData } = useSortableData<Product>()
   const [open, setOpen] = useState(false)
@@ -77,6 +76,7 @@ export default function ProductsTbl({ query, status, page, limit }: Props) {
       <CardHeader>
         <CardTitle>Productos</CardTitle>
         <CardDescription>Administra tus productos</CardDescription>
+        <CardDescription>Total de Productos: {count}</CardDescription>
       </CardHeader>
       <CardContent>
         <table className="table-auto text-center w-full text-sm ">
@@ -108,7 +108,7 @@ export default function ProductsTbl({ query, status, page, limit }: Props) {
           </thead>
           <tbody className="text-xs relative">
             {loading ? (
-              <TableSkeleton rows={Math.min(limit, count)} />
+              <TableSkeleton rows={Math.min(limit, products.length)} />
             ) : products && products.length > 0 ? (
               products.map((product, index) => (
                 <tr
@@ -139,9 +139,6 @@ export default function ProductsTbl({ query, status, page, limit }: Props) {
                         align="end"
                         className="flex flex-col items-start text-xs max-w-40 p-2"
                       >
-                        {/* <Link href={`/admin/products/${product.id}`} className="flex items-center gap-2 hover:bg-secondary p-2 w-full rounded-sm ">
-												<AiOutlineInfoCircle size={18} /> Información
-											</Link> */}
                         <Link
                           href={`/admin/products/edit/${product.id}`}
                           className="flex items-center gap-2 hover:bg-secondary p-2 w-full rounded-sm "
@@ -172,7 +169,7 @@ export default function ProductsTbl({ query, status, page, limit }: Props) {
         </table>
       </CardContent>
       <CardFooter>
-        <Pagination totalPages={fetch?.totalPages ?? 0} />
+        <Pagination totalPages={fetch?.totalPages ?? 1} />
       </CardFooter>
       <DeleteProductFormDialog
         open={open}

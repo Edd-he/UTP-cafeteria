@@ -1,41 +1,33 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable no-unused-vars */
 'use client'
 import { useState, useEffect } from 'react'
 import { AiOutlineLoading } from 'react-icons/ai'
-import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { SubmitHandler, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { signIn } from 'next-auth/react'
 import { toast } from 'sonner'
 import { useSession } from 'next-auth/react'
+import { z } from 'zod'
 
 import { Button } from '@/modules/shared/components/ui/button'
 import { Input } from '@/modules/shared/components/ui/input'
-import { LoginSchema } from '@/modules/auth/schemas/login-schema'
+import { loginSchema } from '@/modules/auth/schemas/login-schema'
 
-type LoginForm = {
-  correo: string
-  contraseña: string
-}
+type LoginSchemaType = z.infer<typeof loginSchema>
+
 export default function Page() {
   const { data: session } = useSession()
-  const userRole = session?.user?.rol
   const [loading, setLoading] = useState(false)
   const {
     register,
-    reset,
-    control,
-    watch,
     handleSubmit,
     formState: { errors },
-  } = useForm<LoginForm>({
-    resolver: zodResolver(LoginSchema),
+  } = useForm<LoginSchemaType>({
+    resolver: zodResolver(loginSchema),
   })
   const { push, prefetch } = useRouter()
 
-  const onSubmit: SubmitHandler<LoginForm> = async (data) => {
+  const onSubmit: SubmitHandler<LoginSchemaType> = async (data) => {
     setLoading(true)
     try {
       const response = await signIn('credentials', {
@@ -56,10 +48,11 @@ export default function Page() {
       toast.error(errorMessage)
     }
   }
+
   useEffect(() => {
     prefetch('/shop')
     prefetch('/admin/orders')
-  }, [])
+  }, [prefetch])
 
   useEffect(() => {
     if (session?.user?.rol) {
@@ -71,6 +64,7 @@ export default function Page() {
       push('/shop')
     }
   }, [session, push])
+
   return (
     <>
       <div className="w-full max-w-md px-5">

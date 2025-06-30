@@ -8,7 +8,7 @@ import { Button } from '@/modules/shared/components/ui/button'
 import { useCartStore } from '@/store/cart-store'
 import { useSendRequest } from '@/modules/shared/hooks/use-send-request'
 import { BACKEND_URL } from '@/lib/constants'
-import { PayOrder } from '@/modules/shared/interfaces'
+import { PayOrder } from '@/modules/shared/types'
 import { cn } from '@/lib/utils'
 
 type Props = {
@@ -26,11 +26,8 @@ export default function PayOrderButton({ className }: Props) {
 
   const { access } = session?.tokens ?? {}
 
-  const { sendRequest, loading } = useSendRequest(
-    `${BACKEND_URL}/ordenes/crear-orden`,
-    'POST',
-    access,
-  )
+  const POST_URL = `${BACKEND_URL}/ordenes/crear-orden`
+  const { sendRequest, loading } = useSendRequest(POST_URL, 'POST', access)
 
   if (!session || cart.length === 0) return null
 

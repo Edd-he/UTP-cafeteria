@@ -3,6 +3,8 @@ import type { NextAuthOptions } from 'next-auth'
 
 import { BACKEND_URL } from '../../lib/constants'
 
+import { parseErrorHttpMessage } from '@/lib/http/parse-error-http'
+
 export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
   providers: [
@@ -17,19 +19,18 @@ export const authOptions: NextAuthOptions = {
         const { email, password } = credentials
 
         try {
-          const response = await fetch(BACKEND_URL + '/auth/iniciar-sesion', {
+          const res = await fetch(BACKEND_URL + '/auth/iniciar-sesion', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ correo: email, contraseña: password }),
           })
-          if (!response.ok) {
-            const errorBody = await response.json()
 
-            const message = errorBody.message?.[0] || 'Error desconocido'
+          const user = await res.json()
+          if (!res.ok) {
+            const message = parseErrorHttpMessage(user.message)
             throw new Error(message)
           }
 
-          const user = await response.json()
           return user
         } catch (e) {
           if (e instanceof Error)
@@ -40,7 +41,7 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   pages: {
-    signIn: '/login',
+    signIn: '/',
   },
   callbacks: {
     async jwt({ token, user }) {

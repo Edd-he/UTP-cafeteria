@@ -6,7 +6,7 @@ import { SearchByName } from '@shared/filters'
 import FiltersContainer from '@shop/components/filters-container'
 import { Suspense } from 'react'
 
-import { PRODUCT_CATEGORIRES } from '@/lib/categories'
+import { PRODUCT_CATEGORIES } from '@/lib/categories'
 import { SlideTransition } from '@/modules/shared/components/slide-transition'
 
 type SearchParams = {
@@ -21,7 +21,7 @@ type Props = {
 }
 
 export async function generateStaticParams() {
-  return PRODUCT_CATEGORIRES.map((category) => ({
+  return PRODUCT_CATEGORIES.map((category) => ({
     slug: category.slug,
   }))
 }
@@ -29,9 +29,7 @@ export async function generateStaticParams() {
 export default async function Page({ params, searchParams }: Props) {
   const { slug } = await params
   const { query, max, order } = await searchParams
-  const category = PRODUCT_CATEGORIRES.find(
-    (category) => category.slug === slug,
-  )
+  const category = PRODUCT_CATEGORIES.find((category) => category.slug === slug)
   const Icon = category?.icon
 
   const queryValue = query || ''

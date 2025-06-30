@@ -20,10 +20,10 @@ import {
 } from '@shared/components/ui/carousel'
 import { toast } from 'sonner'
 
-import { AddCartProductButton } from '../cart/add-product-button'
-import { ProductsCarouselSkeleton } from '../skelletons/products-carousel-skeleton'
+import { AddCartProductButton } from '../cart/add-cart-product-button'
+import { ProductsCarouselSkeleton } from '../skeletons/products-carousel-skeleton'
 
-import { Product } from '@/modules/shared/interfaces'
+import { Product } from '@/modules/shared/types'
 import { useGetData } from '@/modules/shared/hooks/use-get-data'
 import { BACKEND_URL } from '@/lib/constants'
 
@@ -35,13 +35,9 @@ type GetProducts = {
   totalPages: number
 }
 export function ProductsCarousel({ category }: Props) {
-  const {
-    data: products,
-    loading,
-    error,
-  } = useGetData<GetProducts>(
-    `${BACKEND_URL}/productos/obtener-productos-disponibles?page_size=8&category=${category}`,
-  )
+  const GET_URL = `${BACKEND_URL}/productos/obtener-productos-disponibles?page_size=8&category=${category}`
+  const { data: products, loading, error } = useGetData<GetProducts>(GET_URL)
+
   useEffect(() => {
     if (error) toast.error(error)
   }, [error])

@@ -28,7 +28,7 @@ export default function RootLayout({
               <div vaul-drawer-wrapper="" className="bg-background">
                 {children}
               </div>
-              <Toaster closeButton richColors />
+              <Toaster closeButton richColors visibleToasts={3} />
             </NextAuthProvider>
           </ThemeProvider>
         </body>

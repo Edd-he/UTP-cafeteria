@@ -24,7 +24,10 @@ const schema = z.object({
   dni: z.string().length(8, { message: 'El DNI debe tener 8 caracteres' }),
 })
 
-export function DniQueryForm({ handleOpenChange, handleFetchReniec }: Props) {
+export function FetchReniecForm({
+  handleOpenChange,
+  handleFetchReniec,
+}: Props) {
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<any>(null)
   const [serverError, setServerError] = useState('')

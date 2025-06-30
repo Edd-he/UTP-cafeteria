@@ -13,7 +13,7 @@ import {
 
 import { BACKEND_URL } from '@/lib/constants'
 import { useSendRequest } from '@/modules/shared/hooks/use-send-request'
-import { User } from '@/modules/shared/interfaces/user.interfaces'
+import { User } from '@/modules/shared/types/user.interfaces'
 
 type Props = {
   user: User | null
@@ -22,16 +22,15 @@ type Props = {
   handleRefresh: () => void
 }
 
-export function DeleteUserFormDialog({
+export function DeleteUserDialog({
   open,
   user,
   handleOpenChange,
   handleRefresh,
 }: Props) {
-  const { sendRequest, loading } = useSendRequest(
-    `${BACKEND_URL}/usuarios/${user?.id}/remover-usuario`,
-    'DELETE',
-  )
+  const DELETE_URL = `${BACKEND_URL}/usuarios/${user?.id}/remover-usuario`
+  const { sendRequest, loading } = useSendRequest(DELETE_URL, 'DELETE')
+
   const handleDelete = async () => {
     const { error } = await sendRequest()
 
@@ -42,7 +41,8 @@ export function DeleteUserFormDialog({
       toast.error(error)
       return
     }
-    toast('Usuario Eliminado Correctamente')
+    toast.success('Usuario Eliminado Correctamente')
+    return
   }
 
   return (

@@ -1,8 +1,7 @@
-import CloseSessionButton from '@auth/session/close-session-btn'
-import UserChangePasswordForm from '@shop/profile/user-change-password-form'
 import { redirect } from 'next/navigation'
 import { getServerSession } from 'next-auth'
 
+import CloseSessionButton from '@/modules/auth/session/close-session-button'
 import { authOptions } from '@/modules/auth/auth-options'
 import {
   Card,
@@ -11,6 +10,7 @@ import {
   CardDescription,
   CardContent,
 } from '@/modules/shared/components/ui/card'
+import { extractStudentCode } from '@/lib/format-code'
 
 export default async function Page() {
   const session = await getServerSession(authOptions)
@@ -18,7 +18,7 @@ export default async function Page() {
     redirect('/')
   }
 
-  const { id, usuario, correo, rol } = session.user
+  const { usuario, correo, rol } = session.user
   return (
     <>
       <div className="space-y-6 max-sm:pb-24 pt-5">
@@ -34,23 +34,23 @@ export default async function Page() {
             </div>
             <form className="space-y-4">
               <div className="grid gap-2">
-                <label htmlFor="dni">Codigo:</label>
+                <label htmlFor="dni">Rol:</label>
                 <p className="text-base  font-semibold">{rol}</p>
               </div>
               <div className="grid gap-2">
-                <label htmlFor="email">Correo Electrónico:</label>
-                <p className="text-base font-semibold">{correo}</p>
+                <label htmlFor="email">Código:</label>
+                <p className="text-base font-semibold">
+                  {extractStudentCode(correo)}
+                </p>
               </div>
             </form>
           </CardContent>
         </Card>
 
-        <UserChangePasswordForm id={id} />
-
         <CloseSessionButton
           label="Cerrar Sesión"
           iconSize={22}
-          className="p-2 w-full md:hidden bg-primary hover:bg-primary/80"
+          className="p-2 w-full md:hidden bg-primary hover:bg-primary/80 text-white"
         />
       </div>
     </>

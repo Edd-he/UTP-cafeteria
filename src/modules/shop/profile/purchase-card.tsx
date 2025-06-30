@@ -8,7 +8,7 @@ import {
   CardTitle,
 } from '@shared/components/ui/card'
 
-import { Order } from '@/modules/shared/interfaces'
+import { Order } from '@/modules/shared/types'
 
 type Props = {
   order: Order

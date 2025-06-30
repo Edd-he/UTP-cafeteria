@@ -24,7 +24,7 @@ export default function CloseSessionButton({
       <button
         onClick={handleCloseSession}
         className={cn(
-          'flex-center duration-200 p-2 rounded gap-2 hover:bg-secondary active:bg-pressed',
+          'flex-center duration-200 p-2 rounded gap-2 hover:bg-secondary active:bg-pressed cursor-pointer',
           className,
         )}
       >

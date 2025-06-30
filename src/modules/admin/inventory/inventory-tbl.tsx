@@ -20,14 +20,14 @@ import {
 import { Button } from '@shared/components/ui/button'
 import { toast } from 'sonner'
 
-import TableSkeleton from '../../shared/skelletons/table-skeleton'
-import { ChangeStockDialog } from './change-stock-dialog'
+import TableSkeleton from '../../shared/skeletons/table-skeleton'
+import { ChangeStockDialog } from './change-stock/change-stock-dialog'
 import GenerateInventoryButton from './generate-inventory-button'
 
 import { useGetData } from '@/modules/shared/hooks/use-get-data'
 import { BACKEND_URL } from '@/lib/constants'
 import { useSortableData } from '@/modules/shared/hooks/use-sort-data'
-import { ProductInventory } from '@/modules/shared/interfaces/inventory.interfaces'
+import { ProductInventory } from '@/modules/shared/types/inventory.interfaces'
 
 type Props = {
   query: string
@@ -42,20 +42,21 @@ type GetProductsInventory = {
 }
 
 export default function InventoryTbl({ query, page, limit }: Props) {
+  const GET_URL = `${BACKEND_URL}/inventario/obtener-inventario-hoy?page_size=${limit}&page=${page}&query=${query}`
+
   const {
     data: fetch,
     loading,
     refresh,
     error,
-  } = useGetData<GetProductsInventory>(
-    `${BACKEND_URL}/inventario/obtener-inventario-hoy?page_size=${limit}&page=${page}&query=${query}`,
-  )
+  } = useGetData<GetProductsInventory>(GET_URL)
 
   const {
     data: products,
     sort,
     updateData,
   } = useSortableData<ProductInventory>()
+
   const [count, setCount] = useState(limit)
   const [open, setOpen] = useState(false)
   const [product, setProduct] = useState<ProductInventory>()
@@ -79,6 +80,9 @@ export default function InventoryTbl({ query, page, limit }: Props) {
           Genera el inventario y administra las entradas y salidas de tus
           productos.
         </CardDescription>
+
+        <CardDescription>Productos en Inventario: {count}</CardDescription>
+
         <GenerateInventoryButton
           onSuccess={refresh}
           className="max-w-40 ml-auto"
@@ -116,7 +120,7 @@ export default function InventoryTbl({ query, page, limit }: Props) {
           </thead>
           <tbody className="text-xs relative">
             {products && loading ? (
-              <TableSkeleton rows={Math.min(limit, count)} />
+              <TableSkeleton rows={Math.min(limit, products.length)} />
             ) : products && products.length > 0 ? (
               products.map((product, index) => (
                 <tr
@@ -180,7 +184,7 @@ export default function InventoryTbl({ query, page, limit }: Props) {
         </table>
       </CardContent>
       <CardFooter>
-        <Pagination totalPages={fetch?.totalPages ?? 0} />
+        <Pagination totalPages={fetch?.totalPages ?? 1} />
       </CardFooter>
       <ChangeStockDialog
         product={product}

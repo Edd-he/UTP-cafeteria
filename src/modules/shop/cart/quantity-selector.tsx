@@ -6,7 +6,7 @@ import { Input } from '@shared/components/ui/input'
 import { Button } from '@shared/components//ui/button'
 
 import { useCartStore } from '@/store/cart-store'
-import { CartProduct } from '@/modules/shared/interfaces/product.interfaces'
+import { CartProduct } from '@/modules/shared/types/product.interfaces'
 
 type Props = {
   product: CartProduct

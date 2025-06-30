@@ -4,7 +4,7 @@ import { PiHamburgerDuotone } from 'react-icons/pi'
 import { TbBottle } from 'react-icons/tb'
 import { MdHelpOutline } from 'react-icons/md'
 import { LuUtensils } from 'react-icons/lu'
-export const PRODUCT_CATEGORIRES = [
+export const PRODUCT_CATEGORIES = [
   {
     id: 1,
     icon: PiHamburgerDuotone,

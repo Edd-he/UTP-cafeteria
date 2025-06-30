@@ -8,8 +8,8 @@ import { MyOrderCard } from './my-order-card'
 import { useGetData } from '@/modules/shared/hooks/use-get-data'
 import { BACKEND_URL } from '@/lib/constants'
 import { useSortableData } from '@/modules/shared/hooks/use-sort-data'
-import { Order } from '@/modules/shared/interfaces/order.interfaces'
-import OrdersSkeleton from '@/modules/shared/skelletons/orders-skeleton'
+import { Order } from '@/modules/shared/types/order.interfaces'
+import OrdersSkeleton from '@/modules/shared/skeletons/orders-skeleton'
 
 type Props = {
   query: string
@@ -30,14 +30,13 @@ export default function MyOrdersContainer({
   limit,
   access,
 }: Props) {
+  const GET_URL = `${BACKEND_URL}/ordenes/obtener-ordenes-usuario?page_size=${limit}&page=${page}&query=${query}`
   const {
     data: fetch,
     loading,
     error,
-  } = useGetData<GetOrders>(
-    `${BACKEND_URL}/ordenes/obtener-ordenes-usuario?page_size=${limit}&page=${page}&query=${query}`,
-    access,
-  )
+    refresh,
+  } = useGetData<GetOrders>(GET_URL, access)
 
   const { data: orders, updateData } = useSortableData<Order>()
 
@@ -55,7 +54,6 @@ export default function MyOrdersContainer({
     const now = DateTime.fromFormat(date, 'dd-MM-yyyy HH:mm')
 
     if (!now.isValid) {
-      console.warn('Fecha inválida:', date)
       return false
     }
 
@@ -83,7 +81,12 @@ export default function MyOrdersContainer({
               <h2 className="text-lg font-semibold mb-2">Órdenes de hoy</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
                 {today.map((order) => (
-                  <MyOrderCard key={order.id} order={order} />
+                  <MyOrderCard
+                    isToday
+                    key={order.id}
+                    order={order}
+                    refresh={refresh}
+                  />
                 ))}
               </div>
             </section>
@@ -94,7 +97,12 @@ export default function MyOrdersContainer({
               <h2 className="text-lg font-semibold mb-2">Órdenes anteriores</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {others.map((order) => (
-                  <MyOrderCard key={order.id} order={order} />
+                  <MyOrderCard
+                    isToday={false}
+                    key={order.id}
+                    order={order}
+                    refresh={refresh}
+                  />
                 ))}
               </div>
             </section>

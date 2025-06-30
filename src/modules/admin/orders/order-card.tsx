@@ -8,7 +8,7 @@ import {
   CardFooter,
 } from '@/modules/shared/components/ui/card'
 import { Badge } from '@/modules/shared/components/ui/badge'
-import { Order, OrderStatus } from '@/modules/shared/interfaces'
+import { Order, OrderStatus } from '@/modules/shared/types'
 import { Button } from '@/modules/shared/components/ui/button'
 
 type Props = {

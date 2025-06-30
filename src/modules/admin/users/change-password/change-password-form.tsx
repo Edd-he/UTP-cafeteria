@@ -5,8 +5,9 @@ import { SubmitHandler, useForm } from 'react-hook-form'
 import { Button } from '@shared/components/ui/button'
 import { Input } from '@shared/components/ui/input'
 import { toast } from 'sonner'
+import { z } from 'zod'
 
-import { ChangePasswordSchema } from '../schemas/change-password.schema'
+import { changePasswordSchema } from '../../schemas/change-password.schema'
 
 import { useSendRequest } from '@/modules/shared/hooks/use-send-request'
 
@@ -15,10 +16,7 @@ type Props = {
   onSuccess: () => void
 }
 
-type InputForm = {
-  password: string
-  newPassword: string
-}
+type ChangePasswordSchemaType = z.infer<typeof changePasswordSchema>
 
 export default function ChangePasswordForm({ id, onSuccess }: Props) {
   const { sendRequest, loading } = useSendRequest(
@@ -30,11 +28,11 @@ export default function ChangePasswordForm({ id, onSuccess }: Props) {
     handleSubmit,
     formState: { errors },
     reset,
-  } = useForm<InputForm>({
-    resolver: zodResolver(ChangePasswordSchema),
+  } = useForm<ChangePasswordSchemaType>({
+    resolver: zodResolver(changePasswordSchema),
   })
 
-  const onSubmit: SubmitHandler<InputForm> = async (data) => {
+  const onSubmit: SubmitHandler<ChangePasswordSchemaType> = async (data) => {
     const { error } = await sendRequest(data)
     if (error) {
       toast.error(error)
@@ -53,11 +51,11 @@ export default function ChangePasswordForm({ id, onSuccess }: Props) {
         <Input
           id="current-password"
           type="password"
-          {...register('password')}
+          {...register('contraseña')}
           placeholder="********"
         />
-        {errors.password && (
-          <p className="text-red-600 text-xs">{errors.password.message}</p>
+        {errors.contraseña && (
+          <p className="text-red-600 text-xs">{errors.contraseña.message}</p>
         )}
       </div>
       <div className="grid gap-2">
@@ -65,11 +63,13 @@ export default function ChangePasswordForm({ id, onSuccess }: Props) {
         <Input
           id="new-password"
           type="password"
-          {...register('newPassword')}
+          {...register('nueva_contraseña')}
           placeholder="********"
         />
-        {errors.newPassword && (
-          <p className="text-red-600 text-xs">{errors.newPassword.message}</p>
+        {errors.nueva_contraseña && (
+          <p className="text-red-600 text-xs">
+            {errors.nueva_contraseña.message}
+          </p>
         )}
       </div>
       <Button disabled={loading}>

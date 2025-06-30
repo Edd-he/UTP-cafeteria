@@ -56,7 +56,7 @@ export default function ImageUploader({
 
   return (
     <div
-      className="z-10 h-96 relative flex-center border rounded border-ring"
+      className="z-10 h-96 relative flex-center border rounded border-primary"
       onDrop={handleDrop}
       onDragOver={handleDragOver}
     >
@@ -71,7 +71,7 @@ export default function ImageUploader({
       {value instanceof File ||
       (defaultImage && defaultImage !== 'PENDIENTE') ? (
         <div
-          className="group relative size-50 flex-center cursor-pointer rounded border-dashed border border-foreground m-auto duration-200 hover:bg-accent dark:hover:bg-black"
+          className="group relative size-75 flex-center cursor-pointer rounded m-auto duration-200 hover:bg-accent "
           onClick={handleClick}
         >
           <Image
@@ -79,12 +79,12 @@ export default function ImageUploader({
               value instanceof File ? URL.createObjectURL(value) : defaultImage!
             }
             alt="Imagen"
-            className="object-cover size-50 rounded"
-            height={200}
-            width={200}
+            className="object-cover size-75 rounded"
+            height={300}
+            width={300}
             draggable={false}
           />
-          <div className="absolute inset-0 bg-black/50 w-full h-full flex-center opacity-0 group-hover:opacity-100 duration-200">
+          <div className="absolute inset-0 bg-black/30 w-full h-full flex-center opacity-0 group-hover:opacity-100 duration-200">
             <PiUploadSimpleThin
               size={40}
               className="group-hover:text-primary text-shadow-lg duration-200"
@@ -93,7 +93,7 @@ export default function ImageUploader({
         </div>
       ) : (
         <div
-          className="w-[300px] h-[300px] flex-center cursor-pointer rounded group border-dashed border border-foreground m-auto duration-200 hover:bg-accent dark:hover:bg-black"
+          className="size-75 flex-center cursor-pointer rounded group m-auto duration-200 hover:bg-accent "
           onClick={handleClick}
         >
           <PiUploadSimpleThin

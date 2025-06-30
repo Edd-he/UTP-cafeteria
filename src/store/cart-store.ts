@@ -2,7 +2,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
-import { CartProduct } from '@/modules/shared/interfaces/product.interfaces'
+import { CartProduct } from '@/modules/shared/types/product.interfaces'
 
 type CartState = {
   cart: CartProduct[]
@@ -52,7 +52,7 @@ export const useCartStore = create<CartState>()(
         )
 
         const hour = scheduled.getHours()
-        const timeRange = hour >= 9 && hour < 19
+        const timeRange = hour >= 9 && hour < 22
         const notPast = scheduled.getTime() >= now.getTime()
 
         return timeRange && notPast

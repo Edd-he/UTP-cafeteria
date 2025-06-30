@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { MdOutlineUnfoldMore } from 'react-icons/md'
 import { HiOutlineArrowsUpDown } from 'react-icons/hi2'
 import Link from 'next/link'
@@ -19,130 +19,103 @@ import {
   PopoverTrigger,
 } from '@shared/components/ui/popover'
 import Pagination from '@shared/components/ui/pagination'
+import { toast } from 'sonner'
 
-import TableSkeleton from '../../shared/skelletons/table-skeleton'
+import TableSkeleton from '../../shared/skeletons/table-skeleton'
 
 import { useGetData } from '@/modules/shared/hooks/use-get-data'
-
-export type Sale = {
-  id: number
-  created: string
-  transaction: string
-  userName: string
-  totalAmount: number
-  totalDiscount: number
-  totalPayment: number
-  paymentMethod: string
-  status: string
-}
-
-type SortConfig = {
-  key: keyof Sale
-  order: 'asc' | 'desc'
-}
+import { BACKEND_URL } from '@/lib/constants'
+import { Payment } from '@/modules/shared/types/payments.interfaces'
+import { useSortableData } from '@/modules/shared/hooks/use-sort-data'
+import { Button } from '@/modules/shared/components/ui/button'
 
 type Props = {
   query: string
-  status: string
+  method: string
   page: number
   limit: number
 }
+type GetPayments = {
+  data: Payment[]
+  total: number
+  totalPages: number
+}
 
-export default function SalesTbl({ page, limit, status, query }: Props) {
-  const [sortConfig, setSortConfig] = useState<SortConfig>({
-    key: 'id',
-    order: 'asc',
-  })
-  const {
-    data: sales,
-    setData,
-    loading,
-  } = useGetData<Sale[]>(
-    `/api/sales?page=${page}&query=${query}&statusSale=${status}&limit=${limit}`,
-  )
+export default function SalesTbl({ page, limit, method, query }: Props) {
+  const GET_URL = `${BACKEND_URL}/pagos/obtener-pagos?page=${page}&query=${query}&page_size=${limit}${
+    method !== 'all' ? `&method=${method}` : ''
+  }`
+  const { data: fetch, loading, error } = useGetData<GetPayments>(GET_URL)
 
-  const handleSort = (key: keyof Sale) => {
-    const order =
-      sortConfig.key === key && sortConfig.order === 'asc' ? 'desc' : 'asc'
-    setSortConfig({ key, order })
-    if (!sales) return
-    const sortedData = [...sales].sort((a, b) => {
-      if (a[key] < b[key]) {
-        return order === 'asc' ? -1 : 1
-      }
-      if (a[key] > b[key]) {
-        return order === 'asc' ? 1 : -1
-      }
-      return 0
-    })
+  const { data: payments, sort, updateData } = useSortableData<Payment>()
+  const [count, setCount] = useState(limit)
 
-    setData(sortedData)
-  }
+  useEffect(() => {
+    if (fetch) {
+      updateData(fetch.data)
+      setCount(fetch.total)
+    }
+  }, [fetch])
 
+  useEffect(() => {
+    if (error) toast.error(error)
+  }, [error])
   return (
     <Card x-chunk="sales-table">
       <CardHeader>
-        <CardTitle>Ventas</CardTitle>
-        <CardDescription>Visualiza tus ventas</CardDescription>
+        <CardTitle>Pagos</CardTitle>
+        <CardDescription>Visualiza los pagos realizados</CardDescription>
+        <CardDescription>Total de Pagos: {count}</CardDescription>
       </CardHeader>
       <CardContent>
-        <table className="table-auto text-center w-full relative">
-          <thead className=" border-b relative text-sm lg:text-base">
+        <table className="table-auto text-center w-full text-sm ">
+          <thead className=" border-b relative">
             <tr className="h-16">
               <td>
-                <button
-                  onClick={() => handleSort('id')}
-                  className="flex-center  gap-2 mx-auto active:bg-pressed hover:bg-secondary p-2 rounded"
-                >
+                <Button variant="ghost" onClick={() => sort('id')}>
                   <HiOutlineArrowsUpDown />
                   Id
-                </button>
+                </Button>
               </td>
               <td>Transacción</td>
               <td className="max-md:hidden">Fecha</td>
-              <td className="max-lg:hidden">Cliente</td>
-              <td className="">Monto</td>
-              <td className="max-md:hidden">Descuento</td>
-
-              <td className="max-xl:hidden">Metodo</td>
-              <td className="max-lg:hidden">Estado</td>
+              <td className="max-lg:hidden">Código Cliente</td>
+              <td className="">
+                <Button variant="ghost" onClick={() => sort('monto_total')}>
+                  <HiOutlineArrowsUpDown />
+                  Monto
+                </Button>
+              </td>
+              <td className="max-xl:hidden">Método</td>
               <td></td>
             </tr>
           </thead>
-          <tbody className=" text-xs sm:text-sm relative w-full">
+          <tbody className="text-xs relative">
             {loading ? (
               <TableSkeleton rows={limit} />
-            ) : sales && sales.length > 0 ? (
-              sales.map((sale, index) => (
+            ) : payments && payments.length > 0 ? (
+              payments.map((payment, index) => (
                 <tr
                   key={index}
-                  className="hover:bg-muted/50 duration-300 relative h-24"
+                  className="hover:bg-muted/50 duration-300 relative h-14 border-t"
                 >
-                  <td className="rounded-l-lg">{sale.id}</td>
-                  <td>{sale.transaction}</td>
-                  <td className="max-md:hidden">{sale.created}</td>
-                  <td className="max-lg:hidden">{sale.userName}</td>
-                  <td className="">S/ {sale.totalAmount}</td>
-                  <td className="max-md:hidden">S/ {sale.totalDiscount}</td>
-                  <td className="max-xl:hidden">{sale.paymentMethod}</td>
-                  <td
-                    className={
-                      'max-lg:hidden text-shadow-lg text-green-500 shadow-green-500/50'
-                    }
-                  >
-                    {sale.status}
-                  </td>
+                  <td className="rounded-l-lg">{payment.id}</td>
+                  <td>{payment.transaccion}</td>
+                  <td className="max-md:hidden">{payment.creado}</td>
+                  <td className="max-lg:hidden">{payment.codigo}</td>
+                  <td className="">S/ {payment.monto_total}</td>
+                  <td className="max-md:hidden">{payment.metodo_pago}</td>
                   <td className="rounded-r-lg space-x-2">
                     <Popover>
-                      <PopoverTrigger className="p-2 rounded hover:shadow-xl hover:shadow-pressed/50 hover:bg-background duration-200">
+                      <PopoverTrigger className="p-2 rounded bg-transparent hover:shadow-lg hover:shadow-secondary/50 hover:bg-background duration-300">
                         <MdOutlineUnfoldMore size={20} />
                       </PopoverTrigger>
                       <PopoverContent
                         align="end"
-                        className="flex flex-col gap-2 items-start text-sm"
+                        className="flex flex-col items-start text-xs max-w-40 p-2"
                       >
                         <Link
-                          href={`/admin/sales/${sale.id}}`}
+                          href={`/admin/sales/${payment.id}`}
                           className="flex items-center gap-2 hover:bg-secondary p-2 w-full rounded-sm "
                         >
                           <AiOutlineInfoCircle size={18} /> Información
@@ -163,7 +136,7 @@ export default function SalesTbl({ page, limit, status, query }: Props) {
         </table>
       </CardContent>
       <CardFooter>
-        <Pagination totalPages={5} />
+        <Pagination totalPages={fetch?.totalPages ?? 1} />
       </CardFooter>
     </Card>
   )

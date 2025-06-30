@@ -25,43 +25,47 @@ import {
   SelectValue,
 } from '@shared/components/ui/select'
 import { Button } from '@shared/components/ui/button'
-import { Product } from '@shared/interfaces'
+import { z } from 'zod'
 
-import {
-  productEditSchema,
-  ProductSchema,
-} from '@/modules/admin/schemas/products.schema'
-import { PRODUCT_CATEGORIRES } from '@/lib/categories'
+import { Product } from '@/modules/shared/types'
+import { productSchema } from '@/modules/admin/schemas/products.schema'
+import { PRODUCT_CATEGORIES } from '@/lib/categories'
 import { useGetData } from '@/modules/shared/hooks/use-get-data'
 import { BACKEND_URL } from '@/lib/constants'
 import { useSendRequest } from '@/modules/shared/hooks/use-send-request'
 import ImageUploader from '@/modules/shared/components/image-uploader'
+import { Switch } from '@/modules/shared/components/ui/switch'
 
 type Props = {
   params: Promise<{ id: string }>
 }
+
+type EditProductSchemaType = z.infer<typeof productSchema>
 export default function Page({ params }: Props) {
   const { id } = use(params)
   const { push } = useRouter()
-  const { sendRequest, loading } = useSendRequest(
-    `${BACKEND_URL}/productos/${id}/actualizar-producto`,
-    'PATCH',
-    '',
-    true,
-  )
+
+  //servicios
+  const PATCH_URL = `${BACKEND_URL}/productos/${id}/actualizar-producto`
+  const GET_URL = `${BACKEND_URL}/productos/${id}/obtener-producto`
+
+  const { sendRequest, loading } = useSendRequest(PATCH_URL, 'PATCH', '', true)
   const {
     data: product,
     error: getError,
     loading: getLoading,
-  } = useGetData<Product>(`${BACKEND_URL}/productos/${id}/obtener-producto`)
+  } = useGetData<Product>(GET_URL)
+
   const {
     register,
     control,
+    watch,
+    setValue,
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<productEditSchema>({
-    resolver: zodResolver(ProductSchema),
+  } = useForm<EditProductSchemaType>({
+    resolver: zodResolver(productSchema),
   })
 
   const [currentImage, setCurrentImage] = useState<string>('PENDIENTE')
@@ -75,7 +79,7 @@ export default function Page({ params }: Props) {
     }
   }, [product, reset])
 
-  const onSubmit: SubmitHandler<productEditSchema> = async (data) => {
+  const onSubmit: SubmitHandler<EditProductSchemaType> = async (data) => {
     if (!product) {
       toast.error('Error al obtener el producto')
       return
@@ -107,7 +111,7 @@ export default function Page({ params }: Props) {
 
     push('/admin/products')
   }
-
+  const habilitado = watch('habilitado')
   return (
     <>
       <section className="max-w-screen-xl w-full mx-auto flex items-center justify-start  gap-5">
@@ -125,39 +129,18 @@ export default function Page({ params }: Props) {
         className="flex max-w-screen-xl max-lg:flex-col w-full mx-auto gap-5"
       >
         <div className="flex flex-col gap-5 w-full lg:w-[60%]">
-          <Card className="max-w-72">
-            <CardHeader>
-              <CardTitle className="text-xl font-normal">Estado</CardTitle>
-            </CardHeader>
+          <Card className="flex-row items-center justify-between p-4">
+            <div className="space-y-0.5">
+              <label className="text-lg">Estado</label>
+              <p className="text-sm text-gray-500">
+                Verifica si el producto estará habilitado
+              </p>
+            </div>
             <CardContent>
-              <Controller
-                name="habilitado"
-                control={control}
-                defaultValue={true}
-                render={({ field }) => (
-                  <Select
-                    onValueChange={(value) => field.onChange(value === '1')}
-                    value={field.value ? '1' : '0'}
-                  >
-                    <SelectTrigger className="hover:bg-secondary">
-                      <SelectValue placeholder="Seleccionar" />
-                    </SelectTrigger>
-                    <SelectContent
-                      position="popper"
-                      sideOffset={5}
-                      hideWhenDetached
-                    >
-                      <SelectItem value="1">Activo</SelectItem>
-                      <SelectItem value="0">Inactivo</SelectItem>
-                    </SelectContent>
-                  </Select>
-                )}
+              <Switch
+                checked={habilitado}
+                onCheckedChange={(value) => setValue('habilitado', value)}
               />
-              {errors.habilitado && (
-                <p className="text-red-600 text-xs">
-                  {errors.habilitado.message}
-                </p>
-              )}
             </CardContent>
           </Card>
 
@@ -227,7 +210,7 @@ export default function Page({ params }: Props) {
                         <SelectValue placeholder="Seleccionar" />
                       </SelectTrigger>
                       <SelectContent position="popper" hideWhenDetached>
-                        {PRODUCT_CATEGORIRES.map((category, index) => (
+                        {PRODUCT_CATEGORIES.map((category, index) => (
                           <SelectItem key={index} value={`${category.value}`}>
                             {category.name}
                           </SelectItem>
@@ -316,7 +299,7 @@ export default function Page({ params }: Props) {
   )
 }
 
-function extractEditableFields(product: Product): productEditSchema {
+function extractEditableFields(product: Product): EditProductSchemaType {
   const {
     nombre,
     descripcion,

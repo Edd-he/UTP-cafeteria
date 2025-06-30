@@ -8,9 +8,3 @@ export type ProductInventory = {
   ultima_entrada: string | null
   nombre_producto: string
 }
-
-export type ChangeStockFormData = {
-  producto_id: number
-  cantidad: number
-  tipo: 'ENTRADA' | 'SALIDA'
-}

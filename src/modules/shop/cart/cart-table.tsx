@@ -1,10 +1,10 @@
 'use client'
 
 import CustomImage from '@shared/components/custom-image'
-import RemoveProductButton from '@shop/cart/remove-product-button'
 
 import QuantitySelector from './quantity-selector'
 
+import RemoveCartProductButton from '@/modules/shop/cart/remove-cart-product-button'
 import { useCartStore } from '@/store/cart-store'
 
 export function CartTable() {
@@ -47,7 +47,7 @@ export function CartTable() {
               </td>
               <td>S/ {product.precio}</td>
               <td>
-                <RemoveProductButton product={product} />
+                <RemoveCartProductButton product={product} />
               </td>
             </tr>
           ))

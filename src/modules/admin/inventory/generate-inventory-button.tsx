@@ -16,11 +16,11 @@ export default function GenerateInventoryButton({
   className,
   onSuccess,
 }: Props) {
-  const { sendRequest, loading } = useSendRequest(
-    `${BACKEND_URL}/inventario/generar-inventario`,
-    'POST',
-  )
-  const toastIdRef = useRef<string | number | null>(null)
+  const POST_URL = `${BACKEND_URL}/inventario/generar-inventario`
+  const { sendRequest, loading } = useSendRequest(POST_URL, 'POST')
+
+  const toastReference = useRef<string | number | null>(null)
+
   async function generateInventory() {
     const { error } = await sendRequest()
     if (error) {
@@ -33,10 +33,10 @@ export default function GenerateInventoryButton({
 
   useEffect(() => {
     if (loading) {
-      toastIdRef.current = toast.loading('Generando Inventario')
-    } else if (toastIdRef.current) {
-      toast.dismiss(toastIdRef.current)
-      toastIdRef.current = null
+      toastReference.current = toast.loading('Generando Inventario')
+    } else if (toastReference.current) {
+      toast.dismiss(toastReference.current)
+      toastReference.current = null
     }
   }, [loading])
 

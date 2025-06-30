@@ -19,14 +19,14 @@ type Props = {
   id: number
 }
 
-export default function UserChangePasswordDialog({ id }: Props) {
+export default function ChangePasswordDialog({ id }: Props) {
   const [open, setOpen] = useState(false)
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button className="max-w-sm mx-auto">Cambiar Contraseña</Button>
-      </DialogTrigger>
+      <Button asChild variant={'outline'}>
+        <DialogTrigger>Cambiar Contraseña</DialogTrigger>
+      </Button>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Contraseña</DialogTitle>

@@ -12,7 +12,7 @@ import {
   DialogTitle,
 } from '@/modules/shared/components/ui/dialog'
 import { useSendRequest } from '@/modules/shared/hooks/use-send-request'
-import { Order } from '@/modules/shared/interfaces/order.interfaces'
+import { Order } from '@/modules/shared/types/order.interfaces'
 import { BACKEND_URL } from '@/lib/constants'
 
 type Props = {
@@ -21,28 +21,26 @@ type Props = {
   order: Order | null
   refresh?: () => void
 }
-export default function OrderChangeStatusDialog({
+export default function ChangeOrderStatusDialog({
   refresh,
   open,
   onClose,
   order,
 }: Props) {
-  if (!order) return null
-
-  let url = `${BACKEND_URL}/ordenes/${order.id}/procesar-orden`
+  let PATCH_URL = `${BACKEND_URL}/ordenes/${order?.id}/procesar-orden`
   let label = 'Procesar orden'
-  switch (order.estado) {
+  switch (order?.estado) {
     case 'EN_PROCESO':
-      url = `${BACKEND_URL}/ordenes/${order.id}/recoger-orden`
+      PATCH_URL = `${BACKEND_URL}/ordenes/${order?.id}/recoger-orden`
       label = 'Pasar a recoger orden'
       break
     case 'RECOGER':
-      url = `${BACKEND_URL}/ordenes/${order.id}/completar-orden`
+      PATCH_URL = `${BACKEND_URL}/ordenes/${order?.id}/completar-orden`
       label = 'Completar orden'
       break
   }
 
-  const { sendRequest, loading } = useSendRequest(url, 'PATCH')
+  const { sendRequest, loading } = useSendRequest(PATCH_URL, 'PATCH')
 
   const onSubmit = async () => {
     const { error } = await sendRequest()
@@ -52,8 +50,11 @@ export default function OrderChangeStatusDialog({
     }
     refresh?.()
     onClose()
-    toast.success(`ORD-00${order.id} ha cambiado de estado`)
+    toast.success(`ORD-00${order?.id} ha cambiado de estado`)
   }
+
+  if (!order) return null
+
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent>

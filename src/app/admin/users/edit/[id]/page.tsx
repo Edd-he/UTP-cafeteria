@@ -1,23 +1,20 @@
-/* eslint-disable no-unused-vars */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client'
 import Link from 'next/link'
 import { MdOutlineChevronLeft } from 'react-icons/md'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
-import { useForm, Controller, SubmitHandler } from 'react-hook-form'
+import { useForm, SubmitHandler } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { use, useEffect, useState } from 'react'
 import { AiOutlineLoading } from 'react-icons/ai'
-import _, { last } from 'lodash'
+import _ from 'lodash'
+import { z } from 'zod'
 
-import { UserEditSchema } from '@/modules/admin/schemas/users.schema'
-import UserChangePasswordDialog from '@/modules/admin/users/change-pasword-dialog'
-import { DniQueryForm } from '@/modules/admin/users/fetch-dni-form'
-import { FetchDniDialog } from '@/modules/admin/users/fetch-dni-dialog'
+import { editUserSchema } from '@/modules/admin/schemas/users.schema'
+import { FetchReniecDialog } from '@/modules/admin/users/fetch-reniec/fetch-reniec-dialog'
 import { Button } from '@/modules/shared/components/ui/button'
 import { Input } from '@/modules/shared/components/ui/input'
-import { User, UserEditFormData } from '@/modules/shared/interfaces'
+import { User } from '@/modules/shared/types'
 import { useGetData } from '@/modules/shared/hooks/use-get-data'
 import {
   Card,
@@ -25,15 +22,11 @@ import {
   CardTitle,
   CardContent,
 } from '@/modules/shared/components/ui/card'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/modules/shared/components/ui/select'
 import { BACKEND_URL } from '@/lib/constants'
 import { useSendRequest } from '@/modules/shared/hooks/use-send-request'
+import ChangePasswordDialog from '@/modules/admin/users/change-password/change-pasword-dialog'
+import { Switch } from '@/modules/shared/components/ui/switch'
+import { extractAdminCode } from '@/lib/format-code'
 
 type ReniecData = {
   nombre: string
@@ -42,30 +35,36 @@ type ReniecData = {
 type Props = {
   params: Promise<{ id: string }>
 }
+
+type editUserSchemaType = z.infer<typeof editUserSchema>
+
 export default function Page({ params }: Props) {
   const { id } = use(params)
   const { push } = useRouter()
-  const [reniecData, setReniecData] = useState<ReniecData>()
-  const [open, setOpen] = useState(false)
+
+  //servicios
+  const GET_USER_URL = `${BACKEND_URL}/usuarios/${id}/obtener-usuario`
+  const UPDATE_USER_URL = `${BACKEND_URL}/usuarios/${id}/actualizar-usuario`
+
   const {
     data: user,
     loading: getLoading,
     error: getError,
-  } = useGetData<User>(`${BACKEND_URL}/usuarios/${id}/obtener-usuario`)
-  const { sendRequest, loading } = useSendRequest(
-    `${BACKEND_URL}/usuarios/${id}/actualizar-usuario`,
-    'PATCH',
-  )
+  } = useGetData<User>(GET_USER_URL)
+  const { sendRequest, loading } = useSendRequest(UPDATE_USER_URL, 'PATCH')
+
+  const [reniecData, setReniecData] = useState<ReniecData>()
+  const [open, setOpen] = useState(false)
 
   const {
     register,
     reset,
-    control,
+    watch,
     setValue,
     handleSubmit,
     formState: { errors },
-  } = useForm<UserEditFormData>({
-    resolver: zodResolver(UserEditSchema),
+  } = useForm<editUserSchemaType>({
+    resolver: zodResolver(editUserSchema),
   })
 
   const handleOpenChange = (newState: boolean) => {
@@ -83,7 +82,7 @@ export default function Page({ params }: Props) {
 
   if (getError) toast.error(getError)
 
-  const onSubmit: SubmitHandler<UserEditFormData> = async (data) => {
+  const onSubmit: SubmitHandler<editUserSchemaType> = async (data) => {
     if (user === null) {
       toast.warning('Error al obtener el usuario')
       return
@@ -111,7 +110,7 @@ export default function Page({ params }: Props) {
       reset(extractEditableFields(user))
     }
   }, [user, reset])
-
+  const habilitado = watch('habilitado')
   return (
     <>
       <section className="max-w-screen-xl w-full mx-auto flex items-center justify-start gap-5">
@@ -120,10 +119,8 @@ export default function Page({ params }: Props) {
             <MdOutlineChevronLeft size={25} />
           </Link>
         </Button>
-        <span className="flex-center gap-2 max-md:flex-col">
-          <h1 className="text-3xl">Editar Usuario</h1>
-          <UserChangePasswordDialog id={Number(id)} />
-        </span>
+
+        <h1 className="text-3xl">Editar Usuario</h1>
       </section>
 
       <form
@@ -131,40 +128,18 @@ export default function Page({ params }: Props) {
         className="flex max-w-screen-xl w-full mx-auto max-lg:flex-col gap-5"
       >
         <div className="flex flex-col gap-5 w-full lg:w-[60%]">
-          <Card className="max-w-72">
-            <CardHeader>
-              <CardTitle className="text-xl font-normal">Estado</CardTitle>
-            </CardHeader>
+          <Card className="flex-row items-center justify-between p-4">
+            <div className="space-y-0.5">
+              <label className="text-lg">Estado</label>
+              <p className="text-sm text-gray-500">
+                Verifica si el producto estará habilitado
+              </p>
+            </div>
             <CardContent>
-              <Controller
-                name="habilitado"
-                control={control}
-                defaultValue={true}
-                render={({ field }) => (
-                  <Select
-                    onValueChange={(value) => field.onChange(value === '1')}
-                    value={field.value ? '1' : '0'}
-                  >
-                    <SelectTrigger className="hover:bg-secondary">
-                      <SelectValue placeholder="Seleccionar" />
-                    </SelectTrigger>
-                    <SelectContent
-                      position="popper"
-                      sideOffset={5}
-                      hideWhenDetached
-                    >
-                      <SelectItem value="1">Activo</SelectItem>
-                      <SelectItem value="0">Inactivo</SelectItem>
-                    </SelectContent>
-                  </Select>
-                )}
+              <Switch
+                checked={habilitado}
+                onCheckedChange={(value) => setValue('habilitado', value)}
               />
-
-              {errors.habilitado && (
-                <p className="text-red-600 text-xs">
-                  {errors.habilitado.message}
-                </p>
-              )}
             </CardContent>
           </Card>
 
@@ -222,15 +197,7 @@ export default function Page({ params }: Props) {
         </div>
 
         <div className="w-full lg:w-[40%] relative flex flex-col gap-5">
-          <Card className="w-full">
-            <CardHeader>
-              <CardTitle className="text-xl font-normal">
-                Rol asignado
-              </CardTitle>
-            </CardHeader>
-            <CardContent></CardContent>
-          </Card>
-
+          <ChangePasswordDialog id={Number(id)} />
           <Button type="submit" disabled={getLoading || loading}>
             {getLoading || loading ? (
               <AiOutlineLoading
@@ -243,17 +210,16 @@ export default function Page({ params }: Props) {
           </Button>
         </div>
       </form>
-      <FetchDniDialog open={open} handleOpenChange={handleOpenChange}>
-        <DniQueryForm
-          handleOpenChange={handleOpenChange}
-          handleFetchReniec={handleFetchReniec}
-        />
-      </FetchDniDialog>
+      <FetchReniecDialog
+        open={open}
+        handleFetchReniec={handleFetchReniec}
+        handleOpenChange={handleOpenChange}
+      />
     </>
   )
 }
 
-function extractEditableFields(user: User): UserEditFormData {
-  const { id, creado, actualizado, nombre, apellidos, ...editable } = user
-  return editable
+function extractEditableFields(user: User): editUserSchemaType {
+  const { dni, correo, habilitado } = user
+  return { dni, correo: extractAdminCode(correo) ?? '', habilitado }
 }

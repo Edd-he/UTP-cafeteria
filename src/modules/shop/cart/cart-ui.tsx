@@ -18,7 +18,7 @@ import {
 } from '@shared/components/ui/dialog'
 import { Button } from '@shared/components/ui/button'
 
-import RemoveProductButton from './remove-product-button'
+import RemoveCartProductButton from './remove-cart-product-button'
 
 import { useMediaQuery } from '@/modules/shared/hooks/use-media-query'
 import { useCartStore } from '@/store/cart-store'
@@ -87,7 +87,7 @@ const Content = ({ click }: { click: () => void }) => {
                   </span>
                 </div>
               </div>
-              <RemoveProductButton product={product} />
+              <RemoveCartProductButton product={product} />
             </div>
           ))
         ) : (

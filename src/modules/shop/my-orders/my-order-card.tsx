@@ -1,4 +1,6 @@
-import { Timer, DollarSign } from 'lucide-react'
+import { Timer, DollarSign, Calendar } from 'lucide-react'
+
+import CancelOrderDialog from './cancel-order-dialog'
 
 import {
   Card,
@@ -7,9 +9,14 @@ import {
   CardFooter,
 } from '@/modules/shared/components/ui/card'
 import { Badge } from '@/modules/shared/components/ui/badge'
-import { Order, OrderStatus } from '@/modules/shared/interfaces'
+import { Order, OrderStatus } from '@/modules/shared/types'
 
-export function MyOrderCard({ order }: { order: Order }) {
+type Props = {
+  order: Order
+  isToday: boolean
+  refresh?: () => void
+}
+export function MyOrderCard({ order, isToday, refresh }: Props) {
   return (
     <Card className="w-full">
       <CardHeader className="pb-2">
@@ -20,9 +27,28 @@ export function MyOrderCard({ order }: { order: Order }) {
       </CardHeader>
       <CardContent className="pb-2">
         <div className="space-y-2">
-          <div className="flex items-center gap-2 text-sm">
-            <Timer className="h-4 w-4 text-muted-foreground" />
-            <span>{order.hora_programada.split(' ')[1]}</span>
+          <div
+            className={`flex items-start gap-2 text-sm ${
+              isToday ? 'flex-row items-center' : 'flex-col'
+            }`}
+          >
+            {isToday ? (
+              <>
+                <Timer className="size-4 text-muted-foreground" />
+                <span>{order.hora_programada.split(' ')[1]}</span>
+              </>
+            ) : (
+              <>
+                <div className="flex items-center gap-1">
+                  <Calendar className="size-4 text-muted-foreground" />
+                  <span>{order.hora_programada.split(' ')[0]}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Timer className="size-4 text-muted-foreground" />
+                  <span>{order.hora_programada.split(' ')[1]}</span>
+                </div>
+              </>
+            )}
           </div>
           <div className="mt-2">
             <div className="text-sm font-medium">Productos:</div>
@@ -36,11 +62,16 @@ export function MyOrderCard({ order }: { order: Order }) {
           </div>
         </div>
       </CardContent>
-      <CardFooter>
+      <CardFooter className="flex justify-between items-center">
         <div className="flex items-center gap-2 font-bold">
-          <DollarSign className="h-4 w-4" />
+          <DollarSign className="size-4" />
           <span>Total: S/{order.monto_total}</span>
         </div>
+        {order.estado === 'ABANDONADA' || order.estado === 'CANCELADA' ? (
+          <></>
+        ) : (
+          <CancelOrderDialog order={order} onSuccess={refresh} />
+        )}
       </CardFooter>
     </Card>
   )

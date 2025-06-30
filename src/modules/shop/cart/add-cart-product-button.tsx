@@ -9,7 +9,7 @@ import { sleep } from '@/lib/utils'
 import type {
   CartProduct,
   Product,
-} from '@/modules/shared/interfaces/product.interfaces'
+} from '@/modules/shared/types/product.interfaces'
 
 type Props = {
   product: Product

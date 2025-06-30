@@ -10,7 +10,7 @@ import {
 
 import { ChangeStockForm } from './change-stock-form'
 
-import { ProductInventory } from '@/modules/shared/interfaces/inventory.interfaces'
+import { ProductInventory } from '@/modules/shared/types/inventory.interfaces'
 
 type Props = {
   product: ProductInventory | undefined

@@ -2,14 +2,14 @@
 import { CiTrash } from 'react-icons/ci'
 import { Button } from '@shared/components/ui/button'
 
-import { CartProduct } from '@/modules/shared/interfaces/product.interfaces'
+import { CartProduct } from '@/modules/shared/types/product.interfaces'
 import { useCartStore } from '@/store/cart-store'
 
 type Props = {
   product: CartProduct
 }
 
-export default function RemoveProductButton({ product }: Props) {
+export default function RemoveCartProductButton({ product }: Props) {
   const removeProduct = useCartStore((state) => state.removeProduct)
 
   return (
