@@ -12,6 +12,10 @@ import { z } from 'zod'
 import { Button } from '@/modules/shared/components/ui/button'
 import { Input } from '@/modules/shared/components/ui/input'
 import { loginSchema } from '@/modules/auth/schemas/login-schema'
+import {
+  redirectAdmin,
+  redirectShop,
+} from '@/modules/auth/server_actions/redirect'
 
 type LoginSchemaType = z.infer<typeof loginSchema>
 
@@ -41,6 +45,7 @@ export default function Page() {
         }
       }
       setLoading(false)
+      toast.success('Inicio de sesión exitoso')
     } catch (error: any) {
       setLoading(false)
       const errorMessage = error.message
@@ -55,14 +60,17 @@ export default function Page() {
   }, [prefetch])
 
   useEffect(() => {
-    if (session?.user?.rol) {
-      const rol = session.user.rol
-      if (rol === 'ADMINISTRADOR') {
-        push('/admin/orders')
-        return
+    const handleRedirect = async () => {
+      if (session?.user?.rol) {
+        const rol = session.user.rol
+        if (rol === 'ADMINISTRADOR') {
+          await redirectAdmin()
+          return
+        }
+        await redirectShop()
       }
-      push('/shop')
     }
+    handleRedirect()
   }, [session, push])
 
   return (

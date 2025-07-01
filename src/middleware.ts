@@ -12,7 +12,7 @@ export async function middleware(req: NextRequest) {
     secret: process.env.NEXTAUTH_SECRET,
   })
 
-  const url = req.nextUrl.pathname
+  const { pathname } = req.nextUrl
 
   if (!token) {
     return NextResponse.redirect(new URL('/', req.url))
@@ -20,11 +20,11 @@ export async function middleware(req: NextRequest) {
 
   const role = token.user?.rol
 
-  if (url.startsWith('/admin') && role !== 'ADMINISTRADOR') {
-    return NextResponse.redirect(new URL('/not-found', req.url))
+  if (pathname.startsWith('/admin') && role !== 'ADMINISTRADOR') {
+    return NextResponse.redirect(new URL('/', req.url))
   }
 
-  if (url.startsWith('/shop') && role !== 'ESTUDIANTE') {
+  if (pathname.startsWith('/shop') && role !== 'ESTUDIANTE') {
     return NextResponse.redirect(new URL('/', req.url))
   }
 
