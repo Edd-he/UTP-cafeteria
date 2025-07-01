@@ -13,6 +13,7 @@ import { CartTable } from '@shop/cart/cart-table'
 
 import { CartDetails } from '@/modules/shop/cart/cart-details'
 import PayOrderButton from '@/modules/shop/cart/pay-order-button'
+import PaymentMethodSelector from '@/modules/shop/cart/payment-method-selector'
 
 export default function Page() {
   return (
@@ -52,6 +53,7 @@ export default function Page() {
           </CardHeader>
           <CardContent className="relative flex flex-col gap-10 border-t-2 border-border p-6">
             <CartDetails />
+            <PaymentMethodSelector />
           </CardContent>
           <CardFooter className="p-6 flex flex-col gap-5">
             <Button variant={'outline'} asChild className="w-full">

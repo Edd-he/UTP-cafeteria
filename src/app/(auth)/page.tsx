@@ -54,22 +54,23 @@ export default function Page() {
     }
   }
 
+  const handleRedirect = async () => {
+    if (session?.user?.rol) {
+      const rol = session.user.rol
+      if (rol === 'ADMINISTRADOR') {
+        await redirectAdmin()
+        return
+      }
+      await redirectShop()
+    }
+  }
+
   useEffect(() => {
     prefetch('/shop')
     prefetch('/admin/orders')
   }, [prefetch])
 
   useEffect(() => {
-    const handleRedirect = async () => {
-      if (session?.user?.rol) {
-        const rol = session.user.rol
-        if (rol === 'ADMINISTRADOR') {
-          await redirectAdmin()
-          return
-        }
-        await redirectShop()
-      }
-    }
     handleRedirect()
   }, [session, push])
 
