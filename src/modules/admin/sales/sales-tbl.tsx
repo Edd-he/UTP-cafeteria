@@ -48,7 +48,7 @@ export default function SalesTbl({ page, limit, method, query }: Props) {
   const { data: fetch, loading, error } = useGetData<GetPayments>(GET_URL)
 
   const { data: payments, sort, updateData } = useSortableData<Payment>()
-  const [count, setCount] = useState(limit)
+  const [count, setCount] = useState(0)
 
   useEffect(() => {
     if (fetch) {

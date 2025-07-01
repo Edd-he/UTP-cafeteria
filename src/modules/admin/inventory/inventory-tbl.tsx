@@ -57,7 +57,7 @@ export default function InventoryTbl({ query, page, limit }: Props) {
     updateData,
   } = useSortableData<ProductInventory>()
 
-  const [count, setCount] = useState(limit)
+  const [count, setCount] = useState(0)
   const [open, setOpen] = useState(false)
   const [product, setProduct] = useState<ProductInventory>()
 

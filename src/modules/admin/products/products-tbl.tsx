@@ -55,7 +55,7 @@ export default function ProductsTbl({ query, status, page, limit }: Props) {
   const { data: products, sort, updateData } = useSortableData<Product>()
   const [open, setOpen] = useState(false)
   const [productDelete, setProductDelete] = useState<Product | null>(null)
-  const [count, setCount] = useState(limit)
+  const [count, setCount] = useState(0)
 
   const handleOpenChange = (newState: boolean) => {
     setOpen(newState)
