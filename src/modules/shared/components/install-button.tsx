@@ -1,4 +1,5 @@
 'use client'
+
 import { useEffect, useState } from 'react'
 import { FiDownload } from 'react-icons/fi'
 
@@ -35,18 +36,12 @@ const InstallButton = () => {
       )
   }, [isInStandalone])
 
-  const handleInstallClick = () => {
-    if (installPrompt) {
-      installPrompt.prompt()
-      installPrompt.userChoice.then((choiceResult: any) => {
-        if (choiceResult.outcome === 'accepted') {
-          console.warn('El usuario aceptó la instalación')
-        } else {
-          console.warn('El usuario rechazó la instalación')
-        }
-        setInstallPrompt(null)
-      })
-    }
+  const handleInstallClick = async () => {
+    if (!installPrompt) return
+
+    installPrompt.prompt()
+    await installPrompt.userChoice
+    setInstallPrompt(null)
   }
 
   if (isStandalone || !isCompatible) return null
@@ -56,8 +51,8 @@ const InstallButton = () => {
       {installPrompt && (
         <Button
           onClick={handleInstallClick}
-          variant={'ghost'}
-          size={'lg'}
+          variant="ghost"
+          size="lg"
           className="duration-200"
         >
           <FiDownload size={30} />

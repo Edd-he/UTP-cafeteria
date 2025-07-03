@@ -26,6 +26,7 @@ export default async function Page({ searchParams }: Props) {
   }
 
   const { access } = session.tokens
+  const { id } = session.user
   return (
     <div className="p-5 max-sm:pb-24">
       <h1 className="text-3xl font-bold mb-5">MIS ORDENES</h1>
@@ -34,6 +35,7 @@ export default async function Page({ searchParams }: Props) {
         page={currentPage}
         limit={limitValue}
         access={access}
+        userId={id}
       />
     </div>
   )

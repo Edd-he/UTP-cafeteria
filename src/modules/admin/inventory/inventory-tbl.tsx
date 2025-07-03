@@ -19,15 +19,16 @@ import {
 } from '@shared/components/ui/card'
 import { Button } from '@shared/components/ui/button'
 import { toast } from 'sonner'
+import useSWR from 'swr'
 
 import TableSkeleton from '../../shared/skeletons/table-skeleton'
 import { ChangeStockDialog } from './change-stock/change-stock-dialog'
 import GenerateInventoryButton from './generate-inventory-button'
 
-import { useGetData } from '@/modules/shared/hooks/use-get-data'
 import { BACKEND_URL } from '@/lib/constants'
 import { useSortableData } from '@/modules/shared/hooks/use-sort-data'
 import { ProductInventory } from '@/modules/shared/types/inventory.interfaces'
+import { fetcher } from '@/lib/http/fetcher'
 
 type Props = {
   query: string
@@ -44,12 +45,10 @@ type GetProductsInventory = {
 export default function InventoryTbl({ query, page, limit }: Props) {
   const GET_URL = `${BACKEND_URL}/inventario/obtener-inventario-hoy?page_size=${limit}&page=${page}&query=${query}`
 
-  const {
-    data: fetch,
-    loading,
-    refresh,
-    error,
-  } = useGetData<GetProductsInventory>(GET_URL)
+  const { data, error, isLoading, mutate } = useSWR<GetProductsInventory>(
+    GET_URL,
+    fetcher,
+  )
 
   const {
     data: products,
@@ -57,20 +56,18 @@ export default function InventoryTbl({ query, page, limit }: Props) {
     updateData,
   } = useSortableData<ProductInventory>()
 
-  const [count, setCount] = useState(0)
+  const [count, setCount] = useState(limit)
   const [open, setOpen] = useState(false)
   const [product, setProduct] = useState<ProductInventory>()
 
   useEffect(() => {
-    if (fetch) {
-      updateData(fetch.data)
-      setCount(fetch.total)
+    if (data) {
+      updateData(data.data)
+      setCount(data.total)
     }
-  }, [fetch])
+  }, [data])
 
-  useEffect(() => {
-    if (error) toast.error(error)
-  }, [error])
+  if (error) toast.error(error.message)
 
   return (
     <Card x-chunk="products-table">
@@ -84,7 +81,7 @@ export default function InventoryTbl({ query, page, limit }: Props) {
         <CardDescription>Productos en Inventario: {count}</CardDescription>
 
         <GenerateInventoryButton
-          onSuccess={refresh}
+          onSuccess={mutate}
           className="max-w-40 ml-auto"
         />
       </CardHeader>
@@ -119,8 +116,8 @@ export default function InventoryTbl({ query, page, limit }: Props) {
             </tr>
           </thead>
           <tbody className="text-xs relative">
-            {products && loading ? (
-              <TableSkeleton rows={Math.min(limit, products.length)} />
+            {products && isLoading ? (
+              <TableSkeleton rows={Math.min(limit, count)} />
             ) : products && products.length > 0 ? (
               products.map((product, index) => (
                 <tr
@@ -152,7 +149,7 @@ export default function InventoryTbl({ query, page, limit }: Props) {
                   </td>
                   <td className="rounded-r-lg space-x-2 ">
                     <Popover>
-                      <PopoverTrigger className="p-2 rounded bg-transparent hover:shadow-lg hover:shadow-secondary/50 hover:bg-background duration-300">
+                      <PopoverTrigger className="p-2 rounded hover:bg-background duration-200">
                         <MdOutlineUnfoldMore size={20} />
                       </PopoverTrigger>
                       <PopoverContent
@@ -184,13 +181,13 @@ export default function InventoryTbl({ query, page, limit }: Props) {
         </table>
       </CardContent>
       <CardFooter>
-        <Pagination totalPages={fetch?.totalPages ?? 1} />
+        <Pagination totalPages={data?.totalPages ?? 0} />
       </CardFooter>
       <ChangeStockDialog
         product={product}
         open={open}
         setOpen={setOpen}
-        refresh={refresh}
+        refresh={mutate}
       />
     </Card>
   )

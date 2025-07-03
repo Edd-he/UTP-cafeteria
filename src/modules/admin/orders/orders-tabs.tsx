@@ -7,7 +7,7 @@ const tabs = [
   { label: 'Recoger', value: 'RECOGER' },
   { label: 'Completada', value: 'COMPLETADA' },
   { label: 'Abandonadas', value: 'ABANDONADA' },
-  { label: 'Canceladas', value: 'CANCELADAS' },
+  { label: 'Canceladas', value: 'CANCELADA' },
 ]
 
 export default function OrdersTabs() {
@@ -35,7 +35,7 @@ export default function OrdersTabs() {
           <button
             key={tab.value}
             onClick={() => handleOrder(tab.value)}
-            className={`w-1/4 h-10 duration-200 cursor-pointer focus-visible:ring-ring focus-visible:ring-2 outline-none  ${
+            className={`w-1/4 h-10 duration-200 cursor-pointer focus-visible:ring-ring focus-visible:ring-2 outline-none max-lg:text-xs ${
               isActive
                 ? 'bg-primary text-white'
                 : 'active:bg-blue-light/10 hover:bg-secondary'

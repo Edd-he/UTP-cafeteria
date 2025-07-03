@@ -19,6 +19,7 @@ import {
   CarouselPrevious,
 } from '@shared/components/ui/carousel'
 import { toast } from 'sonner'
+import useSWR from 'swr'
 
 import { AddCartProductButton } from '../cart/add-cart-product-button'
 import { ProductsCarouselSkeleton } from '../skeletons/products-carousel-skeleton'
@@ -26,6 +27,7 @@ import { ProductsCarouselSkeleton } from '../skeletons/products-carousel-skeleto
 import { Product } from '@/modules/shared/types'
 import { useGetData } from '@/modules/shared/hooks/use-get-data'
 import { BACKEND_URL } from '@/lib/constants'
+import { fetcher } from '@/lib/http/fetcher'
 
 type Props = {
   category: string
@@ -36,11 +38,13 @@ type GetProducts = {
 }
 export function ProductsCarousel({ category }: Props) {
   const GET_URL = `${BACKEND_URL}/productos/obtener-productos-disponibles?page_size=8&category=${category}`
-  const { data: products, loading, error } = useGetData<GetProducts>(GET_URL)
+  const {
+    data: products,
+    error,
+    isLoading,
+  } = useSWR<GetProducts>(GET_URL, fetcher)
 
-  useEffect(() => {
-    if (error) toast.error(error)
-  }, [error])
+  if (error) toast.error(error.message)
 
   return (
     <Carousel
@@ -51,7 +55,7 @@ export function ProductsCarousel({ category }: Props) {
       }}
     >
       <CarouselContent className="-ml-2 md:-ml-3">
-        {loading ? (
+        {isLoading ? (
           <ProductsCarouselSkeleton items={6} />
         ) : products && products.data.length > 0 ? (
           products.data.map((product, index) => (

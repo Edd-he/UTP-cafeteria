@@ -19,16 +19,17 @@ import {
   PopoverTrigger,
 } from '@shared/components/ui/popover'
 import { toast } from 'sonner'
+import useSWR from 'swr'
 
 import TableSkeleton from '../../shared/skeletons/table-skeleton'
 import { DeleteUserDialog } from './delete-user-dialog'
 
 import Pagination from '@/modules/shared/components/ui/pagination'
 import { Button } from '@/modules/shared/components/ui/button'
-import { useGetData } from '@/modules/shared/hooks/use-get-data'
 import { useSortableData } from '@/modules/shared/hooks/use-sort-data'
 import { BACKEND_URL } from '@/lib/constants'
 import { User } from '@/modules/shared/types'
+import { fetcher } from '@/lib/http/fetcher'
 
 type Props = {
   query: string
@@ -43,7 +44,8 @@ type GetUsers = {
 }
 export default function UserTbl({ page, limit, status, query }: Props) {
   const GET_URL = `${BACKEND_URL}/usuarios/obtener-administradores?page=${page}&query=${query}&enable=${status}&page_size=${limit}`
-  const { data: fetch, refresh, loading, error } = useGetData<GetUsers>(GET_URL)
+
+  const { data, error, isLoading, mutate } = useSWR<GetUsers>(GET_URL, fetcher)
 
   const { data: users, updateData, sort } = useSortableData<User>()
 
@@ -56,15 +58,13 @@ export default function UserTbl({ page, limit, status, query }: Props) {
   }
 
   useEffect(() => {
-    if (fetch) {
-      updateData(fetch.data)
-      setCount(fetch.total)
+    if (data) {
+      updateData(data.data)
+      setCount(data.total)
     }
-  }, [fetch])
+  }, [data])
 
-  useEffect(() => {
-    if (error) toast.error(error)
-  }, [error])
+  if (error) toast.error(error.message)
 
   return (
     <Card x-chunk="users-table">
@@ -107,7 +107,7 @@ export default function UserTbl({ page, limit, status, query }: Props) {
             </tr>
           </thead>
           <tbody className="text-xs relative">
-            {loading ? (
+            {isLoading ? (
               <TableSkeleton rows={Math.min(limit, count)} />
             ) : users && users.length > 0 ? (
               users.map((user, index) => (
@@ -128,16 +128,13 @@ export default function UserTbl({ page, limit, status, query }: Props) {
                   <td className="max-xl:hidden">{user.actualizado}</td>
                   <td className="rounded-r-lg space-x-2">
                     <Popover>
-                      <PopoverTrigger className="p-2 rounded hover:shadow-xl hover:shadow-pressed/50 hover:bg-background duration-200">
+                      <PopoverTrigger className="p-2 rounded hover:bg-background duration-200">
                         <MdOutlineUnfoldMore size={20} />
                       </PopoverTrigger>
                       <PopoverContent
                         align="end"
                         className="flex flex-col gap-2 items-start max-w-40 p-2 text-xs"
                       >
-                        {/* <Link href={`/admin/users/${user.id}`} className="flex items-center gap-2 hover:bg-secondary p-2 w-full rounded-sm ">
-                                                        <AiOutlineInfoCircle size={18} /> Información
-                                                    </Link> */}
                         <Link
                           href={`/admin/users/edit/${user.id}`}
                           className="flex items-center gap-2 hover:bg-secondary p-2 w-full rounded-sm"
@@ -168,13 +165,13 @@ export default function UserTbl({ page, limit, status, query }: Props) {
         </table>
       </CardContent>
       <CardFooter>
-        <Pagination totalPages={fetch?.totalPages ?? 1} />
+        <Pagination totalPages={data?.totalPages ?? 0} />
       </CardFooter>
       <DeleteUserDialog
         open={open}
         user={userDelete}
         handleOpenChange={handleOpenChange}
-        handleRefresh={refresh}
+        handleRefresh={mutate}
       />
     </Card>
   )

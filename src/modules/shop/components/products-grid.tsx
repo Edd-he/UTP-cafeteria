@@ -1,6 +1,5 @@
 'use client'
 
-import { useEffect } from 'react'
 import CustomImage from '@shared/components/custom-image'
 import {
   Card,
@@ -11,13 +10,14 @@ import {
   CardTitle,
 } from '@shared/components/ui/card'
 import { toast } from 'sonner'
+import useSWR from 'swr'
 
 import { AddCartProductButton } from '../cart/add-cart-product-button'
 
 import ProductsGridSkeleton from '@/modules/shop/skeletons/products-grid-skeleton'
 import { Product } from '@/modules/shared/types/product.interfaces'
-import { useGetData } from '@/modules/shared/hooks/use-get-data'
 import { BACKEND_URL } from '@/lib/constants'
+import { fetcher } from '@/lib/http/fetcher'
 
 type Props = {
   category?: string
@@ -34,15 +34,17 @@ type GetProducts = {
 
 export default function ProductsGrid({ query, max, order, category }: Props) {
   const GET_URL = `${BACKEND_URL}/productos/obtener-productos-disponibles?max_price=${max}&query=${query}&order=${order}${category ? `&category=${category}` : ''}`
-  const { data: products, loading, error } = useGetData<GetProducts>(GET_URL)
+  const {
+    data: products,
+    error,
+    isLoading,
+  } = useSWR<GetProducts>(GET_URL, fetcher)
 
-  useEffect(() => {
-    if (error) toast.error(error)
-  }, [error])
+  if (error) toast.error(error.message)
 
   return (
     <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 sm:gap-5">
-      {loading ? (
+      {isLoading ? (
         <ProductsGridSkeleton items={15} />
       ) : products && products.data.length > 0 ? (
         products.data.map((product, index) => (

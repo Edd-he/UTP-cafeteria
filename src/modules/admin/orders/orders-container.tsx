@@ -3,6 +3,7 @@
 'use client'
 import { toast } from 'sonner'
 import { useEffect, useState } from 'react'
+import { AiOutlineLoading, AiOutlineReload } from 'react-icons/ai'
 
 import { OrderCard } from './order-card'
 import ChangeOrderStatusDialog from './change-order-status-dialog'
@@ -13,6 +14,7 @@ import { useSortableData } from '@/modules/shared/hooks/use-sort-data'
 import { Order } from '@/modules/shared/types/order.interfaces'
 import OrdersSkeleton from '@/modules/shared/skeletons/orders-skeleton'
 import Pagination from '@/modules/shared/components/ui/pagination'
+import { Button } from '@/modules/shared/components/ui/button'
 
 type Props = {
   query: string
@@ -27,8 +29,13 @@ type GetOrders = {
   totalPages: number
 }
 export default function OrdersContainer({ query, page, limit, status }: Props) {
-  const getUrl = `${BACKEND_URL}/ordenes/obtener-ordenes-hoy?page_size=${limit}&page=${page}&query=${query}&status=${status}`
-  const { data: fetch, loading, refresh, error } = useGetData<GetOrders>(getUrl)
+  const GET_URL = `${BACKEND_URL}/ordenes/obtener-ordenes-hoy?page_size=${limit}&page=${page}&query=${query}&status=${status}`
+  const {
+    data: fetch,
+    loading,
+    refresh,
+    error,
+  } = useGetData<GetOrders>(GET_URL)
 
   const { data: orders, updateData } = useSortableData<Order>()
   const [count, setCount] = useState(limit)
@@ -57,13 +64,29 @@ export default function OrdersContainer({ query, page, limit, status }: Props) {
 
   return (
     <>
-      <Pagination totalPages={fetch?.totalPages ?? 1} />
+      <div className="mb-5 flex w-full justify-between items-center">
+        <Pagination totalPages={fetch?.totalPages ?? 0} />
+        <Button onClick={refresh} disabled={loading} className="w-20">
+          {loading ? (
+            <>
+              <AiOutlineLoading
+                size={18}
+                className="animate-spin ease-in-out"
+              />
+            </>
+          ) : (
+            <>
+              <AiOutlineReload size={18} />
+            </>
+          )}
+        </Button>
+      </div>
       {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
           <OrdersSkeleton count={6} />
         </div>
       ) : fetch?.data !== undefined && fetch?.data.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3  gap-4">
           {orders.map((order) => (
             <OrderCard
               key={order.id}

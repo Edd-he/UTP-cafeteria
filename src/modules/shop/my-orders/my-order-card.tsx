@@ -67,7 +67,9 @@ export function MyOrderCard({ order, isToday, refresh }: Props) {
           <DollarSign className="size-4" />
           <span>Total: S/{order.monto_total}</span>
         </div>
-        {order.estado === 'ABANDONADA' || order.estado === 'CANCELADA' ? (
+        {order.estado === 'ABANDONADA' ||
+        order.estado === 'CANCELADA' ||
+        order.estado === 'COMPLETADA' ? (
           <></>
         ) : (
           <CancelOrderDialog order={order} onSuccess={refresh} />

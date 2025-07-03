@@ -22,14 +22,15 @@ import {
   PopoverTrigger,
 } from '@shared/components/ui/popover'
 import { toast } from 'sonner'
+import useSWR from 'swr'
 
 import TableSkeleton from '../../shared/skeletons/table-skeleton'
 import { DeleteProductFormDialog } from './delete-product-dialog'
 
 import { Product } from '@/modules/shared/types/product.interfaces'
-import { useGetData } from '@/modules/shared/hooks/use-get-data'
 import { BACKEND_URL } from '@/lib/constants'
 import { useSortableData } from '@/modules/shared/hooks/use-sort-data'
+import { fetcher } from '@/lib/http/fetcher'
 
 type Props = {
   query: string
@@ -45,32 +46,28 @@ type GetProducts = {
 
 export default function ProductsTbl({ query, status, page, limit }: Props) {
   const GET_URL = `${BACKEND_URL}/productos/obtener-productos?page=${page}&query=${query}&enable=${status}&page_size=${limit}`
-  const {
-    data: fetch,
-    loading,
-    refresh,
-    error,
-  } = useGetData<GetProducts>(GET_URL)
+  const { data, error, isLoading, mutate } = useSWR<GetProducts>(
+    GET_URL,
+    fetcher,
+  )
 
   const { data: products, sort, updateData } = useSortableData<Product>()
   const [open, setOpen] = useState(false)
   const [productDelete, setProductDelete] = useState<Product | null>(null)
-  const [count, setCount] = useState(0)
+  const [count, setCount] = useState(limit)
 
   const handleOpenChange = (newState: boolean) => {
     setOpen(newState)
   }
 
   useEffect(() => {
-    if (fetch) {
-      updateData(fetch.data)
-      setCount(fetch.total)
+    if (data) {
+      updateData(data.data)
+      setCount(data.total)
     }
-  }, [fetch])
+  }, [data])
 
-  useEffect(() => {
-    if (error) toast.error(error)
-  }, [error])
+  if (error) toast.error(error.message)
   return (
     <Card>
       <CardHeader>
@@ -107,8 +104,8 @@ export default function ProductsTbl({ query, status, page, limit }: Props) {
             </tr>
           </thead>
           <tbody className="text-xs relative">
-            {loading ? (
-              <TableSkeleton rows={Math.min(limit, products.length)} />
+            {isLoading ? (
+              <TableSkeleton rows={Math.min(limit, count)} />
             ) : products && products.length > 0 ? (
               products.map((product, index) => (
                 <tr
@@ -132,7 +129,7 @@ export default function ProductsTbl({ query, status, page, limit }: Props) {
                   <td className="max-lg:hidden">{product.actualizado}</td>
                   <td className="rounded-r-lg space-x-2 ">
                     <Popover>
-                      <PopoverTrigger className="p-2 rounded bg-transparent hover:shadow-lg hover:shadow-secondary/50 hover:bg-background duration-300">
+                      <PopoverTrigger className="p-2 rounded hover:bg-background duration-200">
                         <MdOutlineUnfoldMore size={20} />
                       </PopoverTrigger>
                       <PopoverContent
@@ -169,13 +166,13 @@ export default function ProductsTbl({ query, status, page, limit }: Props) {
         </table>
       </CardContent>
       <CardFooter>
-        <Pagination totalPages={fetch?.totalPages ?? 1} />
+        <Pagination totalPages={data?.totalPages ?? 0} />
       </CardFooter>
       <DeleteProductFormDialog
         open={open}
         product={productDelete}
         handleOpenChange={handleOpenChange}
-        handleRefresh={refresh}
+        handleRefresh={mutate}
       />
     </Card>
   )

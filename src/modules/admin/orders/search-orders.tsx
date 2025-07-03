@@ -29,7 +29,7 @@ export default function SearchOrders() {
           debouncedHandleSearch(e.target.value)
         }}
         defaultValue={searchParams.get('query')?.toString()}
-        placeholder="Buscar por ID, cliente o pedido"
+        placeholder="Buscar por nombre del Cliente"
         className="rounded-lg bg-background pl-8 w-full h-12 focus-visible:h-16 transition-[height] duration-200"
       />
     </label>

@@ -20,14 +20,15 @@ import {
 } from '@shared/components/ui/popover'
 import Pagination from '@shared/components/ui/pagination'
 import { toast } from 'sonner'
+import useSWR from 'swr'
 
 import TableSkeleton from '../../shared/skeletons/table-skeleton'
 
-import { useGetData } from '@/modules/shared/hooks/use-get-data'
 import { BACKEND_URL } from '@/lib/constants'
 import { Payment } from '@/modules/shared/types/payments.interfaces'
 import { useSortableData } from '@/modules/shared/hooks/use-sort-data'
 import { Button } from '@/modules/shared/components/ui/button'
+import { fetcher } from '@/lib/http/fetcher'
 
 type Props = {
   query: string
@@ -45,21 +46,20 @@ export default function SalesTbl({ page, limit, method, query }: Props) {
   const GET_URL = `${BACKEND_URL}/pagos/obtener-pagos?page=${page}&query=${query}&page_size=${limit}${
     method !== 'all' ? `&method=${method}` : ''
   }`
-  const { data: fetch, loading, error } = useGetData<GetPayments>(GET_URL)
+
+  const { data, error, isLoading } = useSWR<GetPayments>(GET_URL, fetcher)
 
   const { data: payments, sort, updateData } = useSortableData<Payment>()
-  const [count, setCount] = useState(0)
+  const [count, setCount] = useState(limit)
 
   useEffect(() => {
-    if (fetch) {
-      updateData(fetch.data)
-      setCount(fetch.total)
+    if (data) {
+      updateData(data.data)
+      setCount(data.total)
     }
-  }, [fetch])
+  }, [data])
 
-  useEffect(() => {
-    if (error) toast.error(error)
-  }, [error])
+  if (error) toast.error(error.message)
   return (
     <Card x-chunk="sales-table">
       <CardHeader>
@@ -91,8 +91,8 @@ export default function SalesTbl({ page, limit, method, query }: Props) {
             </tr>
           </thead>
           <tbody className="text-xs relative">
-            {loading ? (
-              <TableSkeleton rows={limit} />
+            {isLoading ? (
+              <TableSkeleton rows={Math.min(limit, count)} />
             ) : payments && payments.length > 0 ? (
               payments.map((payment, index) => (
                 <tr
@@ -136,7 +136,7 @@ export default function SalesTbl({ page, limit, method, query }: Props) {
         </table>
       </CardContent>
       <CardFooter>
-        <Pagination totalPages={fetch?.totalPages ?? 1} />
+        <Pagination totalPages={data?.totalPages ?? 0} />
       </CardFooter>
     </Card>
   )
