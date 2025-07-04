@@ -52,7 +52,7 @@ export default function EnableNotificationsButton() {
         applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
       })
 
-      const res = await fetch(`${BACKEND_URL}/events/save-subscription`, {
+      const res = await fetch(`${BACKEND_URL}/eventos/guardar-subscripcion`, {
         method: 'POST',
         body: JSON.stringify({
           userId: session.user.id,
