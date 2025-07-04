@@ -9,7 +9,10 @@ self.addEventListener('push', function (event) {
     data = event.data.json()
   } catch (err) {
     console.error('Error parsing push event data:', err)
-    return
+    data = {
+      title: 'Notificación',
+      body: event.data.text(),
+    }
   }
 
   const title = data.title || 'Notificación'
@@ -20,10 +23,4 @@ self.addEventListener('push', function (event) {
   }
 
   event.waitUntil(self.registration.showNotification(title, options))
-})
-
-self.addEventListener('notificationclick', function (event) {
-  event.notification.close()
-  const url = event.notification.data || '/'
-  event.waitUntil(clients.openWindow(url))
 })
