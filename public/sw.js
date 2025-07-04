@@ -19,7 +19,7 @@ self.addEventListener('push', function (event) {
   const options = {
     body: data.body || 'Tienes una nueva notificación.',
     icon: '/icon.ico',
-    data: data.url || '/',
+    data: data.url || '/shop',
   }
 
   event.waitUntil(self.registration.showNotification(title, options))
