@@ -17,7 +17,7 @@ export default function ImageUploader({
   defaultImage,
 }: Props) {
   const inputRef = useRef<HTMLInputElement | null>(null)
-  const MAX_SIZE_MB = 1
+  const MAX_SIZE_MB = 5
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {

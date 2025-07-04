@@ -47,7 +47,7 @@ export const productSchema = z.object({
     .min(1, { message: 'El límite no puede ser menor a 0' }),
   file: z
     .instanceof(File, { message: 'Debes seleccionar un archivo.' })
-    .refine((file) => file.size <= 1 * 1024 * 1024, {
+    .refine((file) => file.size <= 5 * 1024 * 1024, {
       message: 'El archivo debe ser menor a 5MB.',
     })
     .refine(
