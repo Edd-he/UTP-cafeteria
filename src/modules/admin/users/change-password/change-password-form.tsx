@@ -21,7 +21,7 @@ type ChangePasswordSchemaType = z.infer<typeof changePasswordSchema>
 
 export default function ChangePasswordForm({ id, onSuccess }: Props) {
   const { sendRequest, loading } = useSendRequest(
-    `${BACKEND_URL}/users/${id}/actualizar-contraseña`,
+    `${BACKEND_URL}/usuarios/${id}/actualizar-contra`,
     'PATCH',
   )
   const {

@@ -68,13 +68,14 @@ export function ProductsCarousel({ category }: Props) {
               <Card className="p-3 h-80 relative flex flex-col justify-between hover:bg-muted/40 duration-200">
                 <CardHeader className="p-0">
                   <CardTitle className="text-base">{product.nombre}</CardTitle>
-                  <CardDescription className="text-base max-sm:text-xs">
+                  <CardDescription className="text-base max-sm:text-xs  truncate">
                     {product.descripcion}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="p-0 py-2 flex-center">
                   <CustomImage
                     src={product.url}
+                    className="size-35"
                     width={140}
                     height={140}
                     alt="a"

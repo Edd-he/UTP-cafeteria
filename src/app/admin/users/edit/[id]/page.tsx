@@ -113,7 +113,7 @@ export default function Page({ params }: Props) {
   const habilitado = watch('habilitado')
   return (
     <>
-      <section className="max-w-screen-xl w-full mx-auto flex items-center justify-start gap-5">
+      <section className="max-w-screen-xl w-full mx-auto flex items-center justify-between gap-5 max-xs:flex-col">
         <div className="flex-center gap-5">
           <Button asChild variant={'outline'} size={'icon'}>
             <Link href={'/admin/users'}>
@@ -124,7 +124,6 @@ export default function Page({ params }: Props) {
           <h1 className="text-3xl">Editar Usuario</h1>
         </div>
         <ChangePasswordDialog id={Number(id)} />
-        <h1 className="text-3xl">Editar Usuario</h1>
       </section>
 
       <form

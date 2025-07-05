@@ -16,6 +16,7 @@ import {
   redirectAdmin,
   redirectShop,
 } from '@/modules/auth/server_actions/redirect'
+import Logo from '@/modules/shared/components/logo'
 
 type LoginSchemaType = z.infer<typeof loginSchema>
 
@@ -77,6 +78,9 @@ export default function Page() {
   return (
     <>
       <div className="w-full max-w-md px-5">
+        <div className="flex justify-start mb-5">
+          <Logo />
+        </div>
         <p className="text-xl mb-10 font-semibold">
           Rápido, fácil, a tu manera — pide desde la web app.
         </p>
