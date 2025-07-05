@@ -4,7 +4,7 @@ export const loginSchema = z.object({
   correo: z
     .string()
     .length(9, { message: 'Código inválido' })
-    .regex(/^[UuAa]\d{8}$/, {
+    .regex(/^[UuAaCc]\d{8}$/, {
       message: 'Código inválido',
     })
     .transform((value) => {

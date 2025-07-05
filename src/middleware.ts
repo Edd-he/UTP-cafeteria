@@ -24,7 +24,11 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(new URL('/', req.url))
   }
 
-  if (pathname.startsWith('/shop') && role !== 'ESTUDIANTE') {
+  if (
+    pathname.startsWith('/shop') &&
+    role !== 'ESTUDIANTE' &&
+    role !== 'PROFESOR'
+  ) {
     return NextResponse.redirect(new URL('/', req.url))
   }
 

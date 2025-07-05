@@ -24,7 +24,10 @@ export default function EnableNotificationsButton() {
       return
     }
 
-    if (!session?.user?.id || session.user.rol !== 'ESTUDIANTE') {
+    if (
+      !session?.user?.id ||
+      (session.user.rol !== 'ESTUDIANTE' && session.user.rol !== 'PROFESOR')
+    ) {
       setErrorMessage('Usuario no autorizado para recibir notificaciones.')
       setStatus('error')
       return
@@ -52,16 +55,19 @@ export default function EnableNotificationsButton() {
         applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
       })
 
-      const res = await fetch(`${BACKEND_URL}/eventos/guardar-subscripcion`, {
-        method: 'POST',
-        body: JSON.stringify({
-          userId: session.user.id,
-          subscription,
-        }),
-        headers: {
-          'Content-Type': 'application/json',
+      const res = await fetch(
+        `${BACKEND_URL}/notificaciones/guardar-subscripcion`,
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            userId: session.user.id,
+            subscription,
+          }),
+          headers: {
+            'Content-Type': 'application/json',
+          },
         },
-      })
+      )
 
       if (res.ok) {
         setStatus('done')
