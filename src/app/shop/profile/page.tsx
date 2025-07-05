@@ -10,7 +10,7 @@ import {
   CardDescription,
   CardContent,
 } from '@/modules/shared/components/ui/card'
-import { extractStudentCode } from '@/lib/format-code'
+import { extractStudentCode, extractTeacherCode } from '@/lib/format-code'
 import EnableNotificationsButton from '@/modules/shop/profile/enable-notifications-button'
 
 export default async function Page() {
@@ -41,7 +41,11 @@ export default async function Page() {
               <div className="grid gap-2">
                 <label htmlFor="email">Código:</label>
                 <p className="text-base font-semibold">
-                  {extractStudentCode(correo)}
+                  {session.user.rol === 'PROFESOR' ? (
+                    <> {extractTeacherCode(correo)}</>
+                  ) : (
+                    <>{extractStudentCode(correo)}</>
+                  )}
                 </p>
               </div>
             </form>
