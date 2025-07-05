@@ -10,6 +10,7 @@ import { z } from 'zod'
 import { changePasswordSchema } from '../../schemas/change-password.schema'
 
 import { useSendRequest } from '@/modules/shared/hooks/use-send-request'
+import { BACKEND_URL } from '@/lib/constants'
 
 type Props = {
   id: number
@@ -20,7 +21,7 @@ type ChangePasswordSchemaType = z.infer<typeof changePasswordSchema>
 
 export default function ChangePasswordForm({ id, onSuccess }: Props) {
   const { sendRequest, loading } = useSendRequest(
-    `/api/users/${id}/change-password`,
+    `${BACKEND_URL}/users/${id}/actualizar-contraseña`,
     'PATCH',
   )
   const {
@@ -46,18 +47,6 @@ export default function ChangePasswordForm({ id, onSuccess }: Props) {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      <div className="grid gap-2">
-        <label htmlFor="current-password">Contraseña Actual</label>
-        <Input
-          id="current-password"
-          type="password"
-          {...register('contraseña')}
-          placeholder="********"
-        />
-        {errors.contraseña && (
-          <p className="text-red-600 text-xs">{errors.contraseña.message}</p>
-        )}
-      </div>
       <div className="grid gap-2">
         <label htmlFor="new-password">Nueva Contraseña</label>
         <Input

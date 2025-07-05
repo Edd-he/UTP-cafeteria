@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { Bell } from 'lucide-react'
 
-import { Button } from './ui/button'
+import { Button } from '../../shared/components/ui/button'
 
 import { BACKEND_URL } from '@/lib/constants'
 

@@ -114,12 +114,16 @@ export default function Page({ params }: Props) {
   return (
     <>
       <section className="max-w-screen-xl w-full mx-auto flex items-center justify-start gap-5">
-        <Button asChild variant={'outline'} size={'icon'}>
-          <Link href={'/admin/users'}>
-            <MdOutlineChevronLeft size={25} />
-          </Link>
-        </Button>
+        <div className="flex-center gap-5">
+          <Button asChild variant={'outline'} size={'icon'}>
+            <Link href={'/admin/users'}>
+              <MdOutlineChevronLeft size={25} />
+            </Link>
+          </Button>
 
+          <h1 className="text-3xl">Editar Usuario</h1>
+        </div>
+        <ChangePasswordDialog id={Number(id)} />
         <h1 className="text-3xl">Editar Usuario</h1>
       </section>
 
@@ -197,7 +201,6 @@ export default function Page({ params }: Props) {
         </div>
 
         <div className="w-full lg:w-[40%] relative flex flex-col gap-5">
-          <ChangePasswordDialog id={Number(id)} />
           <Button type="submit" disabled={getLoading || loading}>
             {getLoading || loading ? (
               <AiOutlineLoading

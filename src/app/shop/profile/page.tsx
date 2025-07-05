@@ -11,7 +11,7 @@ import {
   CardContent,
 } from '@/modules/shared/components/ui/card'
 import { extractStudentCode } from '@/lib/format-code'
-import EnableNotificationsButton from '@/modules/shared/components/enable-notifications-button'
+import EnableNotificationsButton from '@/modules/shop/profile/enable-notifications-button'
 
 export default async function Page() {
   const session = await getServerSession(authOptions)

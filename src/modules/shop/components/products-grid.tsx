@@ -50,7 +50,7 @@ export default function ProductsGrid({ query, max, order, category }: Props) {
         products.data.map((product, index) => (
           <article key={index}>
             <Card className="p-4 h-44 md:h-80 relative max-md:flex-row max-sm:items-center md:justify-between max-md:rounded-none hover:bg-muted/40 duration-200">
-              <CardHeader className="p-0 max-sm:ml-2 text-base">
+              <CardHeader className="p-0 max-sm:ml-2 text-base w-full">
                 <CardTitle>{product.nombre}</CardTitle>
                 <CardDescription>{product.descripcion}</CardDescription>
                 <span className="leading-none md:hidden">

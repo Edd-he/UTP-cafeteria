@@ -68,7 +68,7 @@ export function ProductsCarousel({ category }: Props) {
               <Card className="p-3 h-80 relative flex flex-col justify-between hover:bg-muted/40 duration-200">
                 <CardHeader className="p-0">
                   <CardTitle className="text-base">{product.nombre}</CardTitle>
-                  <CardDescription className="text-base">
+                  <CardDescription className="text-base max-sm:text-xs">
                     {product.descripcion}
                   </CardDescription>
                 </CardHeader>

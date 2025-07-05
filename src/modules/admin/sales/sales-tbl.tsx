@@ -1,10 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { MdOutlineUnfoldMore } from 'react-icons/md'
 import { HiOutlineArrowsUpDown } from 'react-icons/hi2'
-import Link from 'next/link'
-import { AiOutlineInfoCircle } from 'react-icons/ai'
 import {
   Card,
   CardContent,
@@ -13,11 +10,6 @@ import {
   CardHeader,
   CardTitle,
 } from '@shared/components/ui/card'
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@shared/components/ui/popover'
 import Pagination from '@shared/components/ui/pagination'
 import { toast } from 'sonner'
 import useSWR from 'swr'
@@ -106,7 +98,7 @@ export default function SalesTbl({ page, limit, method, query }: Props) {
                   <td className="">S/ {payment.monto_total}</td>
                   <td className="max-md:hidden">{payment.metodo_pago}</td>
                   <td className="rounded-r-lg space-x-2">
-                    <Popover>
+                    {/* <Popover>
                       <PopoverTrigger className="p-2 rounded bg-transparent hover:shadow-lg hover:shadow-secondary/50 hover:bg-background duration-300">
                         <MdOutlineUnfoldMore size={20} />
                       </PopoverTrigger>
@@ -121,7 +113,7 @@ export default function SalesTbl({ page, limit, method, query }: Props) {
                           <AiOutlineInfoCircle size={18} /> Información
                         </Link>
                       </PopoverContent>
-                    </Popover>
+                    </Popover> */}
                   </td>
                 </tr>
               ))
