@@ -1,13 +1,15 @@
 import Link from 'next/link'
 
 import { Button } from '@/modules/shared/components/ui/button'
+import Logo from '@/modules/shared/components/logo'
 
 export default function Page() {
   return (
     <div className="w-full h-[calc(100dvh-60px)] bg-background flex-center flex-col gap-5">
       <h1 className="text-3xl">Tiendas MASS</h1>
-      <h2 className="text-xl text-muted-foreground">Gracias por su Compra</h2>
-
+      <div className="flex-center">
+        <Logo />
+      </div>
       <Button asChild className="text-lg w-40">
         <Link href={'/shop'}>Regresar</Link>
       </Button>
