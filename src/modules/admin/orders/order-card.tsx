@@ -41,7 +41,9 @@ export function OrderCard({ order, onChangeStatusClick }: Props) {
             </span>
           </div>
           <div className="mt-2">
-            <div className="text-sm font-medium">Productos: {order.Orden_Item.length}</div>
+            <div className="text-sm font-medium">
+              Productos: {order.Orden_Item.length}
+            </div>
             <ul className="text-sm pl-5 list-disc h-10 custom-scrollbar overflow-y-auto relative">
               {order.Orden_Item.map((item, index) => (
                 <li key={index}>
