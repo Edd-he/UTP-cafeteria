@@ -6,7 +6,6 @@ import Logo from '@/modules/shared/components/logo'
 export default function Page() {
   return (
     <div className="w-full h-[calc(100dvh-60px)] bg-background flex-center flex-col gap-5">
-      <h1 className="text-3xl">Tiendas MASS</h1>
       <div className="flex-center">
         <Logo />
       </div>
