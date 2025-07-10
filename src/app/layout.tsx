@@ -17,11 +17,7 @@ export default function RootLayout({
 }>) {
   return (
     <>
-      <html
-        lang="es"
-        suppressHydrationWarning
-        className="scrollbar-thin scrollbar-track-background scrollbar-thumb-red-600"
-      >
+      <html lang="es" suppressHydrationWarning className="custom-scrollbar">
         <body className={`${lato.className}`}>
           <ThemeProvider forcedTheme="light" defaultTheme="light">
             <NextAuthProvider>

@@ -5,7 +5,7 @@ import { DateTime } from 'luxon'
 import useSWR from 'swr'
 
 import { MyOrderCard } from './my-order-card'
-import { usePusherOrdersListener } from '../hooks/use-pusher-orders-listener'
+import { useMyOrdersListener } from '../hooks/use-my-orders-listener'
 
 import { BACKEND_URL } from '@/lib/constants'
 import { useSortableData } from '@/modules/shared/hooks/use-sort-data'
@@ -42,7 +42,7 @@ export default function MyOrdersContainer({
   )
   const { data: orders, updateData } = useSortableData<Order>()
 
-  usePusherOrdersListener({
+  useMyOrdersListener({
     userId: userId,
     onChange: () => {
       mutate()

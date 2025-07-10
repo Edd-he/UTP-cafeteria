@@ -15,7 +15,7 @@ type Props = {
   onChange?: (data: OrderStatusData) => void
 }
 
-export function usePusherOrdersListener({ userId, onChange }: Props) {
+export function useMyOrdersListener({ userId, onChange }: Props) {
   useEffect(() => {
     if (!userId) return
 
@@ -29,10 +29,10 @@ export function usePusherOrdersListener({ userId, onChange }: Props) {
       if (onChange) onChange(data)
     }
 
-    channel.bind('new-order-status', handler)
+    channel.bind('order:new-status', handler)
 
     return () => {
-      channel.unbind('new-order-status', handler)
+      channel.unbind('order:new-status', handler)
       channel.unsubscribe()
       pusher.disconnect()
     }

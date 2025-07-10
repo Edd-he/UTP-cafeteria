@@ -58,7 +58,7 @@ const Content = ({ click }: { click: () => void }) => {
   const cartTotalPrice = useCartStore((state) => state.getFinalPrice())
   return (
     <>
-      <div className="relative w-full overflow-y-auto h-96 scrollbar-thin scrollbar-track-background scrollbar-thumb-primary">
+      <div className="relative w-full overflow-y-auto h-96 custom-scrollbar">
         {cartProducts.length > 0 ? (
           cartProducts.map((product, index) => (
             <div
@@ -71,10 +71,11 @@ const Content = ({ click }: { click: () => void }) => {
                   height={90}
                   width={90}
                   alt=""
+                  className="rounded"
                   category={product.category}
                 />
                 <div className="flex flex-col justify-center gap-1">
-                  <span className="leading-none tracking-tight font-semibold sm:text-lg max-w-[200px] sm:max-w-[400px] truncate">
+                  <span className="leading-none tracking-tight font-semibold text-sm sm:text-lg max-w-[200px] sm:max-w-[400px] truncate">
                     {product.nombre}
                   </span>
                   <span className="max-sm:text-xs text-sm text-muted-foreground">
@@ -82,7 +83,7 @@ const Content = ({ click }: { click: () => void }) => {
                     <span>S/ {product.precio}</span>
                   </span>
 
-                  <span className="leading-none tracking-tight">
+                  <span className="leading-none tracking-tight max-sm:text-sm">
                     Subtotal: S/ {product.cantidad * product.precio}
                   </span>
                 </div>

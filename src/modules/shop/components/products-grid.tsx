@@ -91,7 +91,7 @@ export default function ProductsGrid({ query, max, order, category }: Props) {
                 <CardContent className="p-0 py-2 flex-center max-md:order-first max-md:w-[40%] w-full">
                   <CustomImage
                     src={product.url}
-                    className="size-25 m-auto"
+                    className="size-25 m-auto rounded"
                     height={100}
                     width={100}
                     alt={product.nombre}

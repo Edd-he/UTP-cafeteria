@@ -30,14 +30,14 @@ export default function Page() {
               </CardDescription>
             </CardHeader>
           </Card>
-          <Card className="h-[600px] w-full ">
+          <Card className=" w-full ">
             <CardHeader>
               <CardTitle className="flex gap-2 items-center">
                 <MdShoppingCart size={28} />
                 Tu carrito
               </CardTitle>
             </CardHeader>
-            <CardContent className="overflow-auto h-[500px] w-full scrollbar-thin scrollbar-track-background scrollbar-thumb-primary relative">
+            <CardContent className="max-h-[500px] overflow-y-scroll w-full custom-scrollbar relative max-lg:px-3">
               <CartTable />
             </CardContent>
           </Card>

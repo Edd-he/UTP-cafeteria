@@ -4,9 +4,11 @@
 import { toast } from 'sonner'
 import { useEffect, useState } from 'react'
 import { AiOutlineLoading, AiOutlineReload } from 'react-icons/ai'
+import useSWR from 'swr'
 
 import { OrderCard } from './order-card'
 import ChangeOrderStatusDialog from './change-order-status-dialog'
+import { useOrdersListener } from '../hooks/use-orders-listener'
 
 import { useGetData } from '@/modules/shared/hooks/use-get-data'
 import { BACKEND_URL } from '@/lib/constants'
@@ -15,6 +17,7 @@ import { Order } from '@/modules/shared/types/order.interfaces'
 import OrdersSkeleton from '@/modules/shared/skeletons/orders-skeleton'
 import Pagination from '@/modules/shared/components/ui/pagination'
 import { Button } from '@/modules/shared/components/ui/button'
+import { fetcher } from '@/lib/http/fetcher'
 
 type Props = {
   query: string
@@ -32,10 +35,10 @@ export default function OrdersContainer({ query, page, limit, status }: Props) {
   const GET_URL = `${BACKEND_URL}/ordenes/obtener-ordenes-hoy?page_size=${limit}&page=${page}&query=${query}&status=${status}`
   const {
     data: fetch,
-    loading,
-    refresh,
+    isLoading,
+    mutate,
     error,
-  } = useGetData<GetOrders>(GET_URL)
+  } = useSWR<GetOrders>(GET_URL, fetcher)
 
   const { data: orders, updateData } = useSortableData<Order>()
   const [count, setCount] = useState(limit)
@@ -58,16 +61,23 @@ export default function OrdersContainer({ query, page, limit, status }: Props) {
     }
   }, [fetch])
 
-  useEffect(() => {
-    if (error) toast.error(error)
-  }, [error])
+  if (error) toast.error(error.message)
+
+  useOrdersListener({
+    onCancelledOrder: (data) => {
+      toast.warning(`Se ha cancelado la orden ${data.id}`, {
+        description: <p className="text-xs">{data.timestamp}</p>,
+      })
+      mutate()
+    },
+  })
 
   return (
     <>
       <div className="mb-5 flex w-full justify-between items-center">
         <Pagination totalPages={fetch?.totalPages ?? 0} />
-        <Button onClick={refresh} disabled={loading} className="w-20">
-          {loading ? (
+        <Button onClick={() => mutate()} disabled={isLoading} className="w-20">
+          {isLoading ? (
             <>
               <AiOutlineLoading
                 size={18}
@@ -81,7 +91,7 @@ export default function OrdersContainer({ query, page, limit, status }: Props) {
           )}
         </Button>
       </div>
-      {loading ? (
+      {isLoading ? (
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
           <OrdersSkeleton count={6} />
         </div>
@@ -104,7 +114,7 @@ export default function OrdersContainer({ query, page, limit, status }: Props) {
         open={isDialogOpen}
         onClose={handleCloseDialog}
         order={selectedOrder}
-        refresh={refresh}
+        refresh={mutate}
       />
     </>
   )

@@ -138,6 +138,10 @@
   margin-inline: auto;
 }
 
+@utility custom-scrollbar {
+  @apply scrollbar-thin scrollbar-thumb-primary scrollbar-track-transparent;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
